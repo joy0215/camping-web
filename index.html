@@ -3,183 +3,467 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>山海之間 Mountain & Sea | 台灣頂級露營車體驗</title>
-    <link rel="stylesheet" href="style.css">
+    <title>野徑 WILD PATH | 台灣精品露營車租賃</title>
+    <style>
+        :root {
+            --color-primary: #2c3e50;
+            --color-primary-light: #34495e;
+            --color-primary-dark: #1a252f;
+            --color-secondary: #5a6d7a;
+            --color-accent: #8b7d6b;
+            --color-bg: #f8f7f5;
+            --color-white: #ffffff;
+            --color-text: #2c2c2c;
+            --color-text-light: #6a6a6a;
+            --color-text-lighter: #999999;
+            --color-border: #d8d6d3;
+            --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.2s ease;
+            --space-sm: 16px;
+            --space-md: 24px;
+            --space-lg: 32px;
+            --space-xl: 48px;
+            --space-2xl: 64px;
+            --space-3xl: 96px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--color-text);
+            background-color: var(--color-bg);
+            -webkit-font-smoothing: antialiased;
+        }
+        img { max-width: 100%; display: block; }
+        a { text-decoration: none; color: inherit; transition: var(--transition-fast); }
+        button { font-family: inherit; border: none; background: none; cursor: pointer; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 var(--space-lg); }
+        .container-wide { max-width: 1400px; margin: 0 auto; padding: 0 var(--space-lg); }
+        
+        /* Navigation */
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--color-border); transition: var(--transition-smooth);
+        }
+        .navbar .container { display: flex; align-items: center; justify-content: space-between; height: 80px; }
+        .nav-brand { display: flex; align-items: baseline; gap: 12px; font-weight: 600; color: var(--color-primary); }
+        .brand-main { font-size: 24px; letter-spacing: 2px; }
+        .brand-sub { font-size: 11px; letter-spacing: 3px; opacity: 0.6; font-weight: 400; }
+        .nav-menu { display: flex; align-items: center; gap: var(--space-lg); list-style: none; }
+        .nav-menu a {
+            font-size: 15px; font-weight: 400; color: var(--color-text);
+            position: relative; padding: 8px 0;
+        }
+        .nav-menu a::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 1px;
+            background: var(--color-primary); transition: var(--transition-fast);
+        }
+        .nav-menu a:hover::after, .nav-menu a.active::after { width: 100%; }
+        .nav-cta {
+            background: var(--color-primary) !important; color: var(--color-white) !important;
+            padding: 10px 24px !important; border-radius: 4px; font-weight: 500;
+        }
+        .nav-cta::after { display: none; }
+        .nav-cta:hover { background: var(--color-primary-dark) !important; transform: translateY(-2px); }
+        .mobile-toggle { display: none; flex-direction: column; gap: 5px; padding: 8px; }
+        .mobile-toggle span { width: 24px; height: 2px; background: var(--color-primary); transition: var(--transition-fast); }
+        
+        /* Buttons */
+        .btn {
+            display: inline-block; padding: 14px 32px; font-size: 15px; font-weight: 500;
+            border-radius: 4px; transition: var(--transition-smooth); cursor: pointer;
+            border: 2px solid transparent; text-align: center;
+        }
+        .btn-primary { background: var(--color-primary); color: var(--color-white); }
+        .btn-primary:hover { background: var(--color-primary-dark); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .btn-secondary { background: transparent; color: var(--color-primary); border-color: var(--color-primary); }
+        .btn-secondary:hover { background: var(--color-primary); color: var(--color-white); }
+        .btn-large { padding: 18px 48px; font-size: 16px; }
+        
+        .link-arrow { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 500; color: var(--color-primary); }
+        .link-arrow::after { content: '→'; transition: var(--transition-fast); }
+        .link-arrow:hover::after { transform: translateX(4px); }
+        
+        .section-label {
+            display: inline-block; font-size: 13px; font-weight: 600; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--color-accent); margin-bottom: var(--space-sm);
+        }
+        .section-title { font-size: 42px; font-weight: 400; line-height: 1.3; color: var(--color-primary); margin-bottom: var(--space-md); }
+        .section-description { font-size: 16px; line-height: 1.8; color: var(--color-text); margin-bottom: var(--space-md); }
+        .section-header { margin-bottom: var(--space-2xl); }
+        .section-header.center { text-align: center; }
+        
+        /* Hero */
+        .hero {
+            position: relative; height: 100vh; min-height: 700px;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .hero-bg {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #5a6d7a 100%); z-index: 0;
+        }
+        .hero-bg::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.03" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x bottom;
+            opacity: 0.5;
+        }
+        .hero-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.3) 100%); z-index: 1;
+        }
+        .hero-content { position: relative; z-index: 2; text-align: center; max-width: 900px; padding: 0 var(--space-lg); }
+        .hero-text { animation: heroFadeIn 1.2s ease-out; }
+        .hero-title {
+            font-size: 64px; font-weight: 300; color: var(--color-white);
+            margin-bottom: var(--space-xl); line-height: 1.2; letter-spacing: -1px;
+        }
+        .title-line { display: block; }
+        .hero-description {
+            font-size: 18px; font-weight: 300; color: rgba(255, 255, 255, 0.9);
+            margin-bottom: var(--space-2xl); line-height: 1.8; letter-spacing: 0.5px;
+        }
+        .hero-actions { display: flex; gap: var(--space-md); justify-content: center; }
+        .scroll-hint {
+            position: absolute; bottom: var(--space-xl); left: 50%; transform: translateX(-50%); z-index: 2;
+            display: flex; flex-direction: column; align-items: center; gap: var(--space-sm);
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .scroll-text { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; }
+        .scroll-line { width: 1px; height: 40px; background: rgba(255, 255, 255, 0.5); animation: scrollPulse 2s infinite; }
+        
+        @keyframes heroFadeIn { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scrollPulse { 0%, 100% { opacity: 0.3; transform: scaleY(0.5); } 50% { opacity: 1; transform: scaleY(1); } }
+        
+        /* Philosophy */
+        .philosophy { padding: var(--space-3xl) 0; }
+        .philosophy-content { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2xl); align-items: center; }
+        .philosophy-text { padding-right: var(--space-xl); }
+        .philosophy-image { position: relative; height: 500px; }
+        .image-frame {
+            width: 100%; height: 100%; background: linear-gradient(135deg, #5a6d7a, #2c3e50);
+            border-radius: 8px; position: relative;
+        }
+        .image-frame::after {
+            content: ''; position: absolute; top: 20px; right: 20px; bottom: 20px; left: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 4px;
+        }
+        
+        /* Features */
+        .features { padding: var(--space-3xl) 0; background: var(--color-white); }
+        .features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-lg); }
+        .feature-card { background: var(--color-bg); border-radius: 8px; overflow: hidden; transition: var(--transition-smooth); }
+        .feature-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+        .feature-image { width: 100%; height: 240px; background-size: cover; background-position: center; }
+        .feature-content { padding: var(--space-lg); }
+        .feature-content h3 { font-size: 20px; font-weight: 500; color: var(--color-primary); margin-bottom: var(--space-sm); }
+        .feature-content p { font-size: 14px; line-height: 1.7; color: var(--color-text-light); }
+        
+        /* Vehicles */
+        .vehicle-preview { padding: var(--space-3xl) 0; }
+        .vehicles-showcase { margin-top: var(--space-2xl); }
+        .vehicle-item {
+            display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2xl);
+            align-items: center; margin-bottom: var(--space-3xl);
+        }
+        .vehicle-item.reverse { direction: rtl; }
+        .vehicle-item.reverse > * { direction: ltr; }
+        .vehicle-img {
+            width: 100%; height: 450px; border-radius: 8px; transition: var(--transition-smooth);
+        }
+        .vehicle-item:hover .vehicle-img { transform: scale(1.02); box-shadow: var(--shadow-lg); }
+        .vehicle-details h3 { font-size: 32px; font-weight: 400; color: var(--color-primary); margin-bottom: var(--space-sm); }
+        .vehicle-spec { font-size: 14px; color: var(--color-text-light); margin-bottom: var(--space-md); letter-spacing: 1px; }
+        .vehicle-intro { font-size: 16px; line-height: 1.8; color: var(--color-text); margin-bottom: var(--space-lg); }
+        
+        /* Testimonials */
+        .testimonials { padding: var(--space-3xl) 0; background: var(--color-bg); }
+        .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); margin-top: var(--space-2xl); }
+        .testimonial-card { background: var(--color-white); padding: var(--space-xl); border-radius: 8px; transition: var(--transition-smooth); }
+        .testimonial-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-md); }
+        .testimonial-content { margin-bottom: var(--space-lg); }
+        .testimonial-content p { font-size: 15px; line-height: 1.8; color: var(--color-text); font-style: italic; }
+        .testimonial-author { display: flex; align-items: center; gap: var(--space-md); }
+        .author-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--color-secondary), var(--color-accent)); }
+        .author-name { display: block; font-size: 15px; font-weight: 500; color: var(--color-primary); margin-bottom: 4px; }
+        .author-trip { display: block; font-size: 13px; color: var(--color-text-light); }
+        
+        /* CTA */
+        .cta-banner { padding: var(--space-3xl) 0; background: var(--color-primary-light); color: var(--color-white); text-align: center; }
+        .cta-content h2 { font-size: 38px; font-weight: 300; margin-bottom: var(--space-md); }
+        .cta-content p { font-size: 18px; margin-bottom: var(--space-xl); opacity: 0.9; }
+        .cta-actions { display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap; }
+        .cta-banner .btn-primary { background: var(--color-white); color: var(--color-primary); }
+        .cta-banner .btn-primary:hover { background: var(--color-bg); }
+        .cta-banner .btn-secondary { border-color: var(--color-white); color: var(--color-white); }
+        .cta-banner .btn-secondary:hover { background: var(--color-white); color: var(--color-primary); }
+        .section-cta { text-align: center; margin-top: var(--space-2xl); }
+        
+        /* Footer */
+        .footer { background: var(--color-primary); color: rgba(255, 255, 255, 0.8); padding: var(--space-3xl) 0 var(--space-lg); margin-top: var(--space-3xl); }
+        .footer-main { display: grid; grid-template-columns: 2fr 3fr; gap: var(--space-2xl); padding-bottom: var(--space-2xl); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .footer-brand h3 { font-size: 24px; color: var(--color-white); margin-bottom: var(--space-sm); font-weight: 600; }
+        .footer-brand p { font-size: 14px; margin-bottom: var(--space-md); opacity: 0.7; }
+        .footer-social { display: flex; gap: var(--space-sm); }
+        .footer-social a { padding: 8px 16px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; font-size: 13px; transition: var(--transition-fast); }
+        .footer-social a:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+        .footer-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-xl); }
+        .footer-column h4 { font-size: 15px; color: var(--color-white); margin-bottom: var(--space-md); font-weight: 600; }
+        .footer-column ul { list-style: none; }
+        .footer-column li { margin-bottom: var(--space-sm); font-size: 14px; }
+        .footer-column a:hover { color: var(--color-white); }
+        .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: var(--space-lg); font-size: 13px; }
+        .footer-legal { display: flex; gap: var(--space-md); }
+        .footer-legal a:hover { color: var(--color-white); }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+            .philosophy-content { grid-template-columns: 1fr; }
+            .philosophy-image { height: 400px; }
+            .vehicle-item { grid-template-columns: 1fr; }
+            .vehicle-item.reverse { direction: ltr; }
+            .testimonials-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .mobile-toggle { display: flex; }
+            .nav-menu {
+                position: fixed; top: 70px; left: 0; right: 0; background: var(--color-white);
+                flex-direction: column; padding: var(--space-lg); gap: var(--space-md);
+                transform: translateX(-100%); transition: var(--transition-smooth);
+                border-bottom: 1px solid var(--color-border);
+            }
+            .nav-menu.active { transform: translateX(0); }
+            .navbar .container { height: 70px; }
+            .hero { min-height: 600px; }
+            .hero-title { font-size: 42px; }
+            .hero-description { font-size: 16px; }
+            .hero-actions { flex-direction: column; align-items: center; }
+            .hero-actions .btn { width: 100%; max-width: 300px; }
+            .features-grid { grid-template-columns: 1fr; }
+            .philosophy-text { padding-right: 0; }
+            .vehicle-img { height: 320px; }
+            .footer-main { grid-template-columns: 1fr; gap: var(--space-xl); }
+            .footer-links { grid-template-columns: 1fr; gap: var(--space-lg); }
+            .footer-bottom { flex-direction: column; gap: var(--space-md); text-align: center; }
+        }
+        .fade-in { animation: fadeIn 0.8s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
 <body>
-    
-    <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar" id="navbar">
         <div class="container">
-            <div class="nav-brand">Mountain & Sea</div>
-            <ul class="nav-menu">
-                <li><a href="#vehicles">車款介紹</a></li>
-                <li><a href="#experience">體驗流程</a></li>
-                <li><a href="#contact">聯絡我們</a></li>
+            <a href="index.html" class="nav-brand">
+                <span class="brand-main">野徑</span>
+                <span class="brand-sub">WILD PATH</span>
+            </a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html" class="active">首頁</a></li>
+                <li><a href="vehicles.html">車款介紹</a></li>
+                <li><a href="#booking">預約流程</a></li>
+                <li><a href="#guide">旅遊攻略</a></li>
+                <li><a href="#about">關於我們</a></li>
+                <li><a href="contact.html" class="nav-cta">立即預約</a></li>
             </ul>
+            <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="hero">
+        <div class="hero-bg"></div>
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1 class="hero-title fade-in">讓旅程，回到最舒服的狀態</h1>
-            <p class="hero-subtitle fade-in-delay">在台灣最美的山海之間，重新定義露營的質感與自由</p>
-            <a href="#contact" class="cta-button fade-in-delay-2">預約專屬體驗</a>
+            <div class="hero-text">
+                <h1 class="hero-title">
+                    <span class="title-line">在路上</span>
+                    <span class="title-line">找到生活的節奏</span>
+                </h1>
+                <p class="hero-description">駕著精心打造的露營車，穿梭於台灣的山海之間<br>讓每一段旅程，都成為值得細細品味的故事</p>
+                <div class="hero-actions">
+                    <a href="vehicles.html" class="btn btn-primary">探索車款</a>
+                    <a href="#guide" class="btn btn-secondary">旅行靈感</a>
+                </div>
+            </div>
         </div>
-        <div class="scroll-indicator">
-            <span></span>
+        <div class="scroll-hint"><span class="scroll-text">探索更多</span><span class="scroll-line"></span></div>
+    </section>
+
+    <section class="philosophy">
+        <div class="container">
+            <div class="philosophy-content">
+                <div class="philosophy-text">
+                    <span class="section-label">我們的理念</span>
+                    <h2 class="section-title">不只是租車<br>而是一種生活態度</h2>
+                    <p class="section-description">野徑相信，真正的旅行不應該被行程綁架。我們提供的不只是交通工具，而是一個移動的家、一種自由的可能性。在這裡，你可以隨心所欲地停留、深入那些只有在路上才能遇見的風景。</p>
+                    <p class="section-description">每一台車都經過我們精心挑選與改裝，只為了讓你在旅途中，也能擁有家的溫度與質感。</p>
+                    <a href="#about" class="link-arrow">了解更多關於我們</a>
+                </div>
+                <div class="philosophy-image"><div class="image-frame"></div></div>
+            </div>
         </div>
     </section>
 
-    <!-- Brand Values -->
-    <section class="brand-values">
-        <div class="container">
-            <h2 class="section-title">為什麼選擇我們</h2>
-            <div class="values-grid">
-                <div class="value-card">
-                    <div class="value-icon">🏔️</div>
-                    <h3>精選路線規劃</h3>
-                    <p>深入台灣秘境，每條路線皆由專業團隊親自踩點，確保安全與美景兼具</p>
+    <section class="features">
+        <div class="container-wide">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-image" style="background: linear-gradient(to bottom, #2c3e50, #34495e);"></div>
+                    <div class="feature-content"><h3>車輛品質保證</h3><p>全車系定期保養檢測，配備完善安全設備，讓你安心上路</p></div>
                 </div>
-                <div class="value-card">
-                    <div class="value-icon">✨</div>
-                    <h3>頂級車輛配備</h3>
-                    <p>全車系採用歐規進口車款，配備完善衛浴、冷暖空調與質感寢具</p>
+                <div class="feature-card">
+                    <div class="feature-image" style="background: linear-gradient(to bottom, #34495e, #2c3e50);"></div>
+                    <div class="feature-content"><h3>彈性租賃方案</h3><p>從週末小旅行到長天數環島，提供最適合你的租賃選擇</p></div>
                 </div>
-                <div class="value-card">
-                    <div class="value-icon">🤝</div>
-                    <h3>24 小時專人服務</h3>
-                    <p>旅程中隨時提供協助，讓您安心享受每一刻，無後顧之憂</p>
+                <div class="feature-card">
+                    <div class="feature-image" style="background: linear-gradient(to bottom, #5a6d7a, #3d4f5c);"></div>
+                    <div class="feature-content"><h3>專業旅程規劃</h3><p>根據你的興趣與時間，提供客製化的路線建議與景點推薦</p></div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-image" style="background: linear-gradient(to bottom, #3d4f5c, #2c3e50);"></div>
+                    <div class="feature-content"><h3>24 小時道路支援</h3><p>旅程中遇到任何狀況，我們的團隊隨時待命提供協助</p></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Vehicles Section -->
-    <section id="vehicles" class="vehicles">
+    <section class="vehicle-preview">
         <div class="container">
-            <h2 class="section-title">精選車款</h2>
-            <p class="section-subtitle">每一台都是精心打造的移動居所</p>
-            
-            <div class="vehicles-grid">
-                <div class="vehicle-card">
-                    <div class="vehicle-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
-                    <div class="vehicle-info">
-                        <h3>Mountain Explorer</h3>
-                        <p class="vehicle-spec">4 人座 · 獨立衛浴 · 全景天窗</p>
-                        <p class="vehicle-desc">適合小家庭或情侶出遊，寬敞舒適的空間設計，讓您在山林間也能享有居家般的自在</p>
-                        <div class="vehicle-price">NT$ 8,800 起 / 日</div>
+            <div class="section-header">
+                <span class="section-label">精選車款</span>
+                <h2 class="section-title">為不同旅程<br>打造的移動空間</h2>
+            </div>
+            <div class="vehicles-showcase">
+                <div class="vehicle-item">
+                    <div class="vehicle-media"><div class="vehicle-img" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div></div>
+                    <div class="vehicle-details">
+                        <h3>探索者 Explorer</h3>
+                        <p class="vehicle-spec">2-4 人 · 自排 · 完整衛浴</p>
+                        <p class="vehicle-intro">適合情侶或小家庭的輕旅行，寬敞舒適且機動性高</p>
+                        <a href="vehicles.html" class="link-arrow">查看詳情</a>
                     </div>
                 </div>
-
-                <div class="vehicle-card">
-                    <div class="vehicle-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
-                    <div class="vehicle-info">
-                        <h3>Coastal Wanderer</h3>
-                        <p class="vehicle-spec">2 人座 · 極簡風格 · 頂級音響</p>
-                        <p class="vehicle-desc">為追求品味的情侶設計，簡約而不簡單，每個細節都展現對生活的講究</p>
-                        <div class="vehicle-price">NT$ 6,500 起 / 日</div>
+                <div class="vehicle-item reverse">
+                    <div class="vehicle-media"><div class="vehicle-img" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div></div>
+                    <div class="vehicle-details">
+                        <h3>浪人 Nomad</h3>
+                        <p class="vehicle-spec">2 人 · 自排 · 極簡風格</p>
+                        <p class="vehicle-intro">為追求自由的雙人旅行而生，輕巧靈活好駕駛</p>
+                        <a href="vehicles.html" class="link-arrow">查看詳情</a>
                     </div>
                 </div>
-
-                <div class="vehicle-card">
-                    <div class="vehicle-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
-                    <div class="vehicle-info">
-                        <h3>Forest Sanctuary</h3>
-                        <p class="vehicle-spec">6 人座 · 雙衛浴 · 戶外廚房</p>
-                        <p class="vehicle-desc">頂級家庭專屬選擇，完整生活機能讓多日旅行也能輕鬆愜意，創造難忘回憶</p>
-                        <div class="vehicle-price">NT$ 12,800 起 / 日</div>
+                <div class="vehicle-item">
+                    <div class="vehicle-media"><div class="vehicle-img" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div></div>
+                    <div class="vehicle-details">
+                        <h3>遊牧家 Wanderer</h3>
+                        <p class="vehicle-spec">4-6 人 · 自排 · 雙衛浴</p>
+                        <p class="vehicle-intro">家庭旅行的最佳選擇，空間寬敞設備完善</p>
+                        <a href="vehicles.html" class="link-arrow">查看詳情</a>
                     </div>
                 </div>
             </div>
+            <div class="section-cta"><a href="vehicles.html" class="btn btn-large">查看所有車款</a></div>
         </div>
     </section>
 
-    <!-- Experience Flow -->
-    <section id="experience" class="experience">
+    <section class="testimonials">
         <div class="container">
-            <h2 class="section-title">輕鬆四步驟，開啟您的旅程</h2>
-            
-            <div class="flow-container">
-                <div class="flow-step">
-                    <div class="flow-number">01</div>
-                    <h3>線上預約</h3>
-                    <p>透過表單告訴我們您的需求與期待日期，我們將於 24 小時內回覆</p>
+            <div class="section-header center">
+                <span class="section-label">旅人分享</span>
+                <h2 class="section-title">聽聽他們的故事</h2>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-content"><p>"第一次體驗露營車旅行，完全顛覆了我對露營的想像。車內設備完善，開起來也很順手。最棒的是可以隨時停在喜歡的地方，真正感受到旅行的自由。"</p></div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar"></div>
+                        <div class="author-info"><span class="author-name">林小姐</span><span class="author-trip">東海岸三日遊</span></div>
+                    </div>
                 </div>
-                
-                <div class="flow-arrow">→</div>
-                
-                <div class="flow-step">
-                    <div class="flow-number">02</div>
-                    <h3>專人規劃</h3>
-                    <p>根據您的喜好客製化路線與體驗內容，並提供完整的行前說明</p>
+                <div class="testimonial-card">
+                    <div class="testimonial-content"><p>"野徑的服務非常專業，從預約到還車都很流暢。他們推薦的路線也很棒，讓我們發現了很多私房景點。已經在計劃下次的旅程了！"</p></div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar"></div>
+                        <div class="author-info"><span class="author-name">陳先生 & 王小姐</span><span class="author-trip">環島十日遊</span></div>
+                    </div>
                 </div>
-                
-                <div class="flow-arrow">→</div>
-                
-                <div class="flow-step">
-                    <div class="flow-number">03</div>
-                    <h3>取車出發</h3>
-                    <p>現場專業教學車輛操作，確認您完全熟悉後再啟程，安心上路</p>
-                </div>
-                
-                <div class="flow-arrow">→</div>
-                
-                <div class="flow-step">
-                    <div class="flow-number">04</div>
-                    <h3>美好回憶</h3>
-                    <p>享受旅程的每一刻，我們全程待命提供支援，讓您玩得盡興</p>
+                <div class="testimonial-card">
+                    <div class="testimonial-content"><p>"帶著孩子的家庭旅行，最需要的就是彈性和舒適。露營車完美解決了這些需求，孩子們玩得開心，我們也輕鬆很多。推薦給所有想帶孩子深度旅遊的家庭。"</p></div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar"></div>
+                        <div class="author-info"><span class="author-name">張先生一家</span><span class="author-trip">花東親子遊</span></div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section id="contact" class="cta-section">
-        <div class="cta-content">
-            <h2>準備好展開一場不同以往的旅行了嗎？</h2>
-            <p>每月限量接受 20 組預約，給每位旅人最完整的服務品質</p>
-            <div class="cta-buttons">
-                <a href="tel:+886912345678" class="cta-button primary">立即預約：0912-345-678</a>
-                <a href="mailto:hello@mountainsea.tw" class="cta-button secondary">或 Email 諮詢</a>
+    <section class="cta-banner">
+        <div class="container">
+            <div class="cta-content">
+                <h2>準備好出發了嗎？</h2>
+                <p>讓我們一起規劃你的下一段旅程</p>
+                <div class="cta-actions">
+                    <a href="contact.html" class="btn btn-primary btn-large">開始預約</a>
+                    <a href="#guide" class="btn btn-secondary btn-large">看看旅遊攻略</a>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <div class="footer-content">
+            <div class="footer-main">
                 <div class="footer-brand">
-                    <h3>Mountain & Sea</h3>
-                    <p>台灣頂級露營車體驗</p>
+                    <h3>野徑 WILD PATH</h3>
+                    <p>台灣精品露營車租賃</p>
+                    <div class="footer-social">
+                        <a href="#">Instagram</a>
+                        <a href="#">Facebook</a>
+                        <a href="#">Line@</a>
+                    </div>
                 </div>
-                
-                <div class="footer-contact">
-                    <h4>聯絡資訊</h4>
-                    <p>📞 0912-345-678</p>
-                    <p>📧 hello@mountainsea.tw</p>
-                    <p>📍 台北市信義區基隆路一段 180 號</p>
-                </div>
-                
-                <div class="footer-social">
-                    <h4>追蹤我們</h4>
-                    <div class="social-links">
-                        <a href="#" aria-label="Instagram">IG</a>
-                        <a href="#" aria-label="Facebook">FB</a>
-                        <a href="#" aria-label="Line">LINE</a>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>服務項目</h4>
+                        <ul><li><a href="vehicles.html">車款介紹</a></li><li><a href="#booking">預約流程</a></li><li><a href="#guide">旅遊攻略</a></li></ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>關於野徑</h4>
+                        <ul><li><a href="#about">品牌故事</a></li><li><a href="contact.html">聯絡我們</a></li><li><a href="#">常見問題</a></li></ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>聯絡資訊</h4>
+                        <ul><li>電話：02-2345-6789</li><li>信箱：hello@wildpath.tw</li><li>地址：台北市大安區</li></ul>
                     </div>
                 </div>
             </div>
-            
             <div class="footer-bottom">
-                <p>&copy; 2025 Mountain & Sea. All rights reserved.</p>
+                <p>&copy; 2025 野徑 WILD PATH. All Rights Reserved.</p>
+                <div class="footer-legal"><a href="#">隱私政策</a><a href="#">服務條款</a></div>
             </div>
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <script>
+        const mobileToggle=document.getElementById('mobileToggle'),navMenu=document.getElementById('navMenu');
+        mobileToggle&&(mobileToggle.addEventListener('click',()=>{navMenu.classList.toggle('active'),mobileToggle.classList.toggle('active')}),document.addEventListener('click',e=>{mobileToggle.contains(e.target)||navMenu.contains(e.target)||(navMenu.classList.remove('active'),mobileToggle.classList.remove('active'))}),navMenu.querySelectorAll('a').forEach(e=>{e.addEventListener('click',()=>{navMenu.classList.remove('active'),mobileToggle.classList.remove('active')})}));
+        const navbar=document.getElementById('navbar');
+        window.addEventListener('scroll',()=>{window.pageYOffset>100?navbar.style.boxShadow='0 2px 16px rgba(0, 0, 0, 0.08)':navbar.style.boxShadow='none'});
+        document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener('click',function(e){const t=this.getAttribute('href');if('#'===t)return void e.preventDefault();const o=document.querySelector(t);o&&(e.preventDefault(),window.scrollTo({top:o.offsetTop-100,behavior:'smooth'}))})});
+        const hero=document.querySelector('.hero'),heroContent=document.querySelector('.hero-content');
+        hero&&heroContent&&window.addEventListener('scroll',()=>{const e=window.pageYOffset,t=hero.offsetHeight;e<t&&(heroContent.style.transform=`translateY(${.4*e}px)`,heroContent.style.opacity=1-e/t*1.2)});
+        const observer=new IntersectionObserver(e=>{e.forEach(e=>{e.isIntersecting&&(e.target.classList.add('fade-in'),observer.unobserve(e.target))})},{threshold:.1,rootMargin:'0px 0px -50px 0px'});
+        document.querySelectorAll('.feature-card, .vehicle-item, .testimonial-card').forEach(e=>{observer.observe(e)});
+        const philosophyObserver=new IntersectionObserver(e=>{e.forEach(e=>{e.isIntersecting&&(e.target.style.opacity='1',e.target.style.transform='translateY(0)')})},{threshold:.3});
+        document.querySelectorAll('.philosophy-text, .philosophy-image').forEach((e,t)=>{e.style.opacity='0',e.style.transform='translateY(40px)',e.style.transition=`all 0.8s cubic-bezier(0.4, 0, 0.2, 1) ${.2*t}s`,philosophyObserver.observe(e)});
+        const scrollProgress=document.createElement('div');
+        scrollProgress.style.cssText='position:fixed;top:80px;left:0;width:0%;height:2px;background:linear-gradient(90deg,var(--color-primary),var(--color-secondary));z-index:1001;transition:width .1s ease',document.body.appendChild(scrollProgress),window.addEventListener('scroll',()=>{const e=document.documentElement.scrollHeight-document.documentElement.clientHeight,t=window.scrollY/e*100;scrollProgress.style.width=`${t}%`});
+    </script>
 </body>
 </html>
