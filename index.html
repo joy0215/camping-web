@@ -29,6 +29,7 @@
             --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
             --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
         }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         body {
@@ -39,12 +40,18 @@
             background-color: var(--color-bg);
             -webkit-font-smoothing: antialiased;
         }
-        img { max-width: 100%; display: block; }
+        img { max-width: 100%; display: block; height: auto; }
         a { text-decoration: none; color: inherit; transition: var(--transition-fast); }
         button { font-family: inherit; border: none; background: none; cursor: pointer; }
+
+        /* Page System */
+        .page { display: none; min-height: 100vh; }
+        .page.active { display: block; }
+
+        /* Container */
         .container { max-width: 1200px; margin: 0 auto; padding: 0 var(--space-lg); }
         .container-wide { max-width: 1400px; margin: 0 auto; padding: 0 var(--space-lg); }
-        
+
         /* Navigation */
         .navbar {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
@@ -52,13 +59,13 @@
             border-bottom: 1px solid var(--color-border); transition: var(--transition-smooth);
         }
         .navbar .container { display: flex; align-items: center; justify-content: space-between; height: 80px; }
-        .nav-brand { display: flex; align-items: baseline; gap: 12px; font-weight: 600; color: var(--color-primary); }
+        .nav-brand { display: flex; align-items: baseline; gap: 12px; font-weight: 600; color: var(--color-primary); cursor: pointer; }
         .brand-main { font-size: 24px; letter-spacing: 2px; }
         .brand-sub { font-size: 11px; letter-spacing: 3px; opacity: 0.6; font-weight: 400; }
         .nav-menu { display: flex; align-items: center; gap: var(--space-lg); list-style: none; }
         .nav-menu a {
             font-size: 15px; font-weight: 400; color: var(--color-text);
-            position: relative; padding: 8px 0;
+            position: relative; padding: 8px 0; cursor: pointer;
         }
         .nav-menu a::after {
             content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 1px;
@@ -73,7 +80,7 @@
         .nav-cta:hover { background: var(--color-primary-dark) !important; transform: translateY(-2px); }
         .mobile-toggle { display: none; flex-direction: column; gap: 5px; padding: 8px; }
         .mobile-toggle span { width: 24px; height: 2px; background: var(--color-primary); transition: var(--transition-fast); }
-        
+
         /* Buttons */
         .btn {
             display: inline-block; padding: 14px 32px; font-size: 15px; font-weight: 500;
@@ -85,11 +92,12 @@
         .btn-secondary { background: transparent; color: var(--color-primary); border-color: var(--color-primary); }
         .btn-secondary:hover { background: var(--color-primary); color: var(--color-white); }
         .btn-large { padding: 18px 48px; font-size: 16px; }
-        
-        .link-arrow { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 500; color: var(--color-primary); }
+
+        .link-arrow { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 500; color: var(--color-primary); cursor: pointer; }
         .link-arrow::after { content: '→'; transition: var(--transition-fast); }
         .link-arrow:hover::after { transform: translateX(4px); }
-        
+
+        /* Sections */
         .section-label {
             display: inline-block; font-size: 13px; font-weight: 600; letter-spacing: 3px;
             text-transform: uppercase; color: var(--color-accent); margin-bottom: var(--space-sm);
@@ -98,7 +106,7 @@
         .section-description { font-size: 16px; line-height: 1.8; color: var(--color-text); margin-bottom: var(--space-md); }
         .section-header { margin-bottom: var(--space-2xl); }
         .section-header.center { text-align: center; }
-        
+
         /* Hero */
         .hero {
             position: relative; height: 100vh; min-height: 700px;
@@ -106,16 +114,12 @@
         }
         .hero-bg {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #5a6d7a 100%); z-index: 0;
+            background: url('https://images.unsplash.com/photo-1527786356703-4b100091cd2c?w=1920&q=85') center/cover;
+            z-index: 0;
         }
-        .hero-bg::before {
+        .hero-bg::after {
             content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.03" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x bottom;
-            opacity: 0.5;
-        }
-        .hero-overlay {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.3) 100%); z-index: 1;
+            background: linear-gradient(135deg, rgba(44,62,80,0.85) 0%, rgba(52,73,94,0.75) 50%, rgba(90,109,122,0.65) 100%);
         }
         .hero-content { position: relative; z-index: 2; text-align: center; max-width: 900px; padding: 0 var(--space-lg); }
         .hero-text { animation: heroFadeIn 1.2s ease-out; }
@@ -128,7 +132,7 @@
             font-size: 18px; font-weight: 300; color: rgba(255, 255, 255, 0.9);
             margin-bottom: var(--space-2xl); line-height: 1.8; letter-spacing: 0.5px;
         }
-        .hero-actions { display: flex; gap: var(--space-md); justify-content: center; }
+        .hero-actions { display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap; }
         .scroll-hint {
             position: absolute; bottom: var(--space-xl); left: 50%; transform: translateX(-50%); z-index: 2;
             display: flex; flex-direction: column; align-items: center; gap: var(--space-sm);
@@ -136,34 +140,30 @@
         }
         .scroll-text { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; }
         .scroll-line { width: 1px; height: 40px; background: rgba(255, 255, 255, 0.5); animation: scrollPulse 2s infinite; }
-        
+
         @keyframes heroFadeIn { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes scrollPulse { 0%, 100% { opacity: 0.3; transform: scaleY(0.5); } 50% { opacity: 1; transform: scaleY(1); } }
-        
+
         /* Philosophy */
         .philosophy { padding: var(--space-3xl) 0; }
         .philosophy-content { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2xl); align-items: center; }
         .philosophy-text { padding-right: var(--space-xl); }
         .philosophy-image { position: relative; height: 500px; }
-        .image-frame {
-            width: 100%; height: 100%; background: linear-gradient(135deg, #5a6d7a, #2c3e50);
-            border-radius: 8px; position: relative;
+        .philosophy-image img {
+            width: 100%; height: 100%; object-fit: cover; border-radius: 8px;
+            box-shadow: var(--shadow-lg);
         }
-        .image-frame::after {
-            content: ''; position: absolute; top: 20px; right: 20px; bottom: 20px; left: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 4px;
-        }
-        
+
         /* Features */
         .features { padding: var(--space-3xl) 0; background: var(--color-white); }
         .features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-lg); }
         .feature-card { background: var(--color-bg); border-radius: 8px; overflow: hidden; transition: var(--transition-smooth); }
         .feature-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
-        .feature-image { width: 100%; height: 240px; background-size: cover; background-position: center; }
+        .feature-image { width: 100%; height: 240px; object-fit: cover; }
         .feature-content { padding: var(--space-lg); }
         .feature-content h3 { font-size: 20px; font-weight: 500; color: var(--color-primary); margin-bottom: var(--space-sm); }
         .feature-content p { font-size: 14px; line-height: 1.7; color: var(--color-text-light); }
-        
+
         /* Vehicles */
         .vehicle-preview { padding: var(--space-3xl) 0; }
         .vehicles-showcase { margin-top: var(--space-2xl); }
@@ -175,12 +175,13 @@
         .vehicle-item.reverse > * { direction: ltr; }
         .vehicle-img {
             width: 100%; height: 450px; border-radius: 8px; transition: var(--transition-smooth);
+            object-fit: cover; box-shadow: var(--shadow-md);
         }
         .vehicle-item:hover .vehicle-img { transform: scale(1.02); box-shadow: var(--shadow-lg); }
         .vehicle-details h3 { font-size: 32px; font-weight: 400; color: var(--color-primary); margin-bottom: var(--space-sm); }
         .vehicle-spec { font-size: 14px; color: var(--color-text-light); margin-bottom: var(--space-md); letter-spacing: 1px; }
         .vehicle-intro { font-size: 16px; line-height: 1.8; color: var(--color-text); margin-bottom: var(--space-lg); }
-        
+
         /* Testimonials */
         .testimonials { padding: var(--space-3xl) 0; background: var(--color-bg); }
         .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); margin-top: var(--space-2xl); }
@@ -189,11 +190,11 @@
         .testimonial-content { margin-bottom: var(--space-lg); }
         .testimonial-content p { font-size: 15px; line-height: 1.8; color: var(--color-text); font-style: italic; }
         .testimonial-author { display: flex; align-items: center; gap: var(--space-md); }
-        .author-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--color-secondary), var(--color-accent)); }
+        .author-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
         .author-name { display: block; font-size: 15px; font-weight: 500; color: var(--color-primary); margin-bottom: 4px; }
         .author-trip { display: block; font-size: 13px; color: var(--color-text-light); }
-        
-        /* CTA */
+
+        /* CTA Banner */
         .cta-banner { padding: var(--space-3xl) 0; background: var(--color-primary-light); color: var(--color-white); text-align: center; }
         .cta-content h2 { font-size: 38px; font-weight: 300; margin-bottom: var(--space-md); }
         .cta-content p { font-size: 18px; margin-bottom: var(--space-xl); opacity: 0.9; }
@@ -203,7 +204,92 @@
         .cta-banner .btn-secondary { border-color: var(--color-white); color: var(--color-white); }
         .cta-banner .btn-secondary:hover { background: var(--color-white); color: var(--color-primary); }
         .section-cta { text-align: center; margin-top: var(--space-2xl); }
-        
+
+        /* Page Header */
+        .page-header { padding: 160px 0 80px; background: linear-gradient(to bottom, var(--color-bg), var(--color-white)); text-align: center; }
+        .page-title { font-size: 52px; font-weight: 300; color: var(--color-primary); margin-bottom: var(--space-md); }
+        .page-subtitle { font-size: 18px; color: var(--color-text-light); max-width: 600px; margin: 0 auto; }
+
+        /* Vehicle Detail Page */
+        .vehicles-section { padding: var(--space-3xl) 0; }
+        .vehicle-detail {
+            display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2xl);
+            margin-bottom: var(--space-3xl); padding-bottom: var(--space-3xl);
+            border-bottom: 1px solid var(--color-border);
+        }
+        .vehicle-detail:last-child { border-bottom: none; }
+        .vehicle-gallery { position: sticky; top: 120px; height: fit-content; }
+        .gallery-main { margin-bottom: var(--space-md); }
+        .main-image { width: 100%; height: 480px; border-radius: 8px; object-fit: cover; }
+        .vehicle-info { padding-left: var(--space-lg); }
+        .vehicle-tag {
+            display: inline-block; padding: 6px 16px; background: #e8e6e3;
+            color: var(--color-text); font-size: 12px; font-weight: 500;
+            letter-spacing: 1px; border-radius: 4px; margin-bottom: var(--space-md);
+        }
+        .vehicle-info h2 { font-size: 42px; font-weight: 400; color: var(--color-primary); margin-bottom: var(--space-sm); }
+        .vehicle-tagline { font-size: 18px; color: var(--color-text-light); margin-bottom: var(--space-lg); font-style: italic; }
+        .vehicle-description { margin-bottom: var(--space-xl); padding-bottom: var(--space-lg); border-bottom: 1px solid #e8e6e3; }
+        .specs-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-md);
+            margin-bottom: var(--space-xl); padding-bottom: var(--space-lg); border-bottom: 1px solid #e8e6e3;
+        }
+        .spec-item { display: flex; flex-direction: column; gap: 6px; }
+        .spec-label { font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #999; }
+        .spec-value { font-size: 15px; font-weight: 500; }
+        .pricing {
+            display: flex; gap: var(--space-xl); margin-bottom: var(--space-xl);
+            padding: var(--space-lg); background: var(--color-bg); border-radius: 8px;
+        }
+        .price-item { display: flex; flex-direction: column; gap: 8px; }
+        .price-label { font-size: 13px; color: var(--color-text-light); }
+        .price-value { font-size: 24px; font-weight: 500; color: var(--color-primary); }
+        .vehicle-actions { display: flex; gap: var(--space-md); flex-wrap: wrap; }
+
+        /* Contact Page */
+        .contact-section { padding: var(--space-3xl) 0; }
+        .contact-wrapper { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-2xl); }
+        .contact-form-container { background: var(--color-white); padding: var(--space-2xl); border-radius: 8px; box-shadow: var(--shadow-sm); }
+        .contact-form { display: flex; flex-direction: column; gap: var(--space-xl); }
+        .form-section { padding-bottom: var(--space-lg); border-bottom: 1px solid #e8e6e3; }
+        .form-section:last-of-type { border-bottom: none; }
+        .form-section h3 { font-size: 20px; font-weight: 500; color: var(--color-primary); margin-bottom: var(--space-lg); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+        .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: var(--space-md); }
+        .form-group label { font-size: 14px; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 14px 16px; font-size: 15px; font-family: inherit; color: var(--color-text);
+            background: var(--color-bg); border: 2px solid var(--color-border); border-radius: 4px; transition: .2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: var(--color-primary); background: var(--color-white);
+        }
+        .form-group textarea { resize: vertical; min-height: 120px; }
+        .form-actions { display: flex; flex-direction: column; align-items: center; gap: var(--space-md); margin-top: var(--space-md); }
+        .form-actions .btn { width: 100%; }
+        .form-note { font-size: 13px; color: var(--color-text-light); text-align: center; }
+        .contact-info { display: flex; flex-direction: column; gap: var(--space-lg); }
+        .info-card { background: var(--color-white); padding: var(--space-lg); border-radius: 8px; box-shadow: var(--shadow-sm); }
+        .info-card h3 { font-size: 18px; font-weight: 500; color: var(--color-primary); margin-bottom: var(--space-md); }
+        .info-item { display: flex; flex-direction: column; gap: 4px; margin-bottom: var(--space-md); }
+        .info-item:last-child { margin-bottom: 0; }
+        .info-label { font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--color-text-lighter); }
+        .info-item a { color: var(--color-primary); font-size: 15px; font-weight: 500; }
+        .info-item span { font-size: 15px; }
+        .quick-contact { padding: var(--space-2xl) 0; background: var(--color-bg); }
+        .quick-contact h2 { text-align: center; font-size: 28px; font-weight: 400; color: var(--color-primary); margin-bottom: var(--space-xl); }
+        .quick-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); max-width: 800px; margin: 0 auto; }
+        .quick-btn {
+            display: flex; flex-direction: column; align-items: center; gap: var(--space-sm);
+            padding: var(--space-lg); background: var(--color-white); border-radius: 8px;
+            transition: var(--transition-smooth); text-align: center;
+        }
+        .quick-btn:hover { transform: translateY(-8px); box-shadow: var(--shadow-md); }
+        .quick-icon { font-size: 32px; }
+        .quick-label { font-size: 15px; font-weight: 500; color: var(--color-primary); }
+        .form-message { padding: var(--space-md); border-radius: 4px; font-size: 14px; margin-top: var(--space-md); display: none; }
+        .form-message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
+
         /* Footer */
         .footer { background: var(--color-primary); color: rgba(255, 255, 255, 0.8); padding: var(--space-3xl) 0 var(--space-lg); margin-top: var(--space-3xl); }
         .footer-main { display: grid; grid-template-columns: 2fr 3fr; gap: var(--space-2xl); padding-bottom: var(--space-2xl); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
@@ -220,7 +306,7 @@
         .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: var(--space-lg); font-size: 13px; }
         .footer-legal { display: flex; gap: var(--space-md); }
         .footer-legal a:hover { color: var(--color-white); }
-        
+
         /* Responsive */
         @media (max-width: 1024px) {
             .features-grid { grid-template-columns: repeat(2, 1fr); }
@@ -229,7 +315,12 @@
             .vehicle-item { grid-template-columns: 1fr; }
             .vehicle-item.reverse { direction: ltr; }
             .testimonials-grid { grid-template-columns: 1fr; }
+            .vehicle-detail { grid-template-columns: 1fr; }
+            .vehicle-gallery { position: static; }
+            .vehicle-info { padding-left: 0; }
+            .contact-wrapper { grid-template-columns: 1fr; }
         }
+
         @media (max-width: 768px) {
             .mobile-toggle { display: flex; }
             .nav-menu {
@@ -248,174 +339,623 @@
             .features-grid { grid-template-columns: 1fr; }
             .philosophy-text { padding-right: 0; }
             .vehicle-img { height: 320px; }
+            .main-image { height: 320px; }
+            .specs-grid { grid-template-columns: 1fr; }
+            .pricing { flex-direction: column; gap: var(--space-md); }
+            .vehicle-actions { flex-direction: column; }
+            .vehicle-actions .btn { width: 100%; }
+            .form-row { grid-template-columns: 1fr; }
+            .quick-buttons { grid-template-columns: 1fr; }
             .footer-main { grid-template-columns: 1fr; gap: var(--space-xl); }
             .footer-links { grid-template-columns: 1fr; gap: var(--space-lg); }
             .footer-bottom { flex-direction: column; gap: var(--space-md); text-align: center; }
         }
+
         .fade-in { animation: fadeIn 0.8s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
+
+    <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="container">
-            <a href="index.html" class="nav-brand">
+            <div class="nav-brand" onclick="showPage('home')">
                 <span class="brand-main">野徑</span>
                 <span class="brand-sub">WILD PATH</span>
-            </a>
+            </div>
             <ul class="nav-menu" id="navMenu">
-                <li><a href="index.html" class="active">首頁</a></li>
-                <li><a href="vehicles.html">車款介紹</a></li>
-                <li><a href="#booking">預約流程</a></li>
-                <li><a href="#guide">旅遊攻略</a></li>
-                <li><a href="#about">關於我們</a></li>
-                <li><a href="contact.html" class="nav-cta">立即預約</a></li>
+                <li><a onclick="showPage('home')" data-page="home" class="active">首頁</a></li>
+                <li><a onclick="showPage('vehicles')" data-page="vehicles">車款介紹</a></li>
+                <li><a onclick="showPage('contact')" data-page="contact" class="nav-cta">立即預約</a></li>
             </ul>
-            <button class="mobile-toggle" id="mobileToggle"><span></span><span></span><span></span></button>
+            <button class="mobile-toggle" id="mobileToggle">
+                <span></span><span></span><span></span>
+            </button>
         </div>
     </nav>
 
-    <section class="hero">
-        <div class="hero-bg"></div>
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1 class="hero-title">
-                    <span class="title-line">在路上</span>
-                    <span class="title-line">找到生活的節奏</span>
-                </h1>
-                <p class="hero-description">駕著精心打造的露營車，穿梭於台灣的山海之間<br>讓每一段旅程，都成為值得細細品味的故事</p>
-                <div class="hero-actions">
-                    <a href="vehicles.html" class="btn btn-primary">探索車款</a>
-                    <a href="#guide" class="btn btn-secondary">旅行靈感</a>
-                </div>
-            </div>
-        </div>
-        <div class="scroll-hint"><span class="scroll-text">探索更多</span><span class="scroll-line"></span></div>
-    </section>
-
-    <section class="philosophy">
-        <div class="container">
-            <div class="philosophy-content">
-                <div class="philosophy-text">
-                    <span class="section-label">我們的理念</span>
-                    <h2 class="section-title">不只是租車<br>而是一種生活態度</h2>
-                    <p class="section-description">野徑相信，真正的旅行不應該被行程綁架。我們提供的不只是交通工具，而是一個移動的家、一種自由的可能性。在這裡，你可以隨心所欲地停留、深入那些只有在路上才能遇見的風景。</p>
-                    <p class="section-description">每一台車都經過我們精心挑選與改裝，只為了讓你在旅途中，也能擁有家的溫度與質感。</p>
-                    <a href="#about" class="link-arrow">了解更多關於我們</a>
-                </div>
-                <div class="philosophy-image"><div class="image-frame"></div></div>
-            </div>
-        </div>
-    </section>
-
-    <section class="features">
-        <div class="container-wide">
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-image" style="background: linear-gradient(to bottom, #2c3e50, #34495e);"></div>
-                    <div class="feature-content"><h3>車輛品質保證</h3><p>全車系定期保養檢測，配備完善安全設備，讓你安心上路</p></div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-image" style="background: linear-gradient(to bottom, #34495e, #2c3e50);"></div>
-                    <div class="feature-content"><h3>彈性租賃方案</h3><p>從週末小旅行到長天數環島，提供最適合你的租賃選擇</p></div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-image" style="background: linear-gradient(to bottom, #5a6d7a, #3d4f5c);"></div>
-                    <div class="feature-content"><h3>專業旅程規劃</h3><p>根據你的興趣與時間，提供客製化的路線建議與景點推薦</p></div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-image" style="background: linear-gradient(to bottom, #3d4f5c, #2c3e50);"></div>
-                    <div class="feature-content"><h3>24 小時道路支援</h3><p>旅程中遇到任何狀況，我們的團隊隨時待命提供協助</p></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="vehicle-preview">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label">精選車款</span>
-                <h2 class="section-title">為不同旅程<br>打造的移動空間</h2>
-            </div>
-            <div class="vehicles-showcase">
-                <div class="vehicle-item">
-                    <div class="vehicle-media"><div class="vehicle-img" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div></div>
-                    <div class="vehicle-details">
-                        <h3>探索者 Explorer</h3>
-                        <p class="vehicle-spec">2-4 人 · 自排 · 完整衛浴</p>
-                        <p class="vehicle-intro">適合情侶或小家庭的輕旅行，寬敞舒適且機動性高</p>
-                        <a href="vehicles.html" class="link-arrow">查看詳情</a>
-                    </div>
-                </div>
-                <div class="vehicle-item reverse">
-                    <div class="vehicle-media"><div class="vehicle-img" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div></div>
-                    <div class="vehicle-details">
-                        <h3>浪人 Nomad</h3>
-                        <p class="vehicle-spec">2 人 · 自排 · 極簡風格</p>
-                        <p class="vehicle-intro">為追求自由的雙人旅行而生，輕巧靈活好駕駛</p>
-                        <a href="vehicles.html" class="link-arrow">查看詳情</a>
-                    </div>
-                </div>
-                <div class="vehicle-item">
-                    <div class="vehicle-media"><div class="vehicle-img" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div></div>
-                    <div class="vehicle-details">
-                        <h3>遊牧家 Wanderer</h3>
-                        <p class="vehicle-spec">4-6 人 · 自排 · 雙衛浴</p>
-                        <p class="vehicle-intro">家庭旅行的最佳選擇，空間寬敞設備完善</p>
-                        <a href="vehicles.html" class="link-arrow">查看詳情</a>
+    <!-- HOME PAGE -->
+    <div id="home" class="page active">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-bg"></div>
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        <span class="title-line">在路上</span>
+                        <span class="title-line">找到生活的節奏</span>
+                    </h1>
+                    <p class="hero-description">
+                        駕著精心打造的露營車，穿梭於台灣的山海之間<br>
+                        讓每一段旅程，都成為值得細細品味的故事
+                    </p>
+                    <div class="hero-actions">
+                        <button onclick="showPage('vehicles')" class="btn btn-primary">探索車款</button>
+                        <button onclick="showPage('contact')" class="btn btn-secondary">立即預約</button>
                     </div>
                 </div>
             </div>
-            <div class="section-cta"><a href="vehicles.html" class="btn btn-large">查看所有車款</a></div>
-        </div>
-    </section>
-
-    <section class="testimonials">
-        <div class="container">
-            <div class="section-header center">
-                <span class="section-label">旅人分享</span>
-                <h2 class="section-title">聽聽他們的故事</h2>
+            <div class="scroll-hint">
+                <span class="scroll-text">探索更多</span>
+                <span class="scroll-line"></span>
             </div>
-            <div class="testimonials-grid">
-                <div class="testimonial-card">
-                    <div class="testimonial-content"><p>"第一次體驗露營車旅行，完全顛覆了我對露營的想像。車內設備完善，開起來也很順手。最棒的是可以隨時停在喜歡的地方，真正感受到旅行的自由。"</p></div>
-                    <div class="testimonial-author">
-                        <div class="author-avatar"></div>
-                        <div class="author-info"><span class="author-name">林小姐</span><span class="author-trip">東海岸三日遊</span></div>
+        </section>
+
+        <!-- Philosophy Section -->
+        <section class="philosophy">
+            <div class="container">
+                <div class="philosophy-content">
+                    <div class="philosophy-text">
+                        <span class="section-label">我們的理念</span>
+                        <h2 class="section-title">不只是租車<br>而是一種生活態度</h2>
+                        <p class="section-description">
+                            野徑相信，真正的旅行不應該被行程綁架。我們提供的不只是交通工具，
+                            而是一個移動的家、一種自由的可能性。在這裡，你可以隨心所欲地停留、
+                            深入那些只有在路上才能遇見的風景。
+                        </p>
+                        <p class="section-description">
+                            每一台車都經過我們精心挑選與改裝，只為了讓你在旅途中，
+                            也能擁有家的溫度與質感。
+                        </p>
                     </div>
-                </div>
-                <div class="testimonial-card">
-                    <div class="testimonial-content"><p>"野徑的服務非常專業，從預約到還車都很流暢。他們推薦的路線也很棒，讓我們發現了很多私房景點。已經在計劃下次的旅程了！"</p></div>
-                    <div class="testimonial-author">
-                        <div class="author-avatar"></div>
-                        <div class="author-info"><span class="author-name">陳先生 & 王小姐</span><span class="author-trip">環島十日遊</span></div>
-                    </div>
-                </div>
-                <div class="testimonial-card">
-                    <div class="testimonial-content"><p>"帶著孩子的家庭旅行，最需要的就是彈性和舒適。露營車完美解決了這些需求，孩子們玩得開心，我們也輕鬆很多。推薦給所有想帶孩子深度旅遊的家庭。"</p></div>
-                    <div class="testimonial-author">
-                        <div class="author-avatar"></div>
-                        <div class="author-info"><span class="author-name">張先生一家</span><span class="author-trip">花東親子遊</span></div>
+                    <div class="philosophy-image">
+                        <img src="https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=800&q=85" alt="露營車內部">
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="cta-banner">
-        <div class="container">
-            <div class="cta-content">
-                <h2>準備好出發了嗎？</h2>
-                <p>讓我們一起規劃你的下一段旅程</p>
-                <div class="cta-actions">
-                    <a href="contact.html" class="btn btn-primary btn-large">開始預約</a>
-                    <a href="#guide" class="btn btn-secondary btn-large">看看旅遊攻略</a>
+        <!-- Features Grid -->
+        <section class="features">
+            <div class="container-wide">
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <img src="https://images.unsplash.com/photo-1464219789935-c2d9d9aba644?w=600&q=85" alt="品質保證" class="feature-image">
+                        <div class="feature-content">
+                            <h3>車輛品質保證</h3>
+                            <p>全車系定期保養檢測，配備完善安全設備，讓你安心上路</p>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <img src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=600&q=85" alt="彈性方案" class="feature-image">
+                        <div class="feature-content">
+                            <h3>彈性租賃方案</h3>
+                            <p>從週末小旅行到長天數環島，提供最適合你的租賃選擇</p>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&q=85" alt="旅程規劃" class="feature-image">
+                        <div class="feature-content">
+                            <h3>專業旅程規劃</h3>
+                            <p>根據你的興趣與時間，提供客製化的路線建議與景點推薦</p>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&q=85" alt="道路支援" class="feature-image">
+                        <div class="feature-content">
+                            <h3>24 小時道路支援</h3>
+                            <p>旅程中遇到任何狀況，我們的團隊隨時待命提供協助</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
+        <!-- Vehicle Preview -->
+        <section class="vehicle-preview">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-label">精選車款</span>
+                    <h2 class="section-title">為不同旅程<br>打造的移動空間</h2>
+                </div>
+                
+                <div class="vehicles-showcase">
+                    <div class="vehicle-item">
+                        <div class="vehicle-media">
+                            <img src="https://images.unsplash.com/photo-1527786356703-4b100091cd2c?w=900&q=85" alt="探索者 Explorer" class="vehicle-img">
+                        </div>
+                        <div class="vehicle-details">
+                            <h3>探索者 Explorer</h3>
+                            <p class="vehicle-spec">2-4 人 · 自排 · 完整衛浴</p>
+                            <p class="vehicle-intro">適合情侶或小家庭的輕旅行，寬敞舒適且機動性高。配備完整生活機能，讓你在旅途中也能享有家的溫度。</p>
+                            <span class="link-arrow" onclick="showPage('vehicles')">查看詳情</span>
+                        </div>
+                    </div>
+
+                    <div class="vehicle-item reverse">
+                        <div class="vehicle-media">
+                            <img src="https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=900&q=85" alt="浪人 Nomad" class="vehicle-img">
+                        </div>
+                        <div class="vehicle-details">
+                            <h3>浪人 Nomad</h3>
+                            <p class="vehicle-spec">2 人 · 自排 · 極簡風格</p>
+                            <p class="vehicle-intro">為追求自由的雙人旅行而生，輕巧靈活好駕駛。極簡設計保留最本質的舒適，讓你專注於旅行本身。</p>
+                            <span class="link-arrow" onclick="showPage('vehicles')">查看詳情</span>
+                        </div>
+                    </div>
+
+                    <div class="vehicle-item">
+                        <div class="vehicle-media">
+                            <img src="https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=900&q=85" alt="遊牧家 Wanderer" class="vehicle-img">
+                        </div>
+                        <div class="vehicle-details">
+                            <h3>遊牧家 Wanderer</h3>
+                            <p class="vehicle-spec">4-6 人 · 自排 · 雙衛浴</p>
+                            <p class="vehicle-intro">家庭旅行的最佳選擇，空間寬敞設備完善。完整生活機能讓多日旅行也能輕鬆愜意。</p>
+                            <span class="link-arrow" onclick="showPage('vehicles')">查看詳情</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-cta">
+                    <button onclick="showPage('vehicles')" class="btn btn-large">查看所有車款</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials -->
+        <section class="testimonials">
+            <div class="container">
+                <div class="section-header center">
+                    <span class="section-label">旅人分享</span>
+                    <h2 class="section-title">聽聽他們的故事</h2>
+                </div>
+
+                <div class="testimonials-grid">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p>"第一次體驗露營車旅行，完全顛覆了我對露營的想像。車內設備完善，開起來也很順手。最棒的是可以隨時停在喜歡的地方，真正感受到旅行的自由。"</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <img src="https://i.pravatar.cc/150?img=5" alt="林小姐" class="author-avatar">
+                            <div class="author-info">
+                                <span class="author-name">林小姐</span>
+                                <span class="author-trip">東海岸三日遊</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p>"野徑的服務非常專業，從預約到還車都很流暢。他們推薦的路線也很棒，讓我們發現了很多私房景點。已經在計劃下次的旅程了！"</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <img src="https://i.pravatar.cc/150?img=12" alt="陳先生" class="author-avatar">
+                            <div class="author-info">
+                                <span class="author-name">陳先生 & 王小姐</span>
+                                <span class="author-trip">環島十日遊</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p>"帶著孩子的家庭旅行，最需要的就是彈性和舒適。露營車完美解決了這些需求，孩子們玩得開心，我們也輕鬆很多。推薦給所有想帶孩子深度旅遊的家庭。"</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <img src="https://i.pravatar.cc/150?img=33" alt="張先生" class="author-avatar">
+                            <div class="author-info">
+                                <span class="author-name">張先生一家</span>
+                                <span class="author-trip">花東親子遊</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-banner">
+            <div class="container">
+                <div class="cta-content">
+                    <h2>準備好出發了嗎？</h2>
+                    <p>讓我們一起規劃你的下一段旅程</p>
+                    <div class="cta-actions">
+                        <button onclick="showPage('contact')" class="btn btn-primary btn-large">開始預約</button>
+                        <button onclick="showPage('vehicles')" class="btn btn-secondary btn-large">查看車款</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- VEHICLES PAGE -->
+    <div id="vehicles" class="page">
+        <section class="page-header">
+            <div class="container">
+                <h1 class="page-title">車款介紹</h1>
+                <p class="page-subtitle">為每一種旅行方式，準備最適合的移動空間</p>
+            </div>
+        </section>
+
+        <section class="vehicles-section">
+            <div class="container">
+                <!-- Vehicle 1 -->
+                <div class="vehicle-detail">
+                    <div class="vehicle-gallery">
+                        <div class="gallery-main">
+                            <img src="https://images.unsplash.com/photo-1527786356703-4b100091cd2c?w=1200&q=85" alt="探索者 Explorer" class="main-image">
+                        </div>
+                    </div>
+                    <div class="vehicle-info">
+                        <span class="vehicle-tag">適合 2-4 人</span>
+                        <h2>探索者 Explorer</h2>
+                        <p class="vehicle-tagline">靈活輕巧，隨心探索</p>
+                        
+                        <div class="vehicle-description">
+                            <p>專為喜愛自由探索的旅人設計，探索者擁有恰到好處的空間與機動性。無論是情侶的浪漫之旅，或是小家庭的週末出遊，都能在這台車上找到最舒適的節奏。</p>
+                        </div>
+
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <span class="spec-label">乘載人數</span>
+                                <span class="spec-value">2-4 人</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">睡眠空間</span>
+                                <span class="spec-value">2 個雙人床位</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">車型</span>
+                                <span class="spec-value">自排 · 柴油</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">衛浴設備</span>
+                                <span class="spec-value">完整淋浴間 · 馬桶</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">廚房配備</span>
+                                <span class="spec-value">雙口爐 · 冰箱 · 水槽</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">空調系統</span>
+                                <span class="spec-value">冷暖空調 · 獨立電源</span>
+                            </div>
+                        </div>
+
+                        <div class="pricing">
+                            <div class="price-item">
+                                <span class="price-label">平日租金</span>
+                                <span class="price-value">NT$ 3,800 / 日</span>
+                            </div>
+                            <div class="price-item">
+                                <span class="price-label">假日租金</span>
+                                <span class="price-value">NT$ 4,500 / 日</span>
+                            </div>
+                        </div>
+
+                        <div class="vehicle-actions">
+                            <button onclick="showPage('contact')" class="btn btn-primary btn-large">立即預約</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle 2 -->
+                <div class="vehicle-detail">
+                    <div class="vehicle-gallery">
+                        <div class="gallery-main">
+                            <img src="https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=1200&q=85" alt="浪人 Nomad" class="main-image">
+                        </div>
+                    </div>
+                    <div class="vehicle-info">
+                        <span class="vehicle-tag">適合 2 人</span>
+                        <h2>浪人 Nomad</h2>
+                        <p class="vehicle-tagline">極簡設計，自由無界</p>
+                        
+                        <div class="vehicle-description">
+                            <p>為追求純粹旅行體驗的雙人而生。浪人捨棄了不必要的複雜，保留了最本質的舒適。小巧的車身讓你能輕鬆駛入隱密的山徑海角，體驗最原始的自然美景。</p>
+                        </div>
+
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <span class="spec-label">乘載人數</span>
+                                <span class="spec-value">2 人</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">睡眠空間</span>
+                                <span class="spec-value">1 個雙人床位</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">車型</span>
+                                <span class="spec-value">自排 · 汽油</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">衛浴設備</span>
+                                <span class="spec-value">外接式淋浴 · 行動馬桶</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">廚房配備</span>
+                                <span class="spec-value">單口爐 · 小冰箱</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">空調系統</span>
+                                <span class="spec-value">車用空調 · 行動電源</span>
+                            </div>
+                        </div>
+
+                        <div class="pricing">
+                            <div class="price-item">
+                                <span class="price-label">平日租金</span>
+                                <span class="price-value">NT$ 2,800 / 日</span>
+                            </div>
+                            <div class="price-item">
+                                <span class="price-label">假日租金</span>
+                                <span class="price-value">NT$ 3,200 / 日</span>
+                            </div>
+                        </div>
+
+                        <div class="vehicle-actions">
+                            <button onclick="showPage('contact')" class="btn btn-primary btn-large">立即預約</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle 3 -->
+                <div class="vehicle-detail">
+                    <div class="vehicle-gallery">
+                        <div class="gallery-main">
+                            <img src="https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=1200&q=85" alt="遊牧家 Wanderer" class="main-image">
+                        </div>
+                    </div>
+                    <div class="vehicle-info">
+                        <span class="vehicle-tag">適合 4-6 人</span>
+                        <h2>遊牧家 Wanderer</h2>
+                        <p class="vehicle-tagline">寬敞舒適，全家共遊</p>
+                        
+                        <div class="vehicle-description">
+                            <p>家庭旅行的理想選擇。遊牧家提供充裕的空間與完整的生活機能，讓全家人都能在旅途中享有舒適的居住體驗。孩子們有足夠的活動空間，父母也能輕鬆料理與休息。</p>
+                        </div>
+
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <span class="spec-label">乘載人數</span>
+                                <span class="spec-value">4-6 人</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">睡眠空間</span>
+                                <span class="spec-value">3 個床位</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">車型</span>
+                                <span class="spec-value">自排 · 柴油</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">衛浴設備</span>
+                                <span class="spec-value">雙淋浴間 · 獨立衛浴</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">廚房配備</span>
+                                <span class="spec-value">三口爐 · 大冰箱 · 烤箱</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">空調系統</span>
+                                <span class="spec-value">雙區空調 · 強力電源</span>
+                            </div>
+                        </div>
+
+                        <div class="pricing">
+                            <div class="price-item">
+                                <span class="price-label">平日租金</span>
+                                <span class="price-value">NT$ 5,800 / 日</span>
+                            </div>
+                            <div class="price-item">
+                                <span class="price-label">假日租金</span>
+                                <span class="price-value">NT$ 6,800 / 日</span>
+                            </div>
+                        </div>
+
+                        <div class="vehicle-actions">
+                            <button onclick="showPage('contact')" class="btn btn-primary btn-large">立即預約</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-banner">
+            <div class="container">
+                <div class="cta-content">
+                    <h2>找到適合你的車款了嗎？</h2>
+                    <p>立即預約，開啟你的野徑之旅</p>
+                    <button onclick="showPage('contact')" class="btn btn-primary btn-large">開始預約</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- CONTACT PAGE -->
+    <div id="contact" class="page">
+        <section class="page-header">
+            <div class="container">
+                <h1 class="page-title">開始你的旅程</h1>
+                <p class="page-subtitle">告訴我們你的計畫，讓我們為你量身打造最適合的旅行方案</p>
+            </div>
+        </section>
+
+        <section class="contact-section">
+            <div class="container">
+                <div class="contact-wrapper">
+                    
+                    <div class="contact-form-container">
+                        <form class="contact-form" id="contactForm">
+                            <div class="form-section">
+                                <h3>基本資訊</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="name">姓名 *</label>
+                                        <input type="text" id="name" name="name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone">聯絡電話 *</label>
+                                        <input type="tel" id="phone" name="phone" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email *</label>
+                                    <input type="email" id="email" name="email" required>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h3>租賃需求</h3>
+                                <div class="form-group">
+                                    <label for="vehicle">偏好車款 *</label>
+                                    <select id="vehicle" name="vehicle" required>
+                                        <option value="">請選擇</option>
+                                        <option value="nomad">浪人 Nomad (2人)</option>
+                                        <option value="explorer">探索者 Explorer (2-4人)</option>
+                                        <option value="wanderer">遊牧家 Wanderer (4-6人)</option>
+                                        <option value="undecided">還沒決定</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="startDate">預計出發日 *</label>
+                                        <input type="date" id="startDate" name="startDate" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="endDate">預計回程日 *</label>
+                                        <input type="date" id="endDate" name="endDate" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="passengers">旅行人數 *</label>
+                                    <select id="passengers" name="passengers" required>
+                                        <option value="">請選擇</option>
+                                        <option value="1">1 人</option>
+                                        <option value="2">2 人</option>
+                                        <option value="3">3 人</option>
+                                        <option value="4">4 人</option>
+                                        <option value="5">5 人</option>
+                                        <option value="6+">6 人以上</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h3>旅行規劃</h3>
+                                <div class="form-group">
+                                    <label for="destination">想去的地方</label>
+                                    <input type="text" id="destination" name="destination" placeholder="例如：東海岸、中部山區、環島...">
+                                </div>
+                                <div class="form-group">
+                                    <label for="experience">露營車經驗</label>
+                                    <select id="experience" name="experience">
+                                        <option value="first">第一次體驗</option>
+                                        <option value="few">有過幾次經驗</option>
+                                        <option value="experienced">經驗豐富</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="message">其他需求或想說的話</label>
+                                    <textarea id="message" name="message" rows="5" placeholder="告訴我們更多關於你的旅行計畫，或任何特殊需求..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary btn-large">送出預約</button>
+                                <p class="form-note">我們會在 24 小時內回覆您的預約需求</p>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="contact-info">
+                        <div class="info-card">
+                            <h3>聯絡方式</h3>
+                            <div class="info-item">
+                                <span class="info-label">電話</span>
+                                <a href="tel:+886223456789">02-2345-6789</a>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">手機</span>
+                                <a href="tel:+886912345678">0912-345-678</a>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Email</span>
+                                <a href="mailto:hello@wildpath.tw">hello@wildpath.tw</a>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Line</span>
+                                <a href="#">@wildpath</a>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <h3>服務時間</h3>
+                            <div class="info-item">
+                                <span class="info-label">平日</span>
+                                <span>10:00 - 19:00</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">週末</span>
+                                <span>10:00 - 18:00</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">取還車時間</span>
+                                <span>彈性安排</span>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <h3>據點位置</h3>
+                            <div class="info-item">
+                                <span class="info-label">地址</span>
+                                <span>台北市大安區<br>忠孝東路四段 123 號</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">交通</span>
+                                <span>捷運國父紀念館站 2 號出口<br>步行約 5 分鐘</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="quick-contact">
+            <div class="container">
+                <h2>更快速的聯絡方式</h2>
+                <div class="quick-buttons">
+                    <a href="tel:+886912345678" class="quick-btn">
+                        <span class="quick-icon">📞</span>
+                        <span class="quick-label">直接來電</span>
+                    </a>
+                    <a href="#" class="quick-btn">
+                        <span class="quick-icon">💬</span>
+                        <span class="quick-label">Line 諮詢</span>
+                    </a>
+                    <a href="mailto:hello@wildpath.tw" class="quick-btn">
+                        <span class="quick-icon">📧</span>
+                        <span class="quick-label">Email</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-main">
@@ -428,42 +968,205 @@
                         <a href="#">Line@</a>
                     </div>
                 </div>
+
                 <div class="footer-links">
                     <div class="footer-column">
                         <h4>服務項目</h4>
-                        <ul><li><a href="vehicles.html">車款介紹</a></li><li><a href="#booking">預約流程</a></li><li><a href="#guide">旅遊攻略</a></li></ul>
+                        <ul>
+                            <li><a onclick="showPage('vehicles')">車款介紹</a></li>
+                            <li><a href="#">預約流程</a></li>
+                            <li><a href="#">旅遊攻略</a></li>
+                        </ul>
                     </div>
                     <div class="footer-column">
                         <h4>關於野徑</h4>
-                        <ul><li><a href="#about">品牌故事</a></li><li><a href="contact.html">聯絡我們</a></li><li><a href="#">常見問題</a></li></ul>
+                        <ul>
+                            <li><a href="#">品牌故事</a></li>
+                            <li><a onclick="showPage('contact')">聯絡我們</a></li>
+                            <li><a href="#">常見問題</a></li>
+                        </ul>
                     </div>
                     <div class="footer-column">
                         <h4>聯絡資訊</h4>
-                        <ul><li>電話：02-2345-6789</li><li>信箱：hello@wildpath.tw</li><li>地址：台北市大安區</li></ul>
+                        <ul>
+                            <li>電話：02-2345-6789</li>
+                            <li>信箱：hello@wildpath.tw</li>
+                            <li>地址：台北市大安區</li>
+                        </ul>
                     </div>
                 </div>
             </div>
+
             <div class="footer-bottom">
                 <p>&copy; 2025 野徑 WILD PATH. All Rights Reserved.</p>
-                <div class="footer-legal"><a href="#">隱私政策</a><a href="#">服務條款</a></div>
+                <div class="footer-legal">
+                    <a href="#">隱私政策</a>
+                    <a href="#">服務條款</a>
+                </div>
             </div>
         </div>
     </footer>
 
     <script>
-        const mobileToggle=document.getElementById('mobileToggle'),navMenu=document.getElementById('navMenu');
-        mobileToggle&&(mobileToggle.addEventListener('click',()=>{navMenu.classList.toggle('active'),mobileToggle.classList.toggle('active')}),document.addEventListener('click',e=>{mobileToggle.contains(e.target)||navMenu.contains(e.target)||(navMenu.classList.remove('active'),mobileToggle.classList.remove('active'))}),navMenu.querySelectorAll('a').forEach(e=>{e.addEventListener('click',()=>{navMenu.classList.remove('active'),mobileToggle.classList.remove('active')})}));
-        const navbar=document.getElementById('navbar');
-        window.addEventListener('scroll',()=>{window.pageYOffset>100?navbar.style.boxShadow='0 2px 16px rgba(0, 0, 0, 0.08)':navbar.style.boxShadow='none'});
-        document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener('click',function(e){const t=this.getAttribute('href');if('#'===t)return void e.preventDefault();const o=document.querySelector(t);o&&(e.preventDefault(),window.scrollTo({top:o.offsetTop-100,behavior:'smooth'}))})});
-        const hero=document.querySelector('.hero'),heroContent=document.querySelector('.hero-content');
-        hero&&heroContent&&window.addEventListener('scroll',()=>{const e=window.pageYOffset,t=hero.offsetHeight;e<t&&(heroContent.style.transform=`translateY(${.4*e}px)`,heroContent.style.opacity=1-e/t*1.2)});
-        const observer=new IntersectionObserver(e=>{e.forEach(e=>{e.isIntersecting&&(e.target.classList.add('fade-in'),observer.unobserve(e.target))})},{threshold:.1,rootMargin:'0px 0px -50px 0px'});
-        document.querySelectorAll('.feature-card, .vehicle-item, .testimonial-card').forEach(e=>{observer.observe(e)});
-        const philosophyObserver=new IntersectionObserver(e=>{e.forEach(e=>{e.isIntersecting&&(e.target.style.opacity='1',e.target.style.transform='translateY(0)')})},{threshold:.3});
-        document.querySelectorAll('.philosophy-text, .philosophy-image').forEach((e,t)=>{e.style.opacity='0',e.style.transform='translateY(40px)',e.style.transition=`all 0.8s cubic-bezier(0.4, 0, 0.2, 1) ${.2*t}s`,philosophyObserver.observe(e)});
-        const scrollProgress=document.createElement('div');
-        scrollProgress.style.cssText='position:fixed;top:80px;left:0;width:0%;height:2px;background:linear-gradient(90deg,var(--color-primary),var(--color-secondary));z-index:1001;transition:width .1s ease',document.body.appendChild(scrollProgress),window.addEventListener('scroll',()=>{const e=document.documentElement.scrollHeight-document.documentElement.clientHeight,t=window.scrollY/e*100;scrollProgress.style.width=`${t}%`});
+        // Page Navigation System
+        function showPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById(pageName).classList.add('active');
+            
+            // Update navigation active state
+            document.querySelectorAll('.nav-menu a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-page') === pageName) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Close mobile menu if open
+            document.getElementById('navMenu').classList.remove('active');
+        }
+
+        // Mobile Navigation Toggle
+        const mobileToggle = document.getElementById('mobileToggle');
+        const navMenu = document.getElementById('navMenu');
+
+        mobileToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!mobileToggle.contains(e.target) && !navMenu.contains(e.target)) {
+                navMenu.classList.remove('active');
+            }
+        });
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.pageYOffset > 100) {
+                navbar.style.boxShadow = '0 2px 16px rgba(0, 0, 0, 0.08)';
+            } else {
+                navbar.style.boxShadow = 'none';
+            }
+        });
+
+        // Hero Parallax Effect
+        const hero = document.querySelector('.hero');
+        const heroContent = document.querySelector('.hero-content');
+
+        if (hero && heroContent) {
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const heroHeight = hero.offsetHeight;
+                
+                if (scrolled < heroHeight) {
+                    heroContent.style.transform = `translateY(${scrolled * 0.4}px)`;
+                    heroContent.style.opacity = 1 - (scrolled / heroHeight) * 1.2;
+                }
+            });
+        }
+
+        // Form Submission
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const submitButton = contactForm.querySelector('button[type="submit"]');
+                const originalText = submitButton.textContent;
+                
+                submitButton.disabled = true;
+                submitButton.textContent = '送出中...';
+                
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Show success message
+                const message = document.createElement('div');
+                message.className = 'form-message success';
+                message.textContent = '預約資訊已送出！我們會在 24 小時內與您聯繫。';
+                contactForm.parentElement.insertBefore(message, contactForm.nextSibling);
+                
+                contactForm.reset();
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                setTimeout(() => {
+                    message.style.opacity = '0';
+                    setTimeout(() => message.remove(), 300);
+                }, 5000);
+            });
+        }
+
+        // Date Input Setup
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+
+        if (startDateInput && endDateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            startDateInput.setAttribute('min', today);
+            endDateInput.setAttribute('min', today);
+            
+            startDateInput.addEventListener('change', function() {
+                const startDate = this.value;
+                const minEndDate = new Date(startDate);
+                minEndDate.setDate(minEndDate.getDate() + 1);
+                endDateInput.setAttribute('min', minEndDate.toISOString().split('T')[0]);
+                
+                if (endDateInput.value && new Date(endDateInput.value) <= new Date(startDate)) {
+                    endDateInput.value = '';
+                }
+            });
+        }
+
+        // Phone Formatting
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 10) value = value.slice(0, 10);
+                
+                if (value.length > 6) {
+                    value = value.slice(0, 4) + '-' + value.slice(4, 7) + '-' + value.slice(7);
+                } else if (value.length > 4) {
+                    value = value.slice(0, 4) + '-' + value.slice(4);
+                }
+                
+                e.target.value = value;
+            });
+        }
+
+        // Scroll Progress Indicator
+        const scrollProgress = document.createElement('div');
+        scrollProgress.style.cssText = `
+            position: fixed;
+            top: 80px;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            z-index: 1001;
+            transition: width 0.1s ease;
+        `;
+        document.body.appendChild(scrollProgress);
+
+        window.addEventListener('scroll', () => {
+            const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (window.scrollY / windowHeight) * 100;
+            scrollProgress.style.width = `${scrolled}%`;
+        });
+
+        console.log('%c野徑 WILD PATH', 'font-size: 24px; font-weight: bold; color: #2c3e50;');
+        console.log('%c台灣精品露營車租賃 | 在路上找到生活的節奏', 'font-size: 12px; color: #5a6d7a;');
     </script>
 </body>
 </html>
