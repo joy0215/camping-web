@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { 
   Menu, X, Instagram, Facebook, MapPin, ArrowRight, 
   ChevronDown, Phone, Mail, Download, ExternalLink, Car, 
-  Calendar, CheckCircle, Info, Users, Fuel, Zap, ChevronLeft, ChevronRight, MessageCircle, Plus, Minus, Wind, Tent, Utensils
+  Calendar, CheckCircle, Info, Users, Fuel, Zap, ChevronLeft, ChevronRight, MessageCircle, Plus, Minus, Wind, Tent, Utensils, Map
 } from 'lucide-react';
 
 /**
- * CampingTour 車泊輕旅 - 2026 International Version (Final)
- * Features: Bilingual (ZH/EN), WhatsApp/Line Support, Custom Logo, Real App Links
+ * CampingTour 車泊輕旅 - 2026 International Version (Final with BedInCar App)
+ * Features: Bilingual (ZH/EN), WhatsApp/Line Support, Custom Logo, Real App Links (車床天地)
  */
 
 // --- 全域資料設定 ---
@@ -44,7 +44,7 @@ const IMAGES = {
   qrWhatsapp: "/camping-web/images/qr-whatsapp.jpg", // WhatsApp QR
   
   // 車輛照片
-  hero: "/camping-web/images/hero-roof.jpg",
+  hero: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80",
   drive: "/camping-web/images/vibe-drive.jpg",
   stand: "/camping-web/images/vibe-stand.jpg",
   side: "/camping-web/images/exterior-side.jpg",
@@ -395,7 +395,7 @@ const BookingPage = () => {
   );
 };
 
-// --- 頁面 4: 旅遊攻略 (Guide Page - Updated App Link) ---
+// --- 頁面 4: 旅遊攻略 (Guide Page - Updated with BedInCar) ---
 const GuidePage = () => {
   return (
     <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
@@ -406,15 +406,16 @@ const GuidePage = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
-          {/* Card 1: App Download */}
+          {/* Card 1: App Download (Updated to BedInCar) */}
           <div className="bg-white rounded-3xl overflow-hidden shadow-lg flex flex-col items-center text-center p-10 border border-stone-100">
-            <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-orange-200 shadow-xl">
-              <Car className="text-white w-10 h-10" />
+            {/* 圖示改為綠色系地圖，呼應車床天地 App 圖示 */}
+            <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-emerald-200 shadow-xl">
+              <Map className="text-white w-10 h-10" />
             </div>
-            <h3 className="text-2xl font-bold text-stone-900 mb-2">CampingTour App</h3>
+            <h3 className="text-2xl font-bold text-stone-900 mb-2">車床天地 (BedInCar)</h3>
             <p className="text-stone-500 mb-8 max-w-xs">
-              Find campsites, water spots, and hidden gems in Taiwan.<br/>
-              <span className="text-xs text-stone-400">下載我們的專屬 App，內建車泊地圖。</span>
+              The ultimate map for vanlifers in Taiwan. Find parking spots, showers, and campsites easily.<br/>
+              <span className="text-xs text-stone-400">台灣車泊露營必備 App，輕鬆搜尋泊點、澡點與露營區。</span>
             </p>
             <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
               {/* iOS App Store */}
