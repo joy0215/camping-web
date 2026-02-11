@@ -33,18 +33,18 @@ const CONTACT_INFO = {
   }
 };
 
-// 圖片路徑 (對應 public/images/)
+// 圖片路徑 (修正版：加上 /camping-web/ 前綴)
 const IMAGES = {
-  hero: "/images/hero-roof.jpg",
-  drive: "/images/vibe-drive.jpg",
-  stand: "/images/vibe-stand.jpg",      // 新增：女生站車旁
-  side: "/images/exterior-side.jpg",
-  bed: "/images/interior-bed.jpg",
-  awningFull: "/images/feature-awning-full.jpg",
-  awningClose: "/images/feature-awning-close.jpg",
-  window: "/images/feature-window.jpg",
-  chill: "/images/vibe-chill.jpg",
-  mountain: "/images/vibe-mountain.jpg"
+  hero: "/camping-web/images/hero-roof.jpg",
+  drive: "/camping-web/images/vibe-drive.jpg",
+  stand: "/camping-web/images/vibe-stand.jpg",
+  side: "/camping-web/images/exterior-side.jpg",
+  bed: "/camping-web/images/interior-bed.jpg",
+  awningFull: "/camping-web/images/feature-awning-full.jpg",
+  awningClose: "/camping-web/images/feature-awning-close.jpg",
+  window: "/camping-web/images/feature-window.jpg",
+  chill: "/camping-web/images/vibe-chill.jpg",
+  mountain: "/camping-web/images/vibe-mountain.jpg"
 };
 
 // --- 子組件：圖片輪播 ---
