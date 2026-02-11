@@ -44,7 +44,7 @@ const IMAGES = {
   qrWhatsapp: "/camping-web/images/qr-whatsapp.jpg", // WhatsApp QR
   
   // 車輛照片
-  hero: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80",
+  hero: "/camping-web/images/hero-new.jpg",
   drive: "/camping-web/images/vibe-drive.jpg",
   stand: "/camping-web/images/vibe-stand.jpg",
   side: "/camping-web/images/exterior-side.jpg",
