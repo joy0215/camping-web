@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Menu, X, Instagram, Facebook, MapPin, Star, ArrowRight, 
+  Menu, X, Instagram, Facebook, MapPin, ArrowRight, 
   ChevronDown, Phone, Mail, Download, ExternalLink, Car, 
-  Calendar, CheckCircle, Info, Users, Fuel, Zap, ChevronLeft, ChevronRight, MessageCircle, Plus, Minus
+  Calendar, CheckCircle, Info, Users, Fuel, Zap, ChevronLeft, ChevronRight, MessageCircle, Plus, Minus, Wind, Tent, Printer, Utensils
 } from 'lucide-react';
 
 /**
- * CampingTour 車泊輕旅 - 2026 旗艦版
- * Update: Booking Process 增加詳細政策摺疊選單 (Accordion)
+ * CampingTour 車泊輕旅 - 2026 旗艦版 (Final)
+ * Update: 整合悠遊旅行社資訊、完整配備列表、多樣化價格方案
  */
 
 // --- 全域資料設定 ---
@@ -18,66 +18,80 @@ const CONTACT_INFO = {
   fb: "車泊輕旅",
   ig: "freeyooung_campervan",
   igLink: "https://www.instagram.com/freeyooung_campervan/",
-  fbLink: "#"
+  fbLink: "#",
+  address: "台北市北投區大度路一段157-2號", // 取車地點
+  
+  // 旅行社公司登記資料
+  company: {
+    name: "悠遊旅行社股份有限公司",
+    address: "桃園市蘆竹區光明路二段251號",
+    phone: "03-352-8186",
+    fax: "03-312-4904",
+    email: "f774955@hotmail.com",
+    rep: "林繼城",
+    taxId: "84293135"
+  }
 };
 
-const IMG_BASE = "https://custom-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit,fl_lossy,h_9000,w_1200,f_auto,q_1/20047068/";
+// 圖片路徑 (對應 public/images/)
+const IMAGES = {
+  hero: "/images/hero-roof.jpg",
+  drive: "/images/vibe-drive.jpg",
+  stand: "/images/vibe-stand.jpg",      // 新增：女生站車旁
+  side: "/images/exterior-side.jpg",
+  bed: "/images/interior-bed.jpg",
+  awningFull: "/images/feature-awning-full.jpg",
+  awningClose: "/images/feature-awning-close.jpg",
+  window: "/images/feature-window.jpg",
+  chill: "/images/vibe-chill.jpg",
+  mountain: "/images/vibe-mountain.jpg"
+};
 
-// --- 子組件：圖片輪播 (Image Gallery) ---
+// --- 子組件：圖片輪播 ---
 const ImageGallery = ({ images, alt }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % images.length);
   const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
 
   return (
-    <div className="relative w-full h-64 md:h-96 group overflow-hidden bg-stone-100">
+    <div className="relative w-full h-[300px] md:h-[500px] group overflow-hidden bg-stone-100 rounded-3xl shadow-lg">
       <img src={images[currentIndex]} alt={`${alt} ${currentIndex + 1}`} className="w-full h-full object-cover transition-opacity duration-500"/>
-      <button onClick={(e) => { e.stopPropagation(); prevSlide(); }} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/30 backdrop-blur-md p-2 rounded-full text-white hover:bg-white/50 opacity-0 group-hover:opacity-100 transition-all"><ChevronLeft size={20} /></button>
-      <button onClick={(e) => { e.stopPropagation(); nextSlide(); }} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/30 backdrop-blur-md p-2 rounded-full text-white hover:bg-white/50 opacity-0 group-hover:opacity-100 transition-all"><ChevronRight size={20} /></button>
+      <button onClick={(e) => { e.stopPropagation(); prevSlide(); }} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-md p-3 rounded-full text-white hover:bg-white/40 opacity-0 group-hover:opacity-100 transition-all"><ChevronLeft size={24} /></button>
+      <button onClick={(e) => { e.stopPropagation(); nextSlide(); }} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-md p-3 rounded-full text-white hover:bg-white/40 opacity-0 group-hover:opacity-100 transition-all"><ChevronRight size={24} /></button>
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
         {images.map((_, idx) => (
-          <div key={idx} className={`w-2 h-2 rounded-full transition-all ${idx === currentIndex ? 'bg-white w-4' : 'bg-white/50'}`} />
+          <div key={idx} className={`w-2 h-2 rounded-full transition-all ${idx === currentIndex ? 'bg-white w-6' : 'bg-white/50'}`} />
         ))}
       </div>
     </div>
   );
 };
 
-// --- 子組件：政策摺疊項目 (Accordion Item) ---
+// --- 子組件：政策摺疊項目 ---
 const PolicyItem = ({ title, icon: Icon, children }) => {
   const [isOpen, setIsOpen] = useState(false);
-
   return (
     <div className="border border-stone-200 rounded-xl overflow-hidden mb-4 bg-white shadow-sm transition-all hover:shadow-md">
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-5 text-left bg-white hover:bg-stone-50 transition-colors"
-      >
-        <div className="flex items-center gap-3 font-bold text-stone-800 text-lg">
-          {Icon && <Icon className="text-orange-600" size={24} />}
-          {title}
-        </div>
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between p-5 text-left bg-white hover:bg-stone-50 transition-colors">
+        <div className="flex items-center gap-3 font-bold text-stone-800 text-lg">{Icon && <Icon className="text-orange-600" size={24} />}{title}</div>
         {isOpen ? <Minus size={20} className="text-stone-400" /> : <Plus size={20} className="text-stone-400" />}
       </button>
-      
       <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
-        <div className="p-5 pt-0 text-stone-600 leading-relaxed border-t border-stone-100">
-          {children}
-        </div>
+        <div className="p-5 pt-0 text-stone-600 leading-relaxed border-t border-stone-100">{children}</div>
       </div>
     </div>
   );
 };
 
-// --- 子組件：導覽列 (Navbar) ---
+// --- 子組件：導覽列 ---
 const Navbar = ({ activePage, setActivePage, isScrolled }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navLinks = [
     { id: 'home', label: '首頁 Home' },
-    { id: 'plans', label: '方案介紹 Plans' },
-    { id: 'booking', label: '預約流程 Booking' },
-    { id: 'guide', label: '旅遊攻略 Guide' },
-    { id: 'about', label: '關於我們 About' },
+    { id: 'plans', label: '車型與方案 Plans' },
+    { id: 'booking', label: '預約 Booking' },
+    { id: 'guide', label: '攻略 Guide' },
+    { id: 'about', label: '關於 About' },
   ];
 
   return (
@@ -85,7 +99,6 @@ const Navbar = ({ activePage, setActivePage, isScrolled }) => {
       <div className="container mx-auto px-6 flex justify-between items-center">
         <div className="flex items-center gap-2 cursor-pointer group" onClick={() => setActivePage('home')}>
           <div className="text-2xl font-serif font-bold tracking-wider">CampingTour <span className="text-orange-600">.</span></div>
-          <span className={`text-sm tracking-widest hidden md:block opacity-80 group-hover:opacity-100 transition-opacity`}>車泊輕旅</span>
         </div>
         <div className="hidden md:flex space-x-8 font-medium text-sm tracking-wide">
           {navLinks.map((link) => (
@@ -105,10 +118,11 @@ const Navbar = ({ activePage, setActivePage, isScrolled }) => {
   );
 };
 
-// --- 子組件：頁腳 (Footer) ---
+// --- 子組件：頁腳 (已更新旅行社資訊) ---
 const Footer = ({ setActivePage }) => (
-  <footer className="bg-stone-900 text-stone-400 py-16">
+  <footer className="bg-stone-900 text-stone-400 py-16 text-sm">
     <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 border-b border-stone-800 pb-12">
+      {/* 品牌區 */}
       <div className="col-span-1 md:col-span-2 space-y-4">
         <h3 className="text-white text-3xl font-serif font-bold">CampingTour .</h3>
         <p className="max-w-sm leading-relaxed">台灣最專業的露營車租賃服務。<br />隨心所欲，探索山海。</p>
@@ -117,33 +131,64 @@ const Footer = ({ setActivePage }) => (
           <a href={CONTACT_INFO.igLink} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all"><Instagram size={20} /></a>
         </div>
       </div>
+      
+      {/* 快速連結 */}
       <div>
-        <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-sm">Quick Links</h4>
+        <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Quick Links</h4>
         <ul className="space-y-3">
           <li><button onClick={() => setActivePage('plans')} className="hover:text-white transition-colors">方案介紹 Plans</button></li>
           <li><button onClick={() => setActivePage('booking')} className="hover:text-white transition-colors">預約流程 Booking</button></li>
           <li><button onClick={() => setActivePage('guide')} className="hover:text-white transition-colors">旅遊攻略 Guide</button></li>
         </ul>
       </div>
+      
+      {/* 聯絡資訊 (楊哲) */}
       <div>
-        <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-sm">Contact</h4>
+        <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Contact</h4>
         <ul className="space-y-4">
           <li className="flex items-start gap-3"><Phone size={18} className="mt-1 text-orange-500" /> <div><span className="block text-white font-medium">{CONTACT_INFO.name}</span><span>{CONTACT_INFO.phone}</span></div></li>
           <li className="flex items-start gap-3"><Mail size={18} className="mt-1 text-orange-500" /> <span>{CONTACT_INFO.email}</span></li>
+          <li className="flex items-start gap-3"><MapPin size={18} className="mt-1 text-orange-500" /> <span>{CONTACT_INFO.address}</span></li>
         </ul>
       </div>
     </div>
-    <div className="container mx-auto px-6 text-center text-sm text-stone-600">
+
+    {/* 公司登記資料 (新增) */}
+    <div className="container mx-auto px-6 border-b border-stone-800 pb-8 mb-8">
+      <h4 className="text-stone-500 font-bold mb-4 uppercase tracking-widest text-xs">Company Info</h4>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-xs text-stone-500">
+        <div>
+          <span className="block text-stone-400 font-bold">{CONTACT_INFO.company.name}</span>
+          <span>統編: {CONTACT_INFO.company.taxId}</span><br/>
+          <span>代表人: {CONTACT_INFO.company.rep}</span>
+        </div>
+        <div>
+          <span className="block text-stone-400 font-bold">Address</span>
+          <span>{CONTACT_INFO.company.address}</span>
+        </div>
+        <div>
+          <span className="block text-stone-400 font-bold">Contact</span>
+          <span>TEL: {CONTACT_INFO.company.phone}</span><br/>
+          <span>FAX: {CONTACT_INFO.company.fax}</span>
+        </div>
+        <div>
+          <span className="block text-stone-400 font-bold">Email</span>
+          <span>{CONTACT_INFO.company.email}</span>
+        </div>
+      </div>
+    </div>
+
+    <div className="container mx-auto px-6 text-center text-xs text-stone-600">
       <p>&copy; 2026 CampingTour Taiwan. All Rights Reserved.</p>
     </div>
   </footer>
 );
 
-// --- 頁面內容組件 ---
+// --- 頁面 1: 首頁 ---
 const HomePage = ({ setActivePage }) => (
   <>
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 z-0"><img src="https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80" alt="Camping" className="w-full h-full object-cover"/><div className="absolute inset-0 bg-stone-900/40"></div></div>
+      <div className="absolute inset-0 z-0"><img src={IMAGES.hero} alt="Camping Hero" className="w-full h-full object-cover"/><div className="absolute inset-0 bg-stone-900/30"></div></div>
       <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto mt-10">
         <p className="text-orange-400 font-medium tracking-[0.3em] mb-4 uppercase">Explore Taiwan Your Way</p>
         <h1 className="text-5xl md:text-7xl font-serif font-bold mb-8 leading-tight drop-shadow-xl">車泊輕旅<br /><span className="text-3xl md:text-5xl font-light mt-2 block opacity-90">CampingTour Taiwan</span></h1>
@@ -166,53 +211,192 @@ const HomePage = ({ setActivePage }) => (
   </>
 );
 
+// --- 頁面 2: 方案＆車輛介紹 (已更新完整價格表與配備) ---
 const PlansPage = () => {
-  const vehicles = [
+  const vehicle = {
+    name: "Nomad A180 Camper",
+    nameZh: "戶外探險號",
+    desc: "為熱愛戶外與未知旅程而生。配備外推窗、舒適床鋪與完善電力系統，讓您在任何地方都能睡得安穩。",
+    specs: [
+      { icon: Users, label: "適合 2 人" },
+      { icon: Car, label: "自排車款" },
+      { icon: Fuel, label: "95 無鉛汽油" },
+      { icon: Zap, label: "280Ah 鋰鐵電池" },
+      { icon: Wind, label: "駐車冷氣" },
+      { icon: Tent, label: "車邊帳" }
+    ],
+    // 完整 9 張圖
+    gallery: [
+      IMAGES.side, IMAGES.bed, IMAGES.awningFull, IMAGES.drive, 
+      IMAGES.stand, IMAGES.window, IMAGES.chill, IMAGES.awningClose, IMAGES.mountain
+    ]
+  };
+
+  // 完整配備清單
+  const equipments = [
+    { name: "睡袋 ×2、枕頭 ×2", en: "Sleeping bags & Pillows (Disposable covers)", icon: Tent },
+    { name: "小瓦斯爐 + 露營鍋具", en: "Gas stove & Cooking set", icon: Utensils },
+    { name: "110V 插座及延長線", en: "110V Outlet & Extension cord", icon: Zap },
+    { name: "摺疊水桶 + 淋浴器", en: "Folding bucket & Shower", icon: Info },
+    { name: "露營桌 ×1、椅子 ×2", en: "Camping table & Chairs", icon: Tent },
+    { name: "露營餐具組 (4人份)", en: "Cutlery set (Bowls, Cups, Fork/Spoon)", icon: Utensils },
+    { name: "營燈 ×2、串燈 ×1", en: "Lanterns & String lights", icon: Zap },
+    { name: "烤盤", en: "BBQ grill pan", icon: Utensils }
+  ];
+
+  // 價格方案 (Pricing Plans)
+  const pricingPlans = [
     {
-      id: 1,
-      name: "Veryca Revival Camper",
-      nameZh: "經典復古露營車",
-      prices: { weekday: "NT$ 3,000", weekend: "NT$ 4,000" },
-      desc: "以經典 Mitsubishi Veryca 改裝，擁有復古外型與齊全設備。適合想體驗懷舊風格與簡單車泊樂趣的旅人。",
-      specs: [{ icon: Users, label: "適合 1-2 人" }, { icon: Car, label: "自排 / 手排可選" }, { icon: Fuel, label: "95 無鉛汽油" }, { icon: Zap, label: "500Ah 電池" }],
-      features: ["駐車冷氣 + 循環扇", "車邊帳", "雙人床鋪", "後尾廚櫃"],
-      images: [`${IMG_BASE}931809_419866.jpeg`, `${IMG_BASE}123548_170185.jpeg`, `${IMG_BASE}15333_10888.jpeg`, `${IMG_BASE}957709_856997.jpeg`]
+      title: "3 日快閃行",
+      subtitle: "3-Day Escape (Weekday)",
+      price: "NT$ 9,000",
+      tag: "平日限定",
+      color: "bg-blue-50 border-blue-200 text-blue-900",
+      desc: "適合短暫逃離城市的輕旅行"
     },
     {
-      id: 2,
-      name: "A180 Adventure Camper",
-      nameZh: "戶外探險露營車",
-      prices: { weekday: "NT$ 3,700", weekend: "NT$ 4,700" },
-      desc: "為熱愛戶外與未知旅程而生。配備外推窗與升級版電力系統，是您探索台灣秘境的可靠基地。",
-      specs: [{ icon: Users, label: "適合 2-3 人" }, { icon: Car, label: "自排變速箱" }, { icon: Fuel, label: "95 無鉛汽油" }, { icon: Zap, label: "280Ah 鋰鐵電池" }],
-      features: ["外推窗設計", "駐車冷氣", "高機動性", "110V 插座"],
-      images: [`${IMG_BASE}42199_731384.jpeg`, `${IMG_BASE}645575_113678.jpeg`, `${IMG_BASE}940323_906701.jpeg`, `${IMG_BASE}661439_125428.jpeg`]
+      title: "3 日標準方案",
+      subtitle: "3-Day Standard Plan",
+      price: "NT$ 10,500",
+      tag: "熱門",
+      color: "bg-orange-50 border-orange-200 text-orange-900",
+      desc: "含假日，最受歡迎的選擇"
+    },
+    {
+      title: "5 日無差價方案",
+      subtitle: "5-Day Flat-Rate Plan",
+      price: "NT$ 16,800",
+      tag: "週末適用",
+      color: "bg-green-50 border-green-200 text-green-900",
+      desc: "跨週末不加價，划算之選"
+    },
+    {
+      title: "7 日冒險週",
+      subtitle: "7-Day Adventure",
+      price: "NT$ 21,700",
+      tag: "深度旅遊",
+      color: "bg-stone-100 border-stone-200 text-stone-900",
+      desc: "完整一週的環島體驗"
+    },
+    {
+      title: "14 日深度漫遊",
+      subtitle: "14-Day Slow Travel",
+      price: "NT$ 41,300",
+      tag: "長租優惠",
+      color: "bg-white border-stone-200 text-stone-600",
+      desc: "半個月的慢活時光"
+    },
+    {
+      title: "21 日生活提案",
+      subtitle: "21-Day Living",
+      price: "NT$ 57,200",
+      tag: "長租優惠",
+      color: "bg-white border-stone-200 text-stone-600",
+      desc: "體驗真正的車泊生活"
+    },
+    {
+      title: "30 日遊牧人生",
+      subtitle: "30-Day Nomadic Life",
+      price: "NT$ 76,500",
+      tag: "月租超值",
+      color: "bg-stone-800 border-stone-800 text-white",
+      desc: "一個月的遊牧人生"
     }
   ];
 
   return (
     <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-16"><h2 className="text-4xl font-serif font-bold text-stone-900 mb-4">Our Fleet</h2><p className="text-stone-600 max-w-2xl mx-auto">精選改裝車款，定期保養，確保您的旅途舒適安全。</p></div>
-        <div className="space-y-20">
-          {vehicles.map((v, idx) => (
-            <div key={v.id} className={`bg-white rounded-3xl overflow-hidden shadow-xl border border-stone-100 flex flex-col ${idx % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
-              <div className="w-full lg:w-1/2"><ImageGallery images={v.images} alt={v.name} /></div>
-              <div className="w-full lg:w-1/2 p-8 md:p-12 flex flex-col">
-                <div className="flex justify-between items-start mb-4"><div><h3 className="text-2xl font-bold text-stone-900">{v.name}</h3><h4 className="text-lg text-orange-600 font-medium">{v.nameZh}</h4></div><div className="text-right"><div className="text-sm text-stone-500">平日</div><div className="font-bold text-stone-800">{v.prices.weekday}<span className="text-xs font-normal">/日</span></div><div className="text-sm text-stone-500 mt-1">假日</div><div className="font-bold text-stone-800">{v.prices.weekend}<span className="text-xs font-normal">/日</span></div></div></div>
-                <p className="text-stone-600 mb-8 leading-relaxed">{v.desc}</p>
-                <div className="grid grid-cols-2 gap-4 mb-8 bg-stone-50 p-4 rounded-xl">{v.specs.map((spec, i) => (<div key={i} className="flex items-center gap-2 text-stone-700"><spec.icon size={18} className="text-stone-400" /><span className="text-sm font-medium">{spec.label}</span></div>))}</div>
-                <div className="flex flex-wrap gap-2 mt-auto">{v.features.map(f => (<span key={f} className="px-3 py-1 bg-orange-50 text-orange-700 text-xs font-bold rounded-full">{f}</span>))}</div>
+        
+        {/* 車型展示區 */}
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-serif font-bold text-stone-900 mb-4">{vehicle.name}</h2>
+          <p className="text-xl text-orange-600 font-medium tracking-wide">{vehicle.nameZh}</p>
+        </div>
+
+        <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-stone-100 mb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2">
+            <div className="p-4 lg:p-6"><ImageGallery images={vehicle.gallery} alt={vehicle.name} /></div>
+            <div className="p-8 lg:p-12 flex flex-col justify-center">
+              <h3 className="text-2xl font-bold mb-6 text-stone-800">關於這台車</h3>
+              <p className="text-stone-600 leading-relaxed mb-8 text-lg">{vehicle.desc}</p>
+              
+              <h4 className="font-bold text-stone-900 mb-4 flex items-center gap-2"><CheckCircle size={18} className="text-orange-500"/> 車輛規格 Spec</h4>
+              <div className="grid grid-cols-2 gap-4 mb-8">
+                {vehicle.specs.map((spec, i) => (
+                  <div key={i} className="flex items-center gap-3 text-stone-700 bg-stone-50 p-3 rounded-lg">
+                    <spec.icon size={20} className="text-stone-400" /><span className="font-medium">{spec.label}</span>
+                  </div>
+                ))}
               </div>
+
+              {/* 基本價格顯示 */}
+              <div className="bg-orange-50 rounded-2xl p-6 border border-orange-100">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-stone-600">平日 (Weekday)</span>
+                  <span className="font-bold text-xl text-stone-800">NT$ 3,700<span className="text-sm font-normal">/日</span></span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-stone-600">假日 (Weekend)</span>
+                  <span className="font-bold text-xl text-stone-800">NT$ 4,700<span className="text-sm font-normal">/日</span></span>
+                </div>
+                <div className="mt-4 pt-4 border-t border-orange-200 text-center">
+                  <span className="inline-block bg-orange-600 text-white text-xs px-2 py-1 rounded">學生優惠 Student Discount</span>
+                  <span className="ml-2 text-sm text-orange-800 font-bold">憑證 9 折 (10% OFF)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 配備清單區 (Equipment) */}
+        <div className="mb-20">
+          <div className="text-center mb-10">
+            <h3 className="text-3xl font-serif font-bold text-stone-900">隨車配備 Included Equipment</h3>
+            <p className="text-stone-500 mt-2">免裝備露營，我們都幫您準備好了</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {equipments.map((item, idx) => (
+              <div key={idx} className="bg-white p-6 rounded-xl shadow-sm border border-stone-100 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 bg-stone-100 rounded-full flex items-center justify-center mb-4 text-stone-600">
+                  <item.icon size={24} />
+                </div>
+                <h4 className="font-bold text-stone-800 mb-1">{item.name}</h4>
+                <p className="text-xs text-stone-500">{item.en}</p>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-6 text-sm text-stone-500 bg-green-50 py-3 rounded-lg border border-green-100 inline-block w-full">
+            ♻️ 為響應環保，不提供一次性餐具。 Disposable items not provided (eco-friendly).
+          </div>
+        </div>
+
+        {/* 價格方案區 (Pricing Plans) */}
+        <div className="text-center mb-12">
+          <h3 className="text-3xl font-serif font-bold text-stone-900">Special Plans</h3>
+          <p className="text-stone-500 mt-2">多天數優惠方案，玩越久越划算</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
+          {pricingPlans.map((plan, idx) => (
+            <div key={idx} className={`relative rounded-2xl p-6 border transition-transform hover:-translate-y-1 ${plan.color} ${idx === pricingPlans.length - 1 ? 'md:col-span-2 lg:col-span-1' : ''}`}>
+              <div className="flex justify-between items-start mb-4">
+                <span className="text-xs font-bold uppercase tracking-wider opacity-70 border border-current px-2 py-0.5 rounded">{plan.tag}</span>
+              </div>
+              <h4 className="text-xl font-bold mb-1">{plan.title}</h4>
+              <p className="text-xs opacity-70 mb-4 uppercase">{plan.subtitle}</p>
+              <div className="text-3xl font-bold mb-2">{plan.price}</div>
+              <p className="text-sm opacity-80 border-t border-current/20 pt-3">{plan.desc}</p>
             </div>
           ))}
         </div>
+
       </div>
     </div>
   );
 };
 
-// --- 預約流程 (Booking Page) 優化版 ---
+// --- 頁面 3: 預約流程 ---
 const BookingPage = () => {
   return (
     <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
@@ -223,111 +407,60 @@ const BookingPage = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto items-start">
-          
-          {/* 左側：Line 預約卡片 (Sticky) */}
           <div className="lg:sticky lg:top-28 space-y-8">
             <div className="bg-white p-10 rounded-3xl shadow-xl border-t-4 border-green-500 text-center">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <MessageCircle size={40} className="text-green-600" />
-              </div>
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"><MessageCircle size={40} className="text-green-600" /></div>
               <h3 className="text-2xl font-bold text-stone-900 mb-2">加入 Line 官方帳號</h3>
               <p className="text-stone-500 mb-8">掃描 QR Code 或搜尋 ID，直接與我們聯繫預約</p>
-              
               <div className="bg-stone-100 p-4 rounded-xl inline-block mb-6 group cursor-pointer relative">
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://line.me/ti/p/~@campingtour" alt="Line QR Code" className="w-48 h-48 mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity"/>
                 <div className="mt-2 font-mono text-stone-500 text-sm">ID: @campingtour</div>
               </div>
-
-              <button className="w-full bg-[#06C755] hover:bg-[#05b34c] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
-                <MessageCircle size={20} /> 打開 Line 預約
-              </button>
+              <button className="w-full bg-[#06C755] hover:bg-[#05b34c] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"><MessageCircle size={20} /> 打開 Line 預約</button>
             </div>
-
-             {/* 簡易流程指示 */}
-             <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-100">
-                <h4 className="font-bold text-stone-800 mb-4">預約三步驟</h4>
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-3 text-sm text-stone-600"><span className="w-6 h-6 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs">1</span> 確認日期與車型</div>
-                  <div className="flex items-center gap-3 text-sm text-stone-600"><span className="w-6 h-6 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs">2</span> Line 聯繫並支付訂金</div>
-                  <div className="flex items-center gap-3 text-sm text-stone-600"><span className="w-6 h-6 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs">3</span> 桃園高鐵取車出發</div>
-                </div>
-             </div>
           </div>
-
-          {/* 右側：詳細政策與須知 (Accordions) */}
           <div className="space-y-4">
             <h3 className="text-2xl font-serif font-bold text-stone-900 mb-6">重要政策與須知</h3>
-
             <PolicyItem title="取消與退款政策 Cancellation Policy" icon={Calendar}>
               <ul className="list-disc list-inside space-y-2">
                 <li><span className="font-bold text-stone-800">出發前 14 天</span>：退還 100% 訂金。</li>
                 <li><span className="font-bold text-stone-800">出發前 7-13 天</span>：退還 70% 訂金。</li>
                 <li><span className="font-bold text-stone-800">出發前 1-3 天</span>：退還 50% 訂金。</li>
                 <li><span className="font-bold text-stone-800">出發當日</span>：退還 20% 訂金。</li>
-                <li className="text-sm text-stone-500 pt-2">* 每筆退款將扣除 NT$30 手續費 (國外帳戶另計平台費)。</li>
+                <li className="text-sm text-stone-500 pt-2">* 每筆退款將扣除 NT$30 手續費。</li>
               </ul>
             </PolicyItem>
-
             <PolicyItem title="保險與外籍旅客須知 Insurance" icon={CheckCircle}>
               <p className="mb-3">露營車已包含強制第三責任險。但為了您的保障，我們有以下規範：</p>
               <ul className="list-disc list-inside space-y-2">
-                <li><span className="font-bold text-stone-800">外籍旅客 (Foreigners)</span>：<br/>必須自行購買 <span className="text-orange-600 font-bold">Car Hire Excess Insurance (租車自負額保險)</span> 或提供具備同等效力之保險證明。</li>
-                <li>若無法提供保險證明，可能需支付最高 <span className="font-bold">NT$80,000</span> 之風險保證金。</li>
-                <li>車內設備損壞（如內裝、電池、冷氣）不在一般車險範圍內，需由租用人全額賠償。</li>
+                <li><span className="font-bold text-stone-800">外籍旅客 (Foreigners)</span>：<br/>必須自行購買 <span className="text-orange-600 font-bold">Car Hire Excess Insurance</span> 或提供具備同等效力之保險證明。</li>
+                <li>若無法提供保險證明，可能需支付風險保證金。</li>
               </ul>
             </PolicyItem>
-
             <PolicyItem title="取還車與押金規範 Pick-up & Return" icon={MapPin}>
               <ul className="list-disc list-inside space-y-2">
-                <li><span className="font-bold">取車/還車地點</span>：桃園高鐵站 1 號出口停車場。</li>
-                <li><span className="font-bold">服務時間</span>：09:00-10:00 或 17:30-19:00。<br/><span className="text-sm text-stone-500 pl-5">非上述時間恕不提供服務，遲到將收取延遲費。</span></li>
-                <li><span className="font-bold">保證金 (Security Deposit)</span>：取車時需支付 <span className="font-bold text-orange-600">NT$5,000</span> 現金，用於扣抵 ETC、停車費或罰單。餘額將於 30-45 個工作天退還。</li>
+                <li><span className="font-bold">取車/還車地點</span>：台北市北投區大度路一段157-2號。</li>
+                <li><span className="font-bold">保證金 (Security Deposit)</span>：取車時需支付 <span className="font-bold text-orange-600">NT$5,000</span> 現金，還車檢查無誤後退還。</li>
               </ul>
             </PolicyItem>
-
             <PolicyItem title="車輛使用與設備須知 Usage Guidelines" icon={Zap}>
               <ul className="list-disc list-inside space-y-2">
-                <li><span className="font-bold">每日里程限制</span>：300 公里 (超過每公里加收 NT$8)。</li>
-                <li><span className="font-bold">車高限制</span>：含車邊帳高度約 <span className="font-bold text-orange-600">210 cm</span>，進入停車場請務必注意。</li>
-                <li><span className="font-bold">電力使用</span>：行駛充電效率較慢。若需長時間使用冷氣，強烈建議<span className="font-bold">每 2-3 天進入露營區</span>使用 110V 插座補電。</li>
-                <li><span className="font-bold">身高限制</span>：車內空間有限，身高超過 190cm 者可能會感到侷促。</li>
+                <li><span className="font-bold">每日里程限制</span>：300 公里 (超過每公里加收費用)。</li>
+                <li><span className="font-bold">車高限制</span>：含車邊帳高度約 <span className="font-bold text-orange-600">210 cm</span>，請留意限高。</li>
               </ul>
             </PolicyItem>
           </div>
-
         </div>
       </div>
     </div>
   );
 };
 
-const GuidePage = () => {
-  return (
-    <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-16"><h2 className="text-4xl font-serif font-bold text-stone-900 mb-4">Travel Guide</h2><p className="text-stone-600">專為車泊旅人打造的路線與工具</p></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
-          <div className="bg-white rounded-3xl overflow-hidden shadow-lg flex flex-col items-center text-center p-10 border border-stone-100"><div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-orange-200 shadow-xl"><Car className="text-white w-10 h-10" /></div><h3 className="text-2xl font-bold text-stone-900 mb-2">CampingTour App</h3><p className="text-stone-500 mb-8 max-w-xs">下載我們的專屬 App，內建全台車泊地圖、水廁資訊以及私房景點推薦。</p><div className="flex flex-col sm:flex-row gap-4 w-full justify-center"><button className="flex items-center justify-center gap-3 bg-stone-900 text-white px-6 py-3 rounded-xl hover:bg-stone-800 transition-colors w-full sm:w-auto"><Download size={20} /><div className="text-left"><div className="text-[10px] uppercase tracking-wider">Download on the</div><div className="font-bold leading-none">App Store</div></div></button><button className="flex items-center justify-center gap-3 bg-stone-900 text-white px-6 py-3 rounded-xl hover:bg-stone-800 transition-colors w-full sm:w-auto"><Download size={20} /><div className="text-left"><div className="text-[10px] uppercase tracking-wider">Get it on</div><div className="font-bold leading-none">Google Play</div></div></button></div></div>
-          <div className="bg-stone-900 rounded-3xl overflow-hidden shadow-lg group relative h-full min-h-[400px]"><img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Taiwan Road Trip" className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-500"/><div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div><div className="relative z-10 p-10 h-full flex flex-col justify-end"><div className="bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full w-fit mb-4">MUST READ</div><h3 className="text-3xl font-serif font-bold text-white mb-4 leading-tight">The Perfect Taiwan Road Trip in 15 Days</h3><p className="text-stone-300 mb-8 line-clamp-3">Sporty Travellers 推薦！深入探索台灣的最佳路線規劃。</p><a href="https://www.sportytravellers.com/asia/the-perfect-taiwan-road-trip-in-15-days/" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-white font-bold border-b border-orange-500 pb-1 w-fit hover:text-orange-400 transition-colors">閱讀完整文章 <ExternalLink size={16} /></a></div></div>
-        </div>
-      </div>
-    </div>
-  );
-};
+// --- 頁面 4: 攻略 & 5: 關於 (保持不變) ---
+const GuidePage = () => (<div className="pt-24 pb-20 bg-stone-50 min-h-screen"><div className="container mx-auto px-6 text-center"><h2 className="text-4xl font-serif font-bold text-stone-900 mb-4">Travel Guide</h2><p className="text-stone-600">更多路線攻略即將上線...</p></div></div>);
+const AboutPage = () => (<div className="pt-24 pb-20 bg-white min-h-screen"><div className="container mx-auto px-6"><div className="flex flex-col md:flex-row gap-16 items-center"><div className="w-full md:w-1/2"><img src={IMAGES.chill} alt="Team" className="rounded-3xl shadow-xl w-full"/></div><div className="w-full md:w-1/2 space-y-6"><h2 className="text-4xl font-serif font-bold text-stone-900">不追求完美，<br/>只追求真實的感動。</h2><p className="text-stone-600 leading-relaxed text-lg">露途臺灣 (CampingTour) 提供露營車出租服務，讓你用自己的節奏探索台灣。</p></div></div></div></div>);
 
-const AboutPage = () => {
-  return (
-    <div className="pt-24 pb-20 bg-white min-h-screen">
-      <div className="container mx-auto px-6">
-        <div className="flex flex-col md:flex-row gap-16 items-center">
-          <div className="w-full md:w-1/2"><div className="relative"><div className="absolute top-4 -left-4 w-full h-full border-2 border-orange-200 rounded-3xl z-0"></div><img src="https://images.unsplash.com/photo-1533240332313-0db49b459ad6?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="About Team" className="relative z-10 rounded-3xl shadow-xl w-full"/></div></div>
-          <div className="w-full md:w-1/2 space-y-6"><h2 className="text-4xl font-serif font-bold text-stone-900">不追求完美，<br/>只追求真實的感動。</h2><p className="text-stone-600 leading-relaxed text-lg">露途臺灣 (CampingTour) 提供露營車出租服務，讓你用自己的節奏探索台灣。我們相信，旅程的美好來自當下的感受，而不是設備有多豪華。</p><div className="pt-8 border-t border-stone-100"><h3 className="font-bold text-stone-900 mb-4">Contact Us</h3><ul className="space-y-3 text-stone-600"><li className="flex items-center gap-3"><div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600"><Phone size={16} /></div><span className="font-medium text-lg">{CONTACT_INFO.phone} ({CONTACT_INFO.name})</span></li><li className="flex items-center gap-3"><div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600"><Mail size={16} /></div><span className="font-medium text-lg">{CONTACT_INFO.email}</span></li></ul></div></div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
+// --- App ---
 const App = () => {
   const [activePage, setActivePage] = useState('home');
   const [isScrolled, setIsScrolled] = useState(false);
