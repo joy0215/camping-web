@@ -6,8 +6,8 @@ import {
 } from 'lucide-react';
 
 /**
- * CampingTour 車泊輕旅 - 2026 International Version
- * Features: Bilingual (ZH/EN), WhatsApp/Line Support, Custom Logo
+ * CampingTour 車泊輕旅 - 2026 International Version (Final)
+ * Features: Bilingual (ZH/EN), WhatsApp/Line Support, Custom Logo, Real App Links
  */
 
 // --- 全域資料設定 ---
@@ -43,7 +43,7 @@ const IMAGES = {
   qrLine: "/camping-web/images/qr-line.jpg",       // Line QR
   qrWhatsapp: "/camping-web/images/qr-whatsapp.jpg", // WhatsApp QR
   
-  // 車輛照片 (維持不變)
+  // 車輛照片
   hero: "/camping-web/images/hero-roof.jpg",
   drive: "/camping-web/images/vibe-drive.jpg",
   stand: "/camping-web/images/vibe-stand.jpg",
@@ -395,7 +395,7 @@ const BookingPage = () => {
   );
 };
 
-// --- 頁面 4: 旅遊攻略 (Guide Page - 恢復豐富版型 + 雙語) ---
+// --- 頁面 4: 旅遊攻略 (Guide Page - Updated App Link) ---
 const GuidePage = () => {
   return (
     <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
@@ -417,14 +417,27 @@ const GuidePage = () => {
               <span className="text-xs text-stone-400">下載我們的專屬 App，內建車泊地圖。</span>
             </p>
             <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-              <button className="flex items-center justify-center gap-3 bg-stone-900 text-white px-6 py-3 rounded-xl hover:bg-stone-800 transition-colors w-full sm:w-auto">
+              {/* iOS App Store */}
+              <a 
+                href="https://apps.apple.com/app/id1668213216" 
+                target="_blank" 
+                rel="noreferrer"
+                className="flex items-center justify-center gap-3 bg-stone-900 text-white px-6 py-3 rounded-xl hover:bg-stone-800 transition-colors w-full sm:w-auto shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
                 <Download size={20} />
                 <div className="text-left"><div className="text-[10px] uppercase tracking-wider">Download on the</div><div className="font-bold leading-none">App Store</div></div>
-              </button>
-              <button className="flex items-center justify-center gap-3 bg-stone-900 text-white px-6 py-3 rounded-xl hover:bg-stone-800 transition-colors w-full sm:w-auto">
+              </a>
+              
+              {/* Google Play */}
+              <a 
+                href="https://play.google.com/store/apps/details?id=cmsp.bedincar&hl=zh_TW" 
+                target="_blank" 
+                rel="noreferrer"
+                className="flex items-center justify-center gap-3 bg-stone-900 text-white px-6 py-3 rounded-xl hover:bg-stone-800 transition-colors w-full sm:w-auto shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
                 <Download size={20} />
                 <div className="text-left"><div className="text-[10px] uppercase tracking-wider">Get it on</div><div className="font-bold leading-none">Google Play</div></div>
-              </button>
+              </a>
             </div>
           </div>
 
