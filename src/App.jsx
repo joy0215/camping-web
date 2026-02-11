@@ -337,14 +337,20 @@ const BookingPage = () => {
                 <div className="text-center p-4 bg-stone-50 rounded-2xl">
                   <div className="font-bold text-green-600 mb-2">Line@ Official</div>
                   <img src={IMAGES.qrLine} alt="Line QR" className="w-32 h-32 mx-auto mix-blend-multiply mb-3"/>
-                  <a href="https://line.me/ti/p/~@campingtour" target="_blank" rel="noreferrer" className="block w-full bg-[#06C755] hover:bg-[#05b34c] text-white text-sm font-bold py-2 rounded-lg transition-colors">Open Line</a>
+                  <a href="https://line.me/ti/p/@626twiqy" target="_blank" rel="noreferrer" className="block w-full bg-[#06C755] hover:bg-[#05b34c] text-white text-sm font-bold py-2 rounded-lg transition-colors">Open Line</a>
                 </div>
                 
                 {/* WhatsApp */}
                 <div className="text-center p-4 bg-stone-50 rounded-2xl">
                   <div className="font-bold text-green-700 mb-2">WhatsApp</div>
                   <img src={IMAGES.qrWhatsapp} alt="WhatsApp QR" className="w-32 h-32 mx-auto mix-blend-multiply mb-3"/>
-                  <a href="https://wa.me/message/YOUR_LINK" target="_blank" rel="noreferrer" className="block w-full bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-bold py-2 rounded-lg transition-colors">Open WhatsApp</a>
+                  <a href="https://wa.me/886965720586" 
+                    target="_blank" 
+                    rel="noreferrer" 
+                    className="block w-full bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-bold py-2 rounded-lg transition-colors"
+                  >
+                    Open WhatsApp
+                  </a>
                 </div>
               </div>
             </div>
