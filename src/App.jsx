@@ -6,8 +6,8 @@ import {
 } from 'lucide-react';
 
 /**
- * CampingTour 車泊輕旅 - 2026 International Version (Final with BedInCar App)
- * Features: Bilingual (ZH/EN), WhatsApp/Line Support, Custom Logo, Real App Links (車床天地)
+ * CampingTour 車泊輕旅 - 2026 Final Version
+ * Updates: Hero Image, 50% Deposit, Correct Social Links, WhatsApp Number
  */
 
 // --- 全域資料設定 ---
@@ -16,9 +16,11 @@ const CONTACT_INFO = {
   phone: "0965-720-586",
   email: "cheyang0326@gmail.com",
   fb: "車泊輕旅",
-  ig: "freeyooung_campervan",
-  igLink: "https://www.instagram.com/freeyooung_campervan/",
-  fbLink: "#",
+  ig: "freeyoung_campervan",
+  // 社群連結更新
+  igLink: "https://www.instagram.com/freeyoung_campervan?igsh=MW43eXRvajExeXFoeg==",
+  fbLink: "https://www.facebook.com/share/1FNT8UW5xz/?mibextid=wwXIfr",
+  
   address: "台北市北投區大度路一段157-2號",
   addressEn: "No. 157-2, Sec. 1, Dadu Rd., Beitou Dist., Taipei City",
   
@@ -38,13 +40,15 @@ const CONTACT_INFO = {
 
 // 圖片路徑 (請確認 public/images/ 內有這些檔案)
 const IMAGES = {
-  logo: "/camping-web/images/logo-circle.jpg",      // 圓形 Logo
-  logoStack: "/camping-web/images/logo-stack.jpg", // 堆疊 Logo
-  qrLine: "/camping-web/images/qr-line.jpg",       // Line QR
-  qrWhatsapp: "/camping-web/images/qr-whatsapp.jpg", // WhatsApp QR
+  logo: "/camping-web/images/logo-circle.jpg",
+  logoStack: "/camping-web/images/logo-stack.jpg",
+  qrLine: "/camping-web/images/qr-line.jpg",
+  qrWhatsapp: "/camping-web/images/qr-whatsapp.jpg",
+  
+  // 新封面照片 (請確認檔名為 hero-new.jpg)
+  hero: "/camping-web/images/vibe-drive.jpg",
   
   // 車輛照片
-  hero: "/camping-web/images/hero-new.jpg",
   drive: "/camping-web/images/vibe-drive.jpg",
   stand: "/camping-web/images/vibe-stand.jpg",
   side: "/camping-web/images/exterior-side.jpg",
@@ -147,7 +151,7 @@ const Footer = ({ setActivePage }) => (
         </div>
         <p className="max-w-sm leading-relaxed">台灣最專業的露營車租賃服務。<br />Explore Taiwan your way with our fully equipped campervans.</p>
         <div className="flex gap-4 pt-2">
-          <a href={CONTACT_INFO.fbLink} className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all"><Facebook size={20} /></a>
+          <a href={CONTACT_INFO.fbLink} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all"><Facebook size={20} /></a>
           <a href={CONTACT_INFO.igLink} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all"><Instagram size={20} /></a>
         </div>
       </div>
@@ -340,11 +344,12 @@ const BookingPage = () => {
                   <a href="https://line.me/ti/p/@626twiqy" target="_blank" rel="noreferrer" className="block w-full bg-[#06C755] hover:bg-[#05b34c] text-white text-sm font-bold py-2 rounded-lg transition-colors">Open Line</a>
                 </div>
                 
-                {/* WhatsApp */}
+                {/* WhatsApp (Updated with Phone Number) */}
                 <div className="text-center p-4 bg-stone-50 rounded-2xl">
                   <div className="font-bold text-green-700 mb-2">WhatsApp</div>
                   <img src={IMAGES.qrWhatsapp} alt="WhatsApp QR" className="w-32 h-32 mx-auto mix-blend-multiply mb-3"/>
-                  <a href="https://wa.me/886965720586" 
+                  <a 
+                    href="https://wa.me/886965720586" 
                     target="_blank" 
                     rel="noreferrer" 
                     className="block w-full bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-bold py-2 rounded-lg transition-colors"
@@ -359,7 +364,8 @@ const BookingPage = () => {
                 <h4 className="font-bold text-stone-800 mb-4">預約三步驟 3 Steps</h4>
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center gap-3 text-sm text-stone-600"><span className="w-6 h-6 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs font-bold">1</span> 確認日期與車型 Check availability</div>
-                  <div className="flex items-center gap-3 text-sm text-stone-600"><span className="w-6 h-6 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs font-bold">2</span> 聯繫並支付訂金 Contact & Deposit</div>
+                  {/* Updated Deposit Info */}
+                  <div className="flex items-center gap-3 text-sm text-stone-600"><span className="w-6 h-6 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs font-bold">2</span> 聯繫並支付 50% 訂金 Contact & Pay 50% Deposit</div>
                   <div className="flex items-center gap-3 text-sm text-stone-600"><span className="w-6 h-6 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs font-bold">3</span> 台北北投取車 Pick up in Taipei</div>
                 </div>
              </div>
