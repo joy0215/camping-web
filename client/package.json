@@ -12,8 +12,16 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
     "gh-pages": "^6.3.0",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.563.0",
+    "nodemailer": "^8.0.1",
+    "pdfkit": "^0.17.2",
+    "pg": "^8.18.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
