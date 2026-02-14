@@ -2,12 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { 
   Menu, X, Instagram, Facebook, MapPin, ArrowRight, 
   ChevronDown, Phone, Mail, Download, ExternalLink, Car, 
-  Calendar, CheckCircle, Info, Users, Fuel, Zap, ChevronLeft, ChevronRight, MessageCircle, Plus, Minus, Wind, Tent, Utensils, Map
+  Calendar, CheckCircle, Info, Users, Fuel, Zap, ChevronLeft, ChevronRight, MessageCircle, Plus, Minus, Tent, Utensils, Map
 } from 'lucide-react';
 
+// 🆕 引入路由相關工具
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+
+// 🆕 引入我們剛剛做好的註冊頁面 (請確認您的檔案路徑正確)
+import RegisterPage from './pages/RegisterPage';
+
 /**
- * CampingTour 車泊輕旅 - 2026 Final Version
- * Updates: Hero Image, 50% Deposit, Correct Social Links, WhatsApp Number
+ * CampingTour 車泊輕旅 - 2026 Final Version (Full Stack Integrated)
+ * Updates: React Router Integration, Register Page
  */
 
 // --- 全域資料設定 ---
@@ -17,14 +23,10 @@ const CONTACT_INFO = {
   email: "cheyang0326@gmail.com",
   fb: "車泊輕旅",
   ig: "freeyoung_campervan",
-  // 社群連結更新
   igLink: "https://www.instagram.com/freeyoung_campervan?igsh=MW43eXRvajExeXFoeg==",
   fbLink: "https://www.facebook.com/share/1FNT8UW5xz/?mibextid=wwXIfr",
-  
   address: "台北市北投區大度路一段157-2號",
   addressEn: "No. 157-2, Sec. 1, Dadu Rd., Beitou Dist., Taipei City",
-  
-  // 旅行社資料
   company: {
     name: "悠遊旅行社股份有限公司",
     nameEn: "Yoyo Travel Service Co., Ltd.",
@@ -38,26 +40,21 @@ const CONTACT_INFO = {
   }
 };
 
-// 圖片路徑 (請確認 public/images/ 內有這些檔案)
 const IMAGES = {
-  logo: "/camping-web/images/logo-circle.jpg",
-  logoStack: "/camping-web/images/logo-stack.jpg",
-  qrLine: "/camping-web/images/qr-line.jpg",
-  qrWhatsapp: "/camping-web/images/qr-whatsapp.jpg",
-  
-  // 新封面照片 (請確認檔名為 hero-new.jpg)
-  hero: "/camping-web/images/vibe-drive.jpg",
-  
-  // 車輛照片
-  drive: "/camping-web/images/vibe-drive.jpg",
-  stand: "/camping-web/images/vibe-stand.jpg",
-  side: "/camping-web/images/exterior-side.jpg",
-  bed: "/camping-web/images/interior-bed.jpg",
-  awningFull: "/camping-web/images/feature-awning-full.jpg",
-  awningClose: "/camping-web/images/feature-awning-close.jpg",
-  window: "/camping-web/images/feature-window.jpg",
-  chill: "/camping-web/images/vibe-chill.jpg",
-  mountain: "/camping-web/images/vibe-mountain.jpg"
+  logo: "/images/logo-circle.jpg",
+  logoStack: "/images/logo-stack.jpg",
+  qrLine: "/images/qr-line.jpg",
+  qrWhatsapp: "/images/qr-whatsapp.jpg",
+  hero: "/images/vibe-drive.jpg",
+  drive: "/images/vibe-drive.jpg",
+  stand: "/images/vibe-stand.jpg",
+  side: "/images/exterior-side.jpg",
+  bed: "/images/interior-bed.jpg",
+  awningFull: "/images/feature-awning-full.jpg",
+  awningClose: "/images/feature-awning-close.jpg",
+  window: "/images/feature-window.jpg",
+  chill: "/images/vibe-chill.jpg",
+  mountain: "/images/vibe-mountain.jpg"
 };
 
 // --- 子組件：圖片輪播 ---
@@ -96,22 +93,36 @@ const PolicyItem = ({ title, icon: Icon, children }) => {
   );
 };
 
-// --- 子組件：導覽列 (Navbar) ---
-const Navbar = ({ activePage, setActivePage, isScrolled }) => {
+// --- 子組件：導覽列 (Navbar - Updated with Router) ---
+const Navbar = ({ isScrolled }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate(); // 用來切換頁面
+  const location = useLocation(); // 用來偵測目前在哪一頁
+
   const navLinks = [
-    { id: 'home', label: '首頁 Home' },
-    { id: 'plans', label: '車型與方案 Plans' },
-    { id: 'booking', label: '預約 Booking' },
-    { id: 'guide', label: '攻略 Guide' },
-    { id: 'about', label: '關於 About' },
+    { id: '/', label: '首頁 Home' },
+    { id: '/plans', label: '車型與方案 Plans' },
+    { id: '/booking', label: '預約 Booking' },
+    { id: '/guide', label: '攻略 Guide' },
+    { id: '/about', label: '關於 About' },
+    // 🆕 新增註冊按鈕
+    { id: '/register', label: '會員註冊 Sign Up', isButton: true },
   ];
 
+  // 判斷是否為首頁，影響透明度
+  const isHome = location.pathname === '/';
+
+  const handleNavClick = (path) => {
+    navigate(path);
+    setIsMobileMenuOpen(false);
+    window.scrollTo(0, 0); // 切換頁面後捲動到頂部
+  };
+
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled || activePage !== 'home' ? 'bg-white/95 backdrop-blur-md shadow-sm py-3 text-stone-800' : 'bg-transparent py-6 text-white'}`}>
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled || !isHome ? 'bg-white/95 backdrop-blur-md shadow-sm py-3 text-stone-800' : 'bg-transparent py-6 text-white'}`}>
       <div className="container mx-auto px-6 flex justify-between items-center">
         {/* Logo Area */}
-        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setActivePage('home')}>
+        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => handleNavClick('/')}>
           <img src={IMAGES.logo} alt="Logo" className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white/50 shadow-sm" />
           <div className="flex flex-col">
             <span className="text-lg font-serif font-bold tracking-wider leading-none">CampingTour</span>
@@ -119,17 +130,56 @@ const Navbar = ({ activePage, setActivePage, isScrolled }) => {
           </div>
         </div>
 
-        <div className="hidden md:flex space-x-8 font-medium text-sm tracking-wide">
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center space-x-8 font-medium text-sm tracking-wide">
           {navLinks.map((link) => (
-            <button key={link.id} onClick={() => setActivePage(link.id)} className={`transition-colors relative pb-1 ${activePage === link.id ? 'text-orange-600 font-bold after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-orange-600' : 'hover:text-orange-500'}`}>{link.label}</button>
+            link.isButton ? (
+              <button 
+                key={link.id} 
+                onClick={() => handleNavClick(link.id)} 
+                className={`px-4 py-2 rounded-full transition-all ${
+                  isScrolled || !isHome 
+                    ? 'bg-stone-900 text-white hover:bg-orange-600' 
+                    : 'bg-white/20 hover:bg-white/30 text-white'
+                }`}
+              >
+                {link.label}
+              </button>
+            ) : (
+              <button 
+                key={link.id} 
+                onClick={() => handleNavClick(link.id)} 
+                className={`transition-colors relative pb-1 ${
+                  location.pathname === link.id 
+                    ? 'text-orange-600 font-bold after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-orange-600' 
+                    : 'hover:text-orange-500'
+                }`}
+              >
+                {link.label}
+              </button>
+            )
           ))}
         </div>
-        <button className="md:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>{isMobileMenuOpen ? <X className="text-stone-800" /> : <Menu />}</button>
+
+        {/* Mobile Menu Button */}
+        <button className="md:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+          {isMobileMenuOpen ? <X className="text-stone-800" /> : <Menu />}
+        </button>
       </div>
+
+      {/* Mobile Menu Content */}
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-lg py-6 px-6 flex flex-col space-y-4 border-t border-stone-100">
           {navLinks.map((link) => (
-            <button key={link.id} onClick={() => { setActivePage(link.id); setIsMobileMenuOpen(false); }} className={`text-left text-lg font-medium py-2 ${activePage === link.id ? 'text-orange-600' : 'text-stone-600'}`}>{link.label}</button>
+            <button 
+              key={link.id} 
+              onClick={() => handleNavClick(link.id)} 
+              className={`text-left text-lg font-medium py-2 ${
+                location.pathname === link.id ? 'text-orange-600' : 'text-stone-600'
+              }`}
+            >
+              {link.label}
+            </button>
           ))}
         </div>
       )}
@@ -137,104 +187,113 @@ const Navbar = ({ activePage, setActivePage, isScrolled }) => {
   );
 };
 
-// --- 子組件：頁腳 (Footer) ---
-const Footer = ({ setActivePage }) => (
-  <footer className="bg-stone-900 text-stone-400 py-16 text-sm">
-    <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 border-b border-stone-800 pb-12">
-      <div className="col-span-1 md:col-span-2 space-y-6">
-        <div className="flex items-center gap-4">
-          <img src={IMAGES.logoStack} alt="Logo" className="w-16 h-16 rounded-xl opacity-90 invert" />
-          <div>
-            <h3 className="text-white text-2xl font-serif font-bold">CampingTour</h3>
-            <p className="text-xs uppercase tracking-widest text-orange-500">Free Young Campervan</p>
+// --- 子組件：頁腳 (Footer - Updated with Router) ---
+const Footer = () => {
+  const navigate = useNavigate();
+  const handleLink = (path) => { navigate(path); window.scrollTo(0, 0); };
+
+  return (
+    <footer className="bg-stone-900 text-stone-400 py-16 text-sm">
+      <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 border-b border-stone-800 pb-12">
+        <div className="col-span-1 md:col-span-2 space-y-6">
+          <div className="flex items-center gap-4">
+            <img src={IMAGES.logoStack} alt="Logo" className="w-16 h-16 rounded-xl opacity-90 invert" />
+            <div>
+              <h3 className="text-white text-2xl font-serif font-bold">CampingTour</h3>
+              <p className="text-xs uppercase tracking-widest text-orange-500">Free Young Campervan</p>
+            </div>
+          </div>
+          <p className="max-w-sm leading-relaxed">台灣最專業的露營車租賃服務。<br />Explore Taiwan your way with our fully equipped campervans.</p>
+          <div className="flex gap-4 pt-2">
+            <a href={CONTACT_INFO.fbLink} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all"><Facebook size={20} /></a>
+            <a href={CONTACT_INFO.igLink} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all"><Instagram size={20} /></a>
           </div>
         </div>
-        <p className="max-w-sm leading-relaxed">台灣最專業的露營車租賃服務。<br />Explore Taiwan your way with our fully equipped campervans.</p>
-        <div className="flex gap-4 pt-2">
-          <a href={CONTACT_INFO.fbLink} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all"><Facebook size={20} /></a>
-          <a href={CONTACT_INFO.igLink} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all"><Instagram size={20} /></a>
-        </div>
-      </div>
-      
-      <div>
-        <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Quick Links</h4>
-        <ul className="space-y-3">
-          <li><button onClick={() => setActivePage('plans')} className="hover:text-white transition-colors">方案介紹 Plans</button></li>
-          <li><button onClick={() => setActivePage('booking')} className="hover:text-white transition-colors">預約流程 Booking</button></li>
-          <li><button onClick={() => setActivePage('guide')} className="hover:text-white transition-colors">旅遊攻略 Guide</button></li>
-        </ul>
-      </div>
-      
-      <div>
-        <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Contact</h4>
-        <ul className="space-y-4">
-          <li className="flex items-start gap-3"><Phone size={18} className="mt-1 text-orange-500" /> <div><span className="block text-white font-medium">{CONTACT_INFO.name}</span><span>{CONTACT_INFO.phone}</span></div></li>
-          <li className="flex items-start gap-3"><Mail size={18} className="mt-1 text-orange-500" /> <span>{CONTACT_INFO.email}</span></li>
-          <li className="flex items-start gap-3"><MapPin size={18} className="mt-1 text-orange-500" /> <span>{CONTACT_INFO.addressEn}</span></li>
-        </ul>
-      </div>
-    </div>
-
-    <div className="container mx-auto px-6 border-b border-stone-800 pb-8 mb-8">
-      <h4 className="text-stone-500 font-bold mb-4 uppercase tracking-widest text-xs">Company Info</h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-xs text-stone-500">
+        
         <div>
-          <span className="block text-stone-400 font-bold">{CONTACT_INFO.company.name}</span>
-          <span className="block text-stone-500 mb-1">{CONTACT_INFO.company.nameEn}</span>
-          <span className="block text-orange-600 font-bold">{CONTACT_INFO.company.license}</span>
+          <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Quick Links</h4>
+          <ul className="space-y-3">
+            <li><button onClick={() => handleLink('/plans')} className="hover:text-white transition-colors">方案介紹 Plans</button></li>
+            <li><button onClick={() => handleLink('/booking')} className="hover:text-white transition-colors">預約流程 Booking</button></li>
+            <li><button onClick={() => handleLink('/guide')} className="hover:text-white transition-colors">旅遊攻略 Guide</button></li>
+            <li><button onClick={() => handleLink('/register')} className="hover:text-white transition-colors text-orange-500">會員註冊 Sign Up</button></li>
+          </ul>
         </div>
+        
         <div>
-          <span className="block text-stone-400 font-bold">Address</span>
-          <span>{CONTACT_INFO.company.address}</span>
-        </div>
-        <div>
-          <span className="block text-stone-400 font-bold">Details</span>
-          <span>統編 (Tax ID): {CONTACT_INFO.company.taxId}</span><br/>
-          <span>代表人: {CONTACT_INFO.company.rep}</span>
-        </div>
-        <div>
-          <span className="block text-stone-400 font-bold">Contact</span>
-          <span>TEL: {CONTACT_INFO.company.phone}</span><br/>
-          <span>FAX: {CONTACT_INFO.company.fax}</span>
+          <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Contact</h4>
+          <ul className="space-y-4">
+            <li className="flex items-start gap-3"><Phone size={18} className="mt-1 text-orange-500" /> <div><span className="block text-white font-medium">{CONTACT_INFO.name}</span><span>{CONTACT_INFO.phone}</span></div></li>
+            <li className="flex items-start gap-3"><Mail size={18} className="mt-1 text-orange-500" /> <span>{CONTACT_INFO.email}</span></li>
+            <li className="flex items-start gap-3"><MapPin size={18} className="mt-1 text-orange-500" /> <span>{CONTACT_INFO.addressEn}</span></li>
+          </ul>
         </div>
       </div>
-    </div>
 
-    <div className="container mx-auto px-6 text-center text-xs text-stone-600">
-      <p>&copy; 2026 CampingTour Taiwan. All Rights Reserved.</p>
-    </div>
-  </footer>
-);
-
-// --- 頁面 1: 首頁 ---
-const HomePage = ({ setActivePage }) => (
-  <>
-    <section className="relative h-screen flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 z-0"><img src={IMAGES.hero} alt="Camping Hero" className="w-full h-full object-cover"/><div className="absolute inset-0 bg-stone-900/30"></div></div>
-      <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto mt-10">
-        <div className="mb-6 flex justify-center"><img src={IMAGES.logoStack} alt="Logo" className="w-24 h-24 rounded-2xl shadow-2xl invert opacity-90"/></div>
-        <p className="text-orange-400 font-medium tracking-[0.3em] mb-4 uppercase">Explore Taiwan Your Way</p>
-        <h1 className="text-5xl md:text-7xl font-serif font-bold mb-8 leading-tight drop-shadow-xl">車泊輕旅<br /><span className="text-3xl md:text-5xl font-light mt-2 block opacity-90">CampingTour Taiwan</span></h1>
-        <div className="flex flex-col md:flex-row gap-4 justify-center">
-          <button onClick={() => setActivePage('booking')} className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 rounded-full font-medium transition-all shadow-lg flex items-center justify-center gap-2">立即預約 Booking <ArrowRight size={18} /></button>
-          <button onClick={() => setActivePage('plans')} className="bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/30 text-white px-8 py-4 rounded-full font-medium transition-all">車型介紹 Vehicles</button>
+      <div className="container mx-auto px-6 border-b border-stone-800 pb-8 mb-8">
+        <h4 className="text-stone-500 font-bold mb-4 uppercase tracking-widest text-xs">Company Info</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-xs text-stone-500">
+          <div>
+            <span className="block text-stone-400 font-bold">{CONTACT_INFO.company.name}</span>
+            <span className="block text-stone-500 mb-1">{CONTACT_INFO.company.nameEn}</span>
+            <span className="block text-orange-600 font-bold">{CONTACT_INFO.company.license}</span>
+          </div>
+          <div>
+            <span className="block text-stone-400 font-bold">Address</span>
+            <span>{CONTACT_INFO.company.address}</span>
+          </div>
+          <div>
+            <span className="block text-stone-400 font-bold">Details</span>
+            <span>統編 (Tax ID): {CONTACT_INFO.company.taxId}</span><br/>
+            <span>代表人: {CONTACT_INFO.company.rep}</span>
+          </div>
+          <div>
+            <span className="block text-stone-400 font-bold">Contact</span>
+            <span>TEL: {CONTACT_INFO.company.phone}</span><br/>
+            <span>FAX: {CONTACT_INFO.company.fax}</span>
+          </div>
         </div>
       </div>
-      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce text-white/70"><ChevronDown size={32} /></div>
-    </section>
-    <section className="py-24 bg-stone-50">
-      <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-          <div className="p-6"><Car size={40} className="text-orange-600 mx-auto mb-6" /><h3 className="text-xl font-bold mb-2">輕鬆駕駛</h3><p className="text-sm font-bold text-orange-500 mb-4 uppercase tracking-wider">Easy to Drive</p><p className="text-stone-600">自用小客車駕照即可駕駛，車體輕巧靈活。<br/>Standard driver's license accepted.</p></div>
-          <div className="p-6"><MapPin size={40} className="text-orange-600 mx-auto mb-6" /><h3 className="text-xl font-bold mb-2">隨停隨宿</h3><p className="text-sm font-bold text-orange-500 mb-4 uppercase tracking-wider">Sleep Anywhere</p><p className="text-stone-600">不用搭帳篷，打開車門就是大自然。<br/>No tent needed, nature is at your door.</p></div>
-          <div className="p-6"><Zap size={40} className="text-orange-600 mx-auto mb-6" /><h3 className="text-xl font-bold mb-2">電力充足</h3><p className="text-sm font-bold text-orange-500 mb-4 uppercase tracking-wider">Full Power</p><p className="text-stone-600">配備駐車冷氣與大容量電池，舒適過夜。<br/>AC & large battery included.</p></div>
-        </div>
-      </div>
-    </section>
-  </>
-);
 
-// --- 頁面 2: 方案＆車輛介紹 (Specs Updated) ---
+      <div className="container mx-auto px-6 text-center text-xs text-stone-600">
+        <p>&copy; 2026 CampingTour Taiwan. All Rights Reserved.</p>
+      </div>
+    </footer>
+  );
+};
+
+// --- 頁面 1: 首頁 (Updated with Navigate) ---
+const HomePage = () => {
+  const navigate = useNavigate();
+  return (
+    <>
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0"><img src={IMAGES.hero} alt="Camping Hero" className="w-full h-full object-cover"/><div className="absolute inset-0 bg-stone-900/30"></div></div>
+        <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto mt-10">
+          <div className="mb-6 flex justify-center"><img src={IMAGES.logoStack} alt="Logo" className="w-24 h-24 rounded-2xl shadow-2xl invert opacity-90"/></div>
+          <p className="text-orange-400 font-medium tracking-[0.3em] mb-4 uppercase">Explore Taiwan Your Way</p>
+          <h1 className="text-5xl md:text-7xl font-serif font-bold mb-8 leading-tight drop-shadow-xl">車泊輕旅<br /><span className="text-3xl md:text-5xl font-light mt-2 block opacity-90">CampingTour Taiwan</span></h1>
+          <div className="flex flex-col md:flex-row gap-4 justify-center">
+            <button onClick={() => navigate('/booking')} className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 rounded-full font-medium transition-all shadow-lg flex items-center justify-center gap-2">立即預約 Booking <ArrowRight size={18} /></button>
+            <button onClick={() => navigate('/plans')} className="bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/30 text-white px-8 py-4 rounded-full font-medium transition-all">車型介紹 Vehicles</button>
+          </div>
+        </div>
+        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce text-white/70"><ChevronDown size={32} /></div>
+      </section>
+      <section className="py-24 bg-stone-50">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+            <div className="p-6"><Car size={40} className="text-orange-600 mx-auto mb-6" /><h3 className="text-xl font-bold mb-2">輕鬆駕駛</h3><p className="text-sm font-bold text-orange-500 mb-4 uppercase tracking-wider">Easy to Drive</p><p className="text-stone-600">自用小客車駕照即可駕駛，車體輕巧靈活。<br/>Standard driver's license accepted.</p></div>
+            <div className="p-6"><MapPin size={40} className="text-orange-600 mx-auto mb-6" /><h3 className="text-xl font-bold mb-2">隨停隨宿</h3><p className="text-sm font-bold text-orange-500 mb-4 uppercase tracking-wider">Sleep Anywhere</p><p className="text-stone-600">不用搭帳篷，打開車門就是大自然。<br/>No tent needed, nature is at your door.</p></div>
+            <div className="p-6"><Zap size={40} className="text-orange-600 mx-auto mb-6" /><h3 className="text-xl font-bold mb-2">電力充足</h3><p className="text-sm font-bold text-orange-500 mb-4 uppercase tracking-wider">Full Power</p><p className="text-stone-600">配備駐車冷氣與大容量電池，舒適過夜。<br/>AC & large battery included.</p></div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+};
+
+// --- 頁面 2: 方案＆車輛介紹 ---
 const PlansPage = () => {
   const vehicle = {
     name: "Nomad A180 Camper",
@@ -320,7 +379,7 @@ const PlansPage = () => {
   );
 };
 
-// --- 頁面 3: 預約流程 (Booking - Dual Contact) ---
+// --- 頁面 3: 預約流程 ---
 const BookingPage = () => {
   return (
     <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
@@ -331,31 +390,21 @@ const BookingPage = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto items-start">
-          {/* 左側：雙聯絡卡片 (WhatsApp + Line) */}
           <div className="lg:sticky lg:top-28 space-y-6">
             <div className="bg-white p-8 rounded-3xl shadow-xl border-t-4 border-green-500">
               <h3 className="text-2xl font-bold text-stone-900 mb-6 text-center">Contact Us 聯繫我們</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Line */}
                 <div className="text-center p-4 bg-stone-50 rounded-2xl">
                   <div className="font-bold text-green-600 mb-2">Line@ Official</div>
                   <img src={IMAGES.qrLine} alt="Line QR" className="w-32 h-32 mx-auto mix-blend-multiply mb-3"/>
                   <a href="https://line.me/ti/p/@626twiqy" target="_blank" rel="noreferrer" className="block w-full bg-[#06C755] hover:bg-[#05b34c] text-white text-sm font-bold py-2 rounded-lg transition-colors">Open Line</a>
                 </div>
                 
-                {/* WhatsApp (Updated with Phone Number) */}
                 <div className="text-center p-4 bg-stone-50 rounded-2xl">
                   <div className="font-bold text-green-700 mb-2">WhatsApp</div>
                   <img src={IMAGES.qrWhatsapp} alt="WhatsApp QR" className="w-32 h-32 mx-auto mix-blend-multiply mb-3"/>
-                  <a 
-                    href="https://wa.me/886965720586" 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    className="block w-full bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-bold py-2 rounded-lg transition-colors"
-                  >
-                    Open WhatsApp
-                  </a>
+                  <a href="https://wa.me/886965720586" target="_blank" rel="noreferrer" className="block w-full bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-bold py-2 rounded-lg transition-colors">Open WhatsApp</a>
                 </div>
               </div>
             </div>
@@ -364,7 +413,6 @@ const BookingPage = () => {
                 <h4 className="font-bold text-stone-800 mb-4">預約三步驟 3 Steps</h4>
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center gap-3 text-sm text-stone-600"><span className="w-6 h-6 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs font-bold">1</span> 確認日期與車型 Check availability</div>
-                  {/* Updated Deposit Info */}
                   <div className="flex items-center gap-3 text-sm text-stone-600"><span className="w-6 h-6 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs font-bold">2</span> 聯繫並支付 50% 訂金 Contact & Pay 50% Deposit</div>
                   <div className="flex items-center gap-3 text-sm text-stone-600"><span className="w-6 h-6 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs font-bold">3</span> 台北北投取車 Pick up in Taipei</div>
                 </div>
@@ -407,7 +455,7 @@ const BookingPage = () => {
   );
 };
 
-// --- 頁面 4: 旅遊攻略 (Guide Page - Updated with BedInCar) ---
+// --- 頁面 4: 旅遊攻略 ---
 const GuidePage = () => {
   return (
     <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
@@ -418,9 +466,7 @@ const GuidePage = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
-          {/* Card 1: App Download (Updated to BedInCar) */}
           <div className="bg-white rounded-3xl overflow-hidden shadow-lg flex flex-col items-center text-center p-10 border border-stone-100">
-            {/* 圖示改為綠色系地圖，呼應車床天地 App 圖示 */}
             <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-emerald-200 shadow-xl">
               <Map className="text-white w-10 h-10" />
             </div>
@@ -430,31 +476,17 @@ const GuidePage = () => {
               <span className="text-xs text-stone-400">台灣車泊露營必備 App，輕鬆搜尋泊點、澡點與露營區。</span>
             </p>
             <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-              {/* iOS App Store */}
-              <a 
-                href="https://apps.apple.com/app/id1668213216" 
-                target="_blank" 
-                rel="noreferrer"
-                className="flex items-center justify-center gap-3 bg-stone-900 text-white px-6 py-3 rounded-xl hover:bg-stone-800 transition-colors w-full sm:w-auto shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
+              <a href="https://apps.apple.com/app/id1668213216" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 bg-stone-900 text-white px-6 py-3 rounded-xl hover:bg-stone-800 transition-colors w-full sm:w-auto shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                 <Download size={20} />
                 <div className="text-left"><div className="text-[10px] uppercase tracking-wider">Download on the</div><div className="font-bold leading-none">App Store</div></div>
               </a>
-              
-              {/* Google Play */}
-              <a 
-                href="https://play.google.com/store/apps/details?id=cmsp.bedincar&hl=zh_TW" 
-                target="_blank" 
-                rel="noreferrer"
-                className="flex items-center justify-center gap-3 bg-stone-900 text-white px-6 py-3 rounded-xl hover:bg-stone-800 transition-colors w-full sm:w-auto shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
+              <a href="https://play.google.com/store/apps/details?id=cmsp.bedincar&hl=zh_TW" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 bg-stone-900 text-white px-6 py-3 rounded-xl hover:bg-stone-800 transition-colors w-full sm:w-auto shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                 <Download size={20} />
                 <div className="text-left"><div className="text-[10px] uppercase tracking-wider">Get it on</div><div className="font-bold leading-none">Google Play</div></div>
               </a>
             </div>
           </div>
 
-          {/* Card 2: Blog Post (Featured) */}
           <div className="bg-stone-900 rounded-3xl overflow-hidden shadow-lg group relative h-full min-h-[400px]">
             <img src={IMAGES.mountain} alt="Taiwan Road Trip" className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-500"/>
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
@@ -479,13 +511,44 @@ const GuidePage = () => {
 // --- 頁面 5: 關於我們 ---
 const AboutPage = () => (<div className="pt-24 pb-20 bg-white min-h-screen"><div className="container mx-auto px-6"><div className="flex flex-col md:flex-row gap-16 items-center"><div className="w-full md:w-1/2"><img src={IMAGES.chill} alt="Team" className="rounded-3xl shadow-xl w-full"/></div><div className="w-full md:w-1/2 space-y-6"><h2 className="text-4xl font-serif font-bold text-stone-900">不追求完美，<br/>只追求真實的感動。</h2><p className="text-stone-600 leading-relaxed text-lg">CampingTour Taiwan provides campervan rental services, allowing you to explore the island at your own pace.<br/><br/>露途臺灣提供露營車出租服務，讓你用自己的節奏探索台灣。我們相信，旅程的美好來自當下的感受。</p></div></div></div></div>);
 
-// --- App ---
+// --- 主程式：Main Layout (Updated with Routes) ---
+const Layout = ({ children, isScrolled }) => {
+  return (
+    <div className="font-sans text-stone-800 bg-stone-50 selection:bg-orange-200 min-h-screen flex flex-col">
+      <Navbar isScrolled={isScrolled} />
+      <main className="flex-grow">
+        <div className="animate-fade-in">{children}</div>
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+// --- App Root Component ---
 const App = () => {
-  const [activePage, setActivePage] = useState('home');
   const [isScrolled, setIsScrolled] = useState(false);
-  useEffect(() => { const handleScroll = () => { setIsScrolled(window.scrollY > 50); }; window.addEventListener('scroll', handleScroll); return () => window.removeEventListener('scroll', handleScroll); }, []);
-  const renderContent = () => { switch(activePage) { case 'home': return <HomePage setActivePage={setActivePage} />; case 'plans': return <PlansPage />; case 'booking': return <BookingPage />; case 'guide': return <GuidePage />; case 'about': return <AboutPage />; default: return <HomePage setActivePage={setActivePage} />; } };
-  return (<div className="font-sans text-stone-800 bg-stone-50 selection:bg-orange-200 min-h-screen flex flex-col"><Navbar activePage={activePage} setActivePage={setActivePage} isScrolled={isScrolled} /><main className="flex-grow"><div key={activePage} className="animate-fade-in">{renderContent()}</div></main><Footer setActivePage={setActivePage} /></div>);
+
+  useEffect(() => { 
+    const handleScroll = () => { setIsScrolled(window.scrollY > 50); }; 
+    window.addEventListener('scroll', handleScroll); 
+    return () => window.removeEventListener('scroll', handleScroll); 
+  }, []);
+
+  return (
+    <Router>
+      <Layout isScrolled={isScrolled}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/plans" element={<PlansPage />} />
+          <Route path="/booking" element={<BookingPage />} />
+          <Route path="/guide" element={<GuidePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          {/* 🆕 註冊頁面的路由 */}
+          <Route path="/register" element={<RegisterPage />} />
+        </Routes>
+      </Layout>
+    </Router>
+  );
 };
 
 export default App;
