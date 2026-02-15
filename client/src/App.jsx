@@ -2,18 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { 
   Menu, X, Instagram, Facebook, MapPin, ArrowRight, 
   ChevronDown, Phone, Mail, Download, ExternalLink, Car, 
-  Calendar, CheckCircle, Info, Users, Fuel, Zap, ChevronLeft, ChevronRight, MessageCircle, Plus, Minus, Tent, Utensils, Map
+  Calendar, CheckCircle, Info, Users, Fuel, Zap, ChevronLeft, ChevronRight, MessageCircle, Plus, Minus, Tent, Utensils, Map, Wind
 } from 'lucide-react';
 
 // 🆕 引入路由相關工具
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
-// 🆕 引入我們剛剛做好的註冊頁面 (請確認您的檔案路徑正確)
+// 🆕 引入外部頁面元件
 import RegisterPage from './pages/RegisterPage';
+import LoginPage from './pages/LoginPage';
+import BookingPage from './pages/BookingPage';
+import SignaturePage from './pages/SignaturePage'; // ✅ 新增：簽名頁面
 
 /**
- * CampingTour 車泊輕旅 - 2026 Final Version (Full Stack Integrated)
- * Updates: React Router Integration, Register Page
+ * CampingTour 車泊輕旅 - 2026 Final Version
+ * 完整版：包含所有靜態頁面、Navbar 邏輯、以及預約/簽名路由
  */
 
 // --- 全域資料設定 ---
@@ -93,11 +96,29 @@ const PolicyItem = ({ title, icon: Icon, children }) => {
   );
 };
 
-// --- 子組件：導覽列 (Navbar - Updated with Router) ---
+// --- 子組件：導覽列 (Navbar) ---
 const Navbar = ({ isScrolled }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const navigate = useNavigate(); // 用來切換頁面
-  const location = useLocation(); // 用來偵測目前在哪一頁
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // 檢查登入狀態
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, [location]); // 當路由改變時重新檢查
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    alert('已登出');
+    navigate('/');
+  };
 
   const navLinks = [
     { id: '/', label: '首頁 Home' },
@@ -105,47 +126,33 @@ const Navbar = ({ isScrolled }) => {
     { id: '/booking', label: '預約 Booking' },
     { id: '/guide', label: '攻略 Guide' },
     { id: '/about', label: '關於 About' },
-    // 🆕 新增註冊按鈕
-    { id: '/register', label: '會員註冊 Sign Up', isButton: true },
   ];
 
-  // 判斷是否為首頁，影響透明度
   const isHome = location.pathname === '/';
 
   const handleNavClick = (path) => {
     navigate(path);
     setIsMobileMenuOpen(false);
-    window.scrollTo(0, 0); // 切換頁面後捲動到頂部
+    window.scrollTo(0, 0);
   };
 
+  const isLightMode = isScrolled || !isHome;
+
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled || !isHome ? 'bg-white/95 backdrop-blur-md shadow-sm py-3 text-stone-800' : 'bg-transparent py-6 text-white'}`}>
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${isLightMode ? 'bg-white/95 backdrop-blur-md shadow-sm py-3 text-stone-800' : 'bg-transparent py-6 text-white'}`}>
       <div className="container mx-auto px-6 flex justify-between items-center">
         {/* Logo Area */}
         <div className="flex items-center gap-3 cursor-pointer group" onClick={() => handleNavClick('/')}>
           <img src={IMAGES.logo} alt="Logo" className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white/50 shadow-sm" />
           <div className="flex flex-col">
             <span className="text-lg font-serif font-bold tracking-wider leading-none">CampingTour</span>
-            <span className={`text-[10px] tracking-widest uppercase opacity-80 ${isScrolled ? 'text-orange-600' : 'text-orange-300'}`}>Taiwan Vanlife</span>
+            <span className={`text-[10px] tracking-widest uppercase opacity-80 ${isLightMode ? 'text-orange-600' : 'text-orange-300'}`}>Taiwan Vanlife</span>
           </div>
         </div>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-8 font-medium text-sm tracking-wide">
           {navLinks.map((link) => (
-            link.isButton ? (
-              <button 
-                key={link.id} 
-                onClick={() => handleNavClick(link.id)} 
-                className={`px-4 py-2 rounded-full transition-all ${
-                  isScrolled || !isHome 
-                    ? 'bg-stone-900 text-white hover:bg-orange-600' 
-                    : 'bg-white/20 hover:bg-white/30 text-white'
-                }`}
-              >
-                {link.label}
-              </button>
-            ) : (
               <button 
                 key={link.id} 
                 onClick={() => handleNavClick(link.id)} 
@@ -157,8 +164,35 @@ const Navbar = ({ isScrolled }) => {
               >
                 {link.label}
               </button>
-            )
           ))}
+
+          {/* Auth Buttons */}
+          {user ? (
+            <div className={`flex items-center gap-4 ml-4 pl-4 border-l ${isLightMode ? 'border-stone-300' : 'border-white/30'}`}>
+              <span className={`font-bold ${isLightMode ? 'text-orange-600' : 'text-orange-300'}`}>Hi, {user.name}</span>
+              <button 
+                onClick={handleLogout} 
+                className={`px-4 py-2 rounded-full border transition-all text-xs ${isLightMode ? 'border-stone-300 hover:bg-stone-100 text-stone-600' : 'border-white/50 hover:bg-white/20 text-white'}`}
+              >
+                登出 Logout
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-2 ml-4">
+               <button 
+                onClick={() => handleNavClick('/login')} 
+                className={`px-4 py-2 rounded-full transition-all ${isLightMode ? 'text-stone-800 hover:text-orange-600' : 'text-white hover:text-orange-300'}`}
+              >
+                登入 Login
+              </button>
+              <button 
+                onClick={() => handleNavClick('/register')} 
+                className="px-4 py-2 rounded-full bg-orange-600 text-white hover:bg-orange-700 shadow-md transition-all"
+              >
+                註冊 Sign Up
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -169,7 +203,7 @@ const Navbar = ({ isScrolled }) => {
 
       {/* Mobile Menu Content */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-lg py-6 px-6 flex flex-col space-y-4 border-t border-stone-100">
+        <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-lg py-6 px-6 flex flex-col space-y-4 border-t border-stone-100 text-stone-800">
           {navLinks.map((link) => (
             <button 
               key={link.id} 
@@ -181,13 +215,27 @@ const Navbar = ({ isScrolled }) => {
               {link.label}
             </button>
           ))}
+           
+           <div className="border-t pt-4 mt-2">
+                {user ? (
+                    <>
+                        <div className="text-orange-600 font-bold mb-2 text-lg">Hi, {user.name}</div>
+                        <button onClick={handleLogout} className="text-stone-500 w-full text-left py-2 hover:text-stone-800">登出 Logout</button>
+                    </>
+                ) : (
+                    <>
+                        <button onClick={() => handleNavClick('/login')} className="block w-full text-left mb-4 py-2 font-medium hover:text-orange-600">登入 Login</button>
+                        <button onClick={() => handleNavClick('/register')} className="block w-full text-left text-orange-600 font-bold py-2 hover:text-orange-700">註冊 Sign Up</button>
+                    </>
+                )}
+             </div>
         </div>
       )}
     </nav>
   );
 };
 
-// --- 子組件：頁腳 (Footer - Updated with Router) ---
+// --- 子組件：頁腳 (Footer) ---
 const Footer = () => {
   const navigate = useNavigate();
   const handleLink = (path) => { navigate(path); window.scrollTo(0, 0); };
@@ -262,7 +310,7 @@ const Footer = () => {
   );
 };
 
-// --- 頁面 1: 首頁 (Updated with Navigate) ---
+// --- 頁面 1: 首頁 ---
 const HomePage = () => {
   const navigate = useNavigate();
   return (
@@ -379,82 +427,6 @@ const PlansPage = () => {
   );
 };
 
-// --- 頁面 3: 預約流程 ---
-const BookingPage = () => {
-  return (
-    <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-serif font-bold text-stone-900 mb-4">Booking Process</h2>
-          <p className="text-stone-600">Choose your preferred contact method</p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto items-start">
-          <div className="lg:sticky lg:top-28 space-y-6">
-            <div className="bg-white p-8 rounded-3xl shadow-xl border-t-4 border-green-500">
-              <h3 className="text-2xl font-bold text-stone-900 mb-6 text-center">Contact Us 聯繫我們</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="text-center p-4 bg-stone-50 rounded-2xl">
-                  <div className="font-bold text-green-600 mb-2">Line@ Official</div>
-                  <img src={IMAGES.qrLine} alt="Line QR" className="w-32 h-32 mx-auto mix-blend-multiply mb-3"/>
-                  <a href="https://line.me/ti/p/@626twiqy" target="_blank" rel="noreferrer" className="block w-full bg-[#06C755] hover:bg-[#05b34c] text-white text-sm font-bold py-2 rounded-lg transition-colors">Open Line</a>
-                </div>
-                
-                <div className="text-center p-4 bg-stone-50 rounded-2xl">
-                  <div className="font-bold text-green-700 mb-2">WhatsApp</div>
-                  <img src={IMAGES.qrWhatsapp} alt="WhatsApp QR" className="w-32 h-32 mx-auto mix-blend-multiply mb-3"/>
-                  <a href="https://wa.me/886965720586" target="_blank" rel="noreferrer" className="block w-full bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-bold py-2 rounded-lg transition-colors">Open WhatsApp</a>
-                </div>
-              </div>
-            </div>
-
-             <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-100">
-                <h4 className="font-bold text-stone-800 mb-4">預約三步驟 3 Steps</h4>
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-3 text-sm text-stone-600"><span className="w-6 h-6 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs font-bold">1</span> 確認日期與車型 Check availability</div>
-                  <div className="flex items-center gap-3 text-sm text-stone-600"><span className="w-6 h-6 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs font-bold">2</span> 聯繫並支付 50% 訂金 Contact & Pay 50% Deposit</div>
-                  <div className="flex items-center gap-3 text-sm text-stone-600"><span className="w-6 h-6 rounded-full bg-stone-900 text-white flex items-center justify-center text-xs font-bold">3</span> 台北北投取車 Pick up in Taipei</div>
-                </div>
-             </div>
-          </div>
-          <div className="space-y-4">
-            <h3 className="text-2xl font-serif font-bold text-stone-900 mb-6">Policies & Info</h3>
-            <PolicyItem title="取消與退款政策 Cancellation" icon={Calendar}>
-              <ul className="list-disc list-inside space-y-2">
-                <li><span className="font-bold text-stone-800">14 days prior</span>: 100% refund.</li>
-                <li><span className="font-bold text-stone-800">7-13 days prior</span>: 70% refund.</li>
-                <li><span className="font-bold text-stone-800">1-3 days prior</span>: 50% refund.</li>
-                <li><span className="font-bold text-stone-800">Same day</span>: 20% refund.</li>
-                <li className="text-sm text-stone-500 pt-2">* Transaction fee NT$30 will be deducted.</li>
-              </ul>
-            </PolicyItem>
-            <PolicyItem title="保險與外籍旅客須知 Insurance" icon={CheckCircle}>
-              <p className="mb-3">Compulsory Third Party Liability Insurance is included.</p>
-              <ul className="list-disc list-inside space-y-2">
-                <li><span className="font-bold text-stone-800">For Foreigners (外籍旅客)</span>:<br/>You MUST purchase <span className="text-orange-600 font-bold">Car Hire Excess Insurance</span> by yourself.</li>
-                <li>If no proof of insurance is provided, a higher security deposit may apply.</li>
-              </ul>
-            </PolicyItem>
-            <PolicyItem title="取還車與押金 Pick-up & Return" icon={MapPin}>
-              <ul className="list-disc list-inside space-y-2">
-                <li><span className="font-bold">Location</span>: No. 157-2, Sec. 1, Dadu Rd., Beitou Dist., Taipei City (台北市北投區大度路一段157-2號).</li>
-                <li><span className="font-bold">Security Deposit</span>: <span className="font-bold text-orange-600">NT$5,000</span> cash is required upon pick-up. Refundable after return inspection.</li>
-              </ul>
-            </PolicyItem>
-            <PolicyItem title="使用須知 Usage Guidelines" icon={Zap}>
-              <ul className="list-disc list-inside space-y-2">
-                <li><span className="font-bold">Mileage Limit</span>: 300km / day (Extra charge NT$8/km).</li>
-                <li><span className="font-bold">Height Limit</span>: approx. <span className="font-bold text-orange-600">210 cm</span>. Please watch out for height clearance.</li>
-              </ul>
-            </PolicyItem>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // --- 頁面 4: 旅遊攻略 ---
 const GuidePage = () => {
   return (
@@ -511,7 +483,7 @@ const GuidePage = () => {
 // --- 頁面 5: 關於我們 ---
 const AboutPage = () => (<div className="pt-24 pb-20 bg-white min-h-screen"><div className="container mx-auto px-6"><div className="flex flex-col md:flex-row gap-16 items-center"><div className="w-full md:w-1/2"><img src={IMAGES.chill} alt="Team" className="rounded-3xl shadow-xl w-full"/></div><div className="w-full md:w-1/2 space-y-6"><h2 className="text-4xl font-serif font-bold text-stone-900">不追求完美，<br/>只追求真實的感動。</h2><p className="text-stone-600 leading-relaxed text-lg">CampingTour Taiwan provides campervan rental services, allowing you to explore the island at your own pace.<br/><br/>露途臺灣提供露營車出租服務，讓你用自己的節奏探索台灣。我們相信，旅程的美好來自當下的感受。</p></div></div></div></div>);
 
-// --- 主程式：Main Layout (Updated with Routes) ---
+// --- 主程式：Main Layout ---
 const Layout = ({ children, isScrolled }) => {
   return (
     <div className="font-sans text-stone-800 bg-stone-50 selection:bg-orange-200 min-h-screen flex flex-col">
@@ -543,8 +515,9 @@ const App = () => {
           <Route path="/booking" element={<BookingPage />} />
           <Route path="/guide" element={<GuidePage />} />
           <Route path="/about" element={<AboutPage />} />
-          {/* 🆕 註冊頁面的路由 */}
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signature/:id" element={<SignaturePage />} /> {/* ✅ 簽名頁路由 */}
         </Routes>
       </Layout>
     </Router>
