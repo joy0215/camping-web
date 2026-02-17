@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
-"scripts": {
+  "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server.js",
     "start": "node server.js"
@@ -13,12 +13,15 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@pdf-lib/fontkit": "^1.1.1",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "fontkit": "^2.0.4",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^8.0.1",
+    "pdf-lib": "^1.17.1",
     "pdfkit": "^0.17.2",
     "pg": "^8.18.0"
   },
