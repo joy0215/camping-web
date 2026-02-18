@@ -20,10 +20,35 @@ const ADDON_NAMES = {
   cookware: '多功能鍋具組 ($200)'
 };
 
-// POST /api/inquiry - 送出詢價單
+// ==========================================
+// 🆕 功能 1：取得會員自己的訂單列表 (Dashboard 用)
+// 路徑：GET /api/inquiry/my-orders
+// ==========================================
+router.get('/my-orders', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id; // 從 Token 拿 User ID (由 authMiddleware 提供)
+    
+    // 去資料庫撈資料，並依照時間倒序排列 (最新的訂單在最上面)
+    const result = await db.query(
+      'SELECT * FROM inquiries WHERE user_id = $1 ORDER BY created_at DESC',
+      [userId]
+    );
+
+    res.json(result.rows); // 回傳訂單陣列給前端
+  } catch (err) {
+    console.error('Get Orders Error:', err);
+    res.status(500).json({ error: 'Server Error' });
+  }
+});
+
+
+// ==========================================
+// 🆕 功能 2：送出詢價單 (Booking 用)
+// 路徑：POST /api/inquiry
+// ==========================================
 router.post('/', authMiddleware, async (req, res) => {
   const { startDate, endDate, addons, estimatedPrice } = req.body;
-  const userId = req.user.id; // 從 Token 解出來的 ID
+  const userId = req.user.id; 
 
   try {
     // 1. 先去資料庫查這位會員是誰 (取得名字、電話、Email)
@@ -39,18 +64,18 @@ router.post('/', authMiddleware, async (req, res) => {
 
     const order = newInquiry.rows[0];
 
-    // 3. 翻譯加購項目 (把 true/false 變成中文清單)
+    // 3. 準備 Email 內容 (翻譯加購項目)
     let addonsHtml = '';
     let hasAddons = false;
     for (const [key, value] of Object.entries(addons)) {
-      if (value) { // 如果是 true
+      if (value) { 
         addonsHtml += `<li style="margin-bottom: 4px;">${ADDON_NAMES[key] || key}</li>`;
         hasAddons = true;
       }
     }
     if (!hasAddons) addonsHtml = '<li>無加購項目</li>';
 
-    // 4. 寄送詳細 Email 給老闆
+    // 4. 寄送詳細 Email 通知老闆
     const mailOptions = {
       from: '"CampingTour 系統" <system@campingtour.com>',
       to: process.env.BOSS_EMAIL,
@@ -77,7 +102,7 @@ router.post('/', authMiddleware, async (req, res) => {
           </ul>
 
           <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
-          <p style="color: #666; font-size: 0.9em;">請盡快聯絡客戶確認車況與訂金事宜。</p>
+          <p style="color: #666; font-size: 0.9em;">客戶可以在會員中心查看此訂單並進行數位簽名。</p>
         </div>
       `
     };
