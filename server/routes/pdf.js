@@ -4,8 +4,8 @@ const PDFDocument = require('pdfkit');
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
+const db = require('../config/db'); // 確保引入資料庫連線
 
-// 設定 Gmail
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -15,12 +15,33 @@ const transporter = nodemailer.createTransport({
 });
 
 router.post('/generate', async (req, res) => {
-  const { guestName, cardNumber, amount, signature } = req.body;
+  // ⚠️ 這裡非常關鍵，必須要有 orderId
+  const { orderId, guestName, cardNumber, amount, signature } = req.body;
 
   try {
-    console.log(`📝 開始繪製標準穩定版授權書: ${guestName}`);
+    console.log(`📝 開始處理授權書。訂單號: ${orderId}, 客戶: ${guestName}`);
 
-    // 設定文件 (標準 A4 邊距)
+    if (!orderId) {
+      console.warn('⚠️ 警告：前端沒有傳送 orderId！資料庫無法更新，且無法撈取詳細資料。');
+    }
+
+    // --- 🆕 1. 根據 orderId 去資料庫撈出最新的客戶資訊 ---
+    let userInfo = { address: '', phone: '', email: '' };
+    if (orderId) {
+      const userRes = await db.query(`
+        SELECT u.address, u.phone, u.email 
+        FROM inquiries i 
+        JOIN users u ON i.user_id = u.id 
+        WHERE i.id = $1
+      `, [orderId]);
+      
+      if (userRes.rows.length > 0) {
+        userInfo = userRes.rows[0];
+        console.log('✅ 成功撈取客戶詳細資料！');
+      }
+    }
+
+    // --- 開始繪製 PDF ---
     const doc = new PDFDocument({ 
         size: 'A4', 
         margins: { top: 50, bottom: 50, left: 50, right: 50 } 
@@ -29,16 +50,13 @@ router.post('/generate', async (req, res) => {
     const buffers = [];
     doc.on('data', buffers.push.bind(buffers));
 
-    // 載入中文字體
     const fontPath = path.join(__dirname, '../font.ttf');
     if (fs.existsSync(fontPath)) {
       doc.font(fontPath);
     } else {
-      console.warn('⚠️ 警告：無中文字體，使用預設');
       doc.font('Helvetica');
     }
 
-    // --- 🛠 工具函式：模擬粗體 ---
     const drawBoldText = (text, x, y, size = 12, color = 'black', align = 'left', width = null) => {
         doc.save(); 
         doc.fillColor(color).strokeColor(color).lineWidth(0.8); 
@@ -48,33 +66,23 @@ router.post('/generate', async (req, res) => {
         doc.restore(); 
     };
 
-    // ==========================================
-    // 📄 第一頁：交易資訊 (Transaction Info)
-    // ==========================================
-
-    // 1. 標題
     drawBoldText('信用卡授權書', 0, 50, 20, 'black', 'center', 595); 
     doc.fontSize(10).text('Credit Card Authorization Form', 0, 75, { align: 'center' });
-    
-    // 分隔線
     doc.moveTo(50, 95).lineTo(545, 95).lineWidth(1.5).stroke();
 
-    // 2. 表格內容設定 (標準大小)
     let currentY = 120;
     const startX = 50;
     const valueX = 220; 
-    const lineHeight = 30; // 適中的行距
-    const sectionGap = 30; // 適中的區塊間距
+    const lineHeight = 30; 
+    const sectionGap = 30; 
 
     function drawField(label, value, isBox = false) {
         doc.fontSize(12).fillColor('black').text(label, startX, currentY);
-        
         if (value) {
             doc.text(value, valueX, currentY);
         } else {
             doc.moveTo(valueX, currentY + 14).lineTo(500, currentY + 14).lineWidth(0.5).stroke();
         }
-        
         if (isBox) {
              doc.rect(valueX, currentY - 2, 10, 10).stroke();
              doc.text(' VISA', valueX + 15, currentY);
@@ -86,10 +94,8 @@ router.post('/generate', async (req, res) => {
         currentY += lineHeight;
     }
 
-    // --- A. 信用卡資料 ---
     drawBoldText('【信用卡資料 / Credit Card Info】', startX, currentY, 13, '#d94e18');
     currentY += sectionGap;
-
     drawField('卡別 (Card Type):', null, true);
     drawField('持卡人姓名 (Cardholder):', guestName);
     drawField('信用卡卡號 (Card No.):', cardNumber);
@@ -98,41 +104,31 @@ router.post('/generate', async (req, res) => {
     
     currentY += 10;
     
-    // --- B. 持卡人資料 ---
+    // --- 🆕 2. 把資料庫撈出來的資料印上 PDF ---
     drawBoldText('【持卡人聯絡資料 / Contact Info】', startX, currentY, 13, '#d94e18');
     currentY += sectionGap;
-    
-    drawField('通訊地址 (Address):', '');
+    drawField('通訊地址 (Address):', userInfo.address || '___________________________');
     drawField('抬頭/統編 (Tax ID):', '');
-    drawField('聯絡電話 (Tel/Mobile):', '詳見訂單系統');
-    drawField('Email:', '詳見訂單系統');
+    drawField('聯絡電話 (Tel/Mobile):', userInfo.phone || '___________________________');
+    drawField('Email:', userInfo.email || '___________________________');
 
     currentY += 10;
 
-    // --- C. 交易明細 ---
     drawBoldText('【交易內容 / Transaction Details】', startX, currentY, 13, '#d94e18');
     currentY += sectionGap;
-
     drawField('消費日期 (Date):', new Date().toLocaleDateString());
     drawField('消費項目 (Description):', '露營車租賃訂金 (Campervan Deposit)');
     drawField('使用人姓名 (Guest Name):', guestName);
     
-    // 金額 (使用 16pt，清楚但不誇張)
     doc.fontSize(12).text('消費金額 (Amount):', startX, currentY);
     drawBoldText(`NT$ ${amount.toLocaleString()}`, valueX, currentY - 2, 16, '#d94e18'); 
     
-    // --- D. 簽名欄 (放在第一頁下方) ---
-    // 強制設定簽名欄位置在 Y=620，確保跟上面金額拉開距離
-    // A4 高度約 840，620 處於頁面下方 3/4 處，非常安全
     const signY = 620; 
     const centerBoxX = 187.5; 
 
     drawBoldText('持卡人簽名 (Cardholder Signature)', 0, signY, 14, 'black', 'center', 595);
-    
-    // 簽名框
     doc.rect(centerBoxX, signY + 25, 220, 80).stroke();
 
-    // 貼上簽名
     if (signature) {
         const base64Data = signature.replace(/^data:image\/\w+;base64,/, "");
         const imgBuffer = Buffer.from(base64Data, 'base64');
@@ -141,16 +137,9 @@ router.post('/generate', async (req, res) => {
         });
     }
 
-    // 頁尾提示
     doc.fontSize(10).text('(接下頁條款 / Next Page)', 0, 780, { align: 'center', color: 'grey' });
 
-
-    // ==========================================
-    // 📄 第二頁：聲明與公司資訊 (Declaration)
-    // ==========================================
     doc.addPage(); 
-
-    // 1. 頁面標題
     drawBoldText('授權聲明與公司資訊', 0, 50, 16, 'black', 'center', 595);
     doc.fontSize(10).text('Authorization Declaration & Company Info', 0, 75, { align: 'center' });
     doc.moveTo(50, 95).lineTo(545, 95).lineWidth(1).stroke();
@@ -159,16 +148,14 @@ router.post('/generate', async (req, res) => {
     const contentX = 60;
     const contentWidth = 480;
 
-    // 2. 委託聲明
     doc.fontSize(11).fillColor('black');
     doc.text('露途臺灣已委託嘉揚旅行社代為處理相關信用卡事務，包括刷卡、授權及退刷等作業。', contentX, page2Y);
     page2Y += 20;
     doc.text('Camper Road Taiwan has authorized JOYOUS TOUR SERVICE to handle all credit card–related matters.', contentX, page2Y);
     page2Y += 40;
 
-    // 3. 法律條款 (恢復正常大小，排版整齊)
     const boxTop = page2Y;
-    doc.rect(50, boxTop - 10, 500, 250).fill('#f9f9f9'); // 灰底
+    doc.rect(50, boxTop - 10, 500, 250).fill('#f9f9f9'); 
     doc.fill('black'); 
 
     const bulletPoints = [
@@ -182,36 +169,26 @@ router.post('/generate', async (req, res) => {
         page2Y += 70; 
     });
 
-    // 4. 公司資訊
     page2Y = 500; 
-    
     doc.moveTo(50, page2Y).lineTo(545, page2Y).lineWidth(2).stroke(); 
     page2Y += 30;
 
-    // 公司名稱
     drawBoldText('商店名稱 / Company Name:', contentX, page2Y, 12, '#333');
     page2Y += 20;
     drawBoldText('嘉揚旅行社股份有限公司', contentX, page2Y, 14, 'black');
     page2Y += 20;
     doc.fontSize(12).text('JOYOUS TOUR SERVICE CO; LTD', contentX, page2Y);
-    
     page2Y += 40;
-
-    // 統編
     drawBoldText('統一編號 / Business ID:', contentX, page2Y, 12, '#333');
     page2Y += 20;
     doc.fontSize(14).text('70366327', contentX, page2Y);
-
     page2Y += 40;
-
-    // 地址
     drawBoldText('地址 / Address:', contentX, page2Y, 12, '#333');
     page2Y += 20;
     doc.fontSize(12).text('104台北市中山北路二段59巷9號3F之6', contentX, page2Y);
 
     doc.end();
 
-    // --- 寄信邏輯 ---
     doc.on('end', async () => {
         try {
             const pdfData = Buffer.concat(buffers);
@@ -223,7 +200,19 @@ router.post('/generate', async (req, res) => {
                 attachments: [{ filename: `Auth_${guestName}.pdf`, content: pdfData }]
             };
             await transporter.sendMail(mailOptions);
-            res.json({ success: true, message: 'PDF generated' });
+
+            // --- 🆕 3. 確保資料庫狀態更新 ---
+            if (orderId) {
+                await db.query(
+                    'UPDATE inquiries SET signature_url = $1 WHERE id = $2',
+                    ['已簽署_請至信箱查看PDF附件', orderId]
+                );
+                console.log(`✅ 訂單 #${orderId} 狀態已更新為已簽署`);
+            } else {
+                 console.log(`❌ 找不到 orderId，無法更新資料庫狀態！`);
+            }
+
+            res.json({ success: true, message: 'PDF generated and database updated' });
         } catch (err) {
             console.error('Email Error:', err);
             res.status(500).json({ error: 'Email Failed' });

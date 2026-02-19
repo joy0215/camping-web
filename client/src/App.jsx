@@ -3,10 +3,8 @@ import {
   Menu, X, Instagram, Facebook, MapPin, Phone, Mail 
 } from 'lucide-react';
 
-// 引入路由核心
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
-// 引入所有頁面元件 (請確保這些檔案在 src/pages/ 資料夾中都存在)
 import HomePage from './pages/HomePage';
 import PlansPage from './pages/PlansPage';
 import GuidePage from './pages/GuidePage';
@@ -15,14 +13,9 @@ import BookingPage from './pages/BookingPage';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import SignaturePage from './pages/SignaturePage';
-import DashboardPage from './pages/DashboardPage'; // ✅ 會員中心
+import DashboardPage from './pages/DashboardPage'; 
+import AdminDashboard from './pages/AdminDashboard'; // 👑 引入老闆後台
 
-/**
- * CampingTour 車泊輕旅 - App Root
- * 負責路由設定與全域佈局
- */
-
-// --- 全域資料設定 ---
 const CONTACT_INFO = {
   name: "楊哲 Che Yang",
   phone: "0965-720-586",
@@ -51,14 +44,12 @@ const IMAGES = {
   logoStack: "/images/logo-stack.jpg"
 };
 
-// --- 子組件：導覽列 (Navbar) ---
 const Navbar = ({ isScrolled }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [user, setUser] = useState(null);
 
-  // 監聽路由與 LocalStorage 變化，即時更新使用者狀態
   useEffect(() => {
     const checkUser = () => {
       const storedUser = localStorage.getItem('user');
@@ -82,7 +73,6 @@ const Navbar = ({ isScrolled }) => {
     navigate('/');
   };
 
-  // 基本導覽連結
   const baseLinks = [
     { id: '/', label: '首頁 Home' },
     { id: '/plans', label: '車型與方案 Plans' },
@@ -91,7 +81,6 @@ const Navbar = ({ isScrolled }) => {
     { id: '/about', label: '關於 About' },
   ];
 
-  // ✅ 動態選單：如果有登入，選單列多加一個「會員中心」
   const navLinks = user 
     ? [...baseLinks, { id: '/dashboard', label: '會員中心 Member' }]
     : baseLinks;
@@ -109,7 +98,6 @@ const Navbar = ({ isScrolled }) => {
     <nav className={`fixed w-full z-50 transition-all duration-300 ${isLightMode ? 'bg-white/95 backdrop-blur-md shadow-sm py-3 text-stone-800' : 'bg-transparent py-6 text-white'}`}>
       <div className="container mx-auto px-6 flex justify-between items-center">
         
-        {/* Logo Area */}
         <div className="flex items-center gap-3 cursor-pointer group" onClick={() => handleNavClick('/')}>
           <img src={IMAGES.logo} alt="Logo" className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white/50 shadow-sm object-cover" onError={(e) => e.target.style.display='none'} />
           <div className="flex flex-col">
@@ -118,7 +106,6 @@ const Navbar = ({ isScrolled }) => {
           </div>
         </div>
 
-        {/* Desktop Menu (電腦版選單) */}
         <div className="hidden md:flex items-center space-x-8 font-medium text-sm tracking-wide">
           {navLinks.map((link) => (
               <button 
@@ -134,9 +121,19 @@ const Navbar = ({ isScrolled }) => {
               </button>
           ))}
 
-          {/* 帳號狀態區塊 */}
           {user ? (
             <div className={`flex items-center gap-4 ml-4 pl-4 border-l ${isLightMode ? 'border-stone-300' : 'border-white/30'}`}>
+              
+              {/* 👑 老闆專屬按鈕 (僅限此 Email 顯示) */}
+              {user.email === 'cheyang0326@gmail.com' && (
+                <button 
+                  onClick={() => handleNavClick('/admin')}
+                  className="flex items-center gap-1 bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-700 transition-colors shadow-sm"
+                >
+                  👑 老闆後台
+                </button>
+              )}
+
               <button 
                 onClick={() => handleNavClick('/dashboard')}
                 className={`font-bold hover:underline cursor-pointer flex items-center gap-1 ${isLightMode ? 'text-orange-600' : 'text-orange-300'}`}
@@ -170,13 +167,11 @@ const Navbar = ({ isScrolled }) => {
           )}
         </div>
 
-        {/* Mobile Menu Button (手機版漢堡按鈕) */}
         <button className="md:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
           {isMobileMenuOpen ? <X className="text-stone-800" /> : <Menu />}
         </button>
       </div>
 
-      {/* Mobile Menu Content (手機版選單內容) */}
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-lg py-6 px-6 flex flex-col space-y-4 border-t border-stone-100 text-stone-800 h-screen">
           {navLinks.map((link) => (
@@ -195,6 +190,12 @@ const Navbar = ({ isScrolled }) => {
                 {user ? (
                     <>
                         <div className="text-orange-600 font-bold mb-2 text-lg">Hi, {user.name}</div>
+                        
+                        {/* 👑 手機版老闆按鈕 */}
+                        {user.email === 'cheyang0326@gmail.com' && (
+                          <button onClick={() => handleNavClick('/admin')} className="block w-full text-left py-2 font-bold text-red-600 hover:text-red-700">👑 進入老闆後台 Admin</button>
+                        )}
+
                         <button onClick={handleLogout} className="text-stone-500 w-full text-left py-2 hover:text-stone-800">登出 Logout</button>
                     </>
                 ) : (
@@ -210,7 +211,6 @@ const Navbar = ({ isScrolled }) => {
   );
 };
 
-// --- 子組件：頁腳 (Footer) ---
 const Footer = () => {
   const navigate = useNavigate();
   const handleLink = (path) => { navigate(path); window.scrollTo(0, 0); };
@@ -285,7 +285,6 @@ const Footer = () => {
   );
 };
 
-// --- 主版面 Layout ---
 const Layout = ({ children, isScrolled }) => {
   return (
     <div className="font-sans text-stone-800 bg-stone-50 selection:bg-orange-200 min-h-screen flex flex-col">
@@ -298,11 +297,9 @@ const Layout = ({ children, isScrolled }) => {
   );
 };
 
-// --- App Root Component ---
 const App = () => {
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // 監聽滾動事件以改變 Navbar 樣式
   useEffect(() => { 
     const handleScroll = () => { setIsScrolled(window.scrollY > 50); }; 
     window.addEventListener('scroll', handleScroll); 
@@ -321,9 +318,10 @@ const App = () => {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signature/:id" element={<SignaturePage />} />
-          
-          {/* ✅ Dashboard 路由 */}
           <Route path="/dashboard" element={<DashboardPage />} />
+          
+          {/* 👑 老闆專屬路由 */}
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </Layout>
     </Router>

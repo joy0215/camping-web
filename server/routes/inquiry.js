@@ -38,8 +38,8 @@ const formatDate = (date) => {
 // ==========================================
 router.get('/blocked-dates', async (req, res) => {
   try {
-    // 撈出所有訂單 (未來如果有取消功能，這裡可以加上 WHERE status != 'cancelled')
-    const result = await db.query('SELECT start_date, end_date FROM inquiries');
+    // 濾掉已被老闆取消的訂單，釋放檔期
+    const result = await db.query("SELECT start_date, end_date FROM inquiries WHERE status != 'cancelled'");
     
     const dateCounts = {};
 
@@ -93,7 +93,8 @@ router.post('/', authMiddleware, async (req, res) => {
 
   try {
     // 🛡️ [防撞終極防線]：寫入資料庫前，最後算一次有沒有滿檔
-    const allOrders = await db.query('SELECT start_date, end_date FROM inquiries');
+    // 濾掉已被老闆取消的訂單，釋放檔期
+    const allOrders = await db.query("SELECT start_date, end_date FROM inquiries WHERE status != 'cancelled'");
     const dateCounts = {};
     allOrders.rows.forEach(order => {
       let current = new Date(order.start_date);

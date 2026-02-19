@@ -13,11 +13,11 @@ app.get('/', (req, res) => {
   res.send('Camping Server is Running! 🚀');
 });
 
-// --- 👇 新增這一段：掛載 API 路由 👇 ---
-// 這行代表：只要網址是 /api/auth 開頭的 (例如註冊/登入)，都交給 routes/auth.js 處理
+// --- 👇 掛載 API 路由 👇 ---
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/inquiry', require('./routes/inquiry'));
 app.use('/api/pdf', require('./routes/pdf'));
+app.use('/api/admin', require('./routes/admin')); // 👑 🆕 啟用老闆 API
 // -------------------------------------
 
 // 資料庫連線測試 (保留這段讓你確認連線狀態)

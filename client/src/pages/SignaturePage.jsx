@@ -46,10 +46,11 @@ export default function SignaturePage() {
       // 原本是 getTrimmedCanvas() 會導致 Vite 報錯
       const signatureData = sigPad.current.getCanvas().toDataURL('image/png');
 
-      // D. 呼叫後端 PDF 生成 API
-      await axiosClient.post('/pdf/generate', {
-        guestName: user.name,
-        cardNumber: cardNumber,
+      // 送出 PDF 生成請求給後端
+      const response = await axiosClient.post('/pdf/generate', {
+        orderId: order.id, // 👈 這一行絕對不能漏掉！！！
+        guestName: formData.cardholderName,
+        cardNumber: formData.cardNumber,
         amount: amount,
         signature: signatureData
       });
