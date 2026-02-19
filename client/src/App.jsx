@@ -6,7 +6,7 @@ import {
 // 引入路由核心
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
-// 引入所有頁面 (請確保這些檔案在 src/pages/ 資料夾中都存在)
+// 引入所有頁面元件 (請確保這些檔案在 src/pages/ 資料夾中都存在)
 import HomePage from './pages/HomePage';
 import PlansPage from './pages/PlansPage';
 import GuidePage from './pages/GuidePage';
@@ -22,7 +22,7 @@ import DashboardPage from './pages/DashboardPage'; // ✅ 會員中心
  * 負責路由設定與全域佈局
  */
 
-// 全域資料設定
+// --- 全域資料設定 ---
 const CONTACT_INFO = {
   name: "楊哲 Che Yang",
   phone: "0965-720-586",
@@ -70,7 +70,6 @@ const Navbar = ({ isScrolled }) => {
     };
 
     checkUser();
-    // 監聽 storage 事件 (雖在同一頁面不一定觸發，但保留作為保險)
     window.addEventListener('storage', checkUser);
     return () => window.removeEventListener('storage', checkUser);
   }, [location]); 
@@ -92,7 +91,7 @@ const Navbar = ({ isScrolled }) => {
     { id: '/about', label: '關於 About' },
   ];
 
-  // 如果有登入，選單多加一個 Dashboard (手機版選單用)
+  // ✅ 動態選單：如果有登入，選單列多加一個「會員中心」
   const navLinks = user 
     ? [...baseLinks, { id: '/dashboard', label: '會員中心 Member' }]
     : baseLinks;
@@ -121,7 +120,7 @@ const Navbar = ({ isScrolled }) => {
 
         {/* Desktop Menu (電腦版選單) */}
         <div className="hidden md:flex items-center space-x-8 font-medium text-sm tracking-wide">
-          {baseLinks.map((link) => (
+          {navLinks.map((link) => (
               <button 
                 key={link.id} 
                 onClick={() => handleNavClick(link.id)} 
@@ -135,10 +134,9 @@ const Navbar = ({ isScrolled }) => {
               </button>
           ))}
 
-          {/* 會員狀態區塊 */}
+          {/* 帳號狀態區塊 */}
           {user ? (
             <div className={`flex items-center gap-4 ml-4 pl-4 border-l ${isLightMode ? 'border-stone-300' : 'border-white/30'}`}>
-              {/* ✅ 會員中心按鈕 */}
               <button 
                 onClick={() => handleNavClick('/dashboard')}
                 className={`font-bold hover:underline cursor-pointer flex items-center gap-1 ${isLightMode ? 'text-orange-600' : 'text-orange-300'}`}
@@ -155,7 +153,6 @@ const Navbar = ({ isScrolled }) => {
               </button>
             </div>
           ) : (
-            // 未登入狀態
             <div className="flex gap-2 ml-4">
                <button 
                 onClick={() => handleNavClick('/login')} 
@@ -197,7 +194,7 @@ const Navbar = ({ isScrolled }) => {
            <div className="border-t pt-4 mt-2">
                 {user ? (
                     <>
-                         {/* 手機版登出 */}
+                        <div className="text-orange-600 font-bold mb-2 text-lg">Hi, {user.name}</div>
                         <button onClick={handleLogout} className="text-stone-500 w-full text-left py-2 hover:text-stone-800">登出 Logout</button>
                     </>
                 ) : (
@@ -305,6 +302,7 @@ const Layout = ({ children, isScrolled }) => {
 const App = () => {
   const [isScrolled, setIsScrolled] = useState(false);
 
+  // 監聽滾動事件以改變 Navbar 樣式
   useEffect(() => { 
     const handleScroll = () => { setIsScrolled(window.scrollY > 50); }; 
     window.addEventListener('scroll', handleScroll); 
