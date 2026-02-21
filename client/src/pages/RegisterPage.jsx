@@ -37,7 +37,7 @@ export default function RegisterPage() {
               加上 p-12 (內距) 和 bg-stone-100 (米色背景) 讓它看起來更有質感。
           */}
           <img 
-            src="/images/logo-circle.jpg" 
+            src="/images/logo-stack.jpg" 
             alt="CampingTour Logo" 
             className="absolute inset-0 w-full h-full object-contain p-12"
           />
