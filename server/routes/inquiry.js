@@ -4,14 +4,16 @@ const db = require('../config/db');
 const nodemailer = require('nodemailer');
 const authMiddleware = require('../middleware/auth'); 
 
+// 👇 1. 這裡換成防雷的 587 通道
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
-  }
+  },
+  tls: { rejectUnauthorized: false }
 });
 
 const ADDON_NAMES = {
@@ -20,10 +22,8 @@ const ADDON_NAMES = {
   cookware: '多功能鍋具組 ($200)'
 };
 
-// 🚐 車輛總數 (未來買新車改這裡就好)
 const TOTAL_VANS = 3;
 
-// 輔助函數：將日期格式化為 YYYY-MM-DD，避免時區問題
 const formatDate = (date) => {
   const d = new Date(date);
   let month = '' + (d.getMonth() + 1);
@@ -35,31 +35,22 @@ const formatDate = (date) => {
 };
 
 // ==========================================
-// 🆕 功能 0：取得「滿檔無法預約」的日期清單
-// 路徑：GET /api/inquiry/blocked-dates
+// 取得「滿檔無法預約」的日期清單
 // ==========================================
 router.get('/blocked-dates', async (req, res) => {
   try {
-    // 濾掉已被老闆取消的訂單，釋放檔期
     const result = await db.query("SELECT start_date, end_date FROM inquiries WHERE status != 'cancelled'");
-    
     const dateCounts = {};
-
-    // 攤開每一筆訂單，計算每一天被借走了幾台
     result.rows.forEach(order => {
       let current = new Date(order.start_date);
       const end = new Date(order.end_date);
-
       while (current <= end) {
         const dateStr = formatDate(current);
         dateCounts[dateStr] = (dateCounts[dateStr] || 0) + 1;
         current.setDate(current.getDate() + 1);
       }
     });
-
-    // 篩選出「借出數量 >= 總車輛數」的日期，這天就是滿檔！
     const blockedDates = Object.keys(dateCounts).filter(date => dateCounts[date] >= TOTAL_VANS);
-
     res.json(blockedDates);
   } catch (err) {
     console.error('Get Blocked Dates Error:', err);
@@ -68,8 +59,7 @@ router.get('/blocked-dates', async (req, res) => {
 });
 
 // ==========================================
-// 功能 1：取得會員自己的訂單列表
-// 路徑：GET /api/inquiry/my-orders
+// 取得會員自己的訂單列表
 // ==========================================
 router.get('/my-orders', authMiddleware, async (req, res) => {
   try {
@@ -86,16 +76,14 @@ router.get('/my-orders', authMiddleware, async (req, res) => {
 });
 
 // ==========================================
-// 功能 2：送出詢價單 (加入防撞雙重驗證)
-// 路徑：POST /api/inquiry
+// 送出詢價單 (加入防撞雙重驗證 + 背景寄信)
 // ==========================================
 router.post('/', authMiddleware, async (req, res) => {
   const { startDate, endDate, addons, estimatedPrice } = req.body;
   const userId = req.user.id; 
 
   try {
-    // 🛡️ [防撞終極防線]：寫入資料庫前，最後算一次有沒有滿檔
-    // 濾掉已被老闆取消的訂單，釋放檔期
+    // 🛡️ 防撞檢查
     const allOrders = await db.query("SELECT start_date, end_date FROM inquiries WHERE status != 'cancelled'");
     const dateCounts = {};
     allOrders.rows.forEach(order => {
@@ -108,11 +96,9 @@ router.post('/', authMiddleware, async (req, res) => {
       }
     });
 
-    // 檢查客人選的這段期間，有沒有哪一天已經 >= 3台了
     let isOverlap = false;
     let checkCurrent = new Date(startDate);
     const checkEnd = new Date(endDate);
-    
     while (checkCurrent <= checkEnd) {
       const dateStr = formatDate(checkCurrent);
       if (dateCounts[dateStr] && dateCounts[dateStr] >= TOTAL_VANS) {
@@ -125,7 +111,6 @@ router.post('/', authMiddleware, async (req, res) => {
     if (isOverlap) {
       return res.status(400).json({ error: '抱歉，您選擇的區間內有日期已滿檔，請重新選擇！' });
     }
-    // 🛡️ 防撞檢查結束
 
     // 1. 查會員資料
     const userResult = await db.query('SELECT name, phone, email FROM users WHERE id = $1', [userId]);
@@ -150,7 +135,6 @@ router.post('/', authMiddleware, async (req, res) => {
     }
     if (!hasAddons) addonsHtml = '<li>無加購項目</li>';
 
-    // 4. 寄 Email
     const mailOptions = {
       from: '"CampingTour 系統" <system@campingtour.com>',
       to: process.env.BOSS_EMAIL,
@@ -174,10 +158,12 @@ router.post('/', authMiddleware, async (req, res) => {
       `
     };
 
-    await transporter.sendMail(mailOptions);
-    console.log(`✅ 詳細詢價單 Email 已寄出 (Order #${order.id})`);
-
+    // 👇 2. 🌟 關鍵改動：立刻回傳成功讓畫面秒跳轉，信件丟到背景寄！
     res.json({ success: true, inquiry: order });
+
+    transporter.sendMail(mailOptions)
+      .then(() => console.log(`✅ 詳細詢價單 Email 已在背景寄出 (Order #${order.id})`))
+      .catch(err => console.error('❌ Email 背景發送失敗:', err.message));
 
   } catch (err) {
     console.error('Inquiry Error:', err);
