@@ -1,81 +1,100 @@
 import { useState } from 'react';
-import axiosClient from '../api/axiosClient'; // 引入我們剛做好的通訊官
-import { useNavigate } from 'react-router-dom'; // 用來跳轉頁面
+import axiosClient from '../api/axiosClient';
+import { useNavigate, Link } from 'react-router-dom';
+import { User, Mail, Lock, Phone, ArrowRight, Map } from 'lucide-react';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  
-  // 1. 設定表單狀態
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    phone: ''
-  });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '' });
+  const [isLoading, setIsLoading] = useState(false);
 
-  // 2. 處理輸入框變化
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // 3. 送出表單 (關鍵時刻！)
   const handleSubmit = async (e) => {
-    e.preventDefault(); // 防止頁面刷新
-    
+    e.preventDefault();
+    setIsLoading(true);
     try {
-      // 呼叫後端 API: POST /api/auth/register
-      const response = await axiosClient.post('/auth/register', formData);
-      
-      console.log('註冊成功:', response.data);
-      alert('🎉 註冊成功！請前往登入');
-      
-      // 成功後跳轉到首頁或登入頁 (這裡先跳首頁)
-      navigate('/'); 
-
+      await axiosClient.post('/auth/register', formData);
+      alert('🎉 註冊成功！請登入您的新帳號');
+      navigate('/login'); 
     } catch (error) {
       console.error('註冊失敗:', error);
-      // 如果後端有回傳錯誤訊息 (例如 Email 重複)，顯示出來
       const msg = error.response?.data?.error || '註冊失敗，請稍後再試';
       alert(`❌ ${msg}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">會員註冊</h2>
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4 md:p-8 pt-24">
+      <div className="bg-white w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row-reverse">
         
-        <input 
-          type="text" name="name" placeholder="姓名" required
-          onChange={handleChange}
-          className="w-full p-2 mb-4 border rounded"
-        />
-        <input 
-          type="email" name="email" placeholder="Email" required
-          onChange={handleChange}
-          className="w-full p-2 mb-4 border rounded"
-        />
-        <input 
-          type="password" name="password" placeholder="密碼" required
-          onChange={handleChange}
-          className="w-full p-2 mb-4 border rounded"
-        />
-        <input 
-          type="tel" name="phone" placeholder="電話" required
-          onChange={handleChange}
-          className="w-full p-2 mb-6 border rounded"
-        />
+        {/* 右側：品牌 Logo 區 (更換為您的 Logo) */}
+        <div className="md:w-1/2 relative hidden md:block bg-stone-100">
+          {/* ✅ 特別調整：
+              對於圓形 Logo，我們使用 object-contain 來保持它的完整性，不強行拉伸。
+              加上 p-12 (內距) 和 bg-stone-100 (米色背景) 讓它看起來更有質感。
+          */}
+          <img 
+            src="/images/logo-circle.jpg" 
+            alt="CampingTour Logo" 
+            className="absolute inset-0 w-full h-full object-contain p-12"
+          />
+          {/* Logo 區通常不需要太強烈的文字遮罩，這裡稍微調整一下，讓它更乾淨 */}
+          <div className="absolute inset-0 flex flex-col justify-end p-12 text-stone-900">
+            <h2 className="text-4xl font-serif font-bold mb-2">加入車泊，擁抱大自然</h2>
+            <p className="text-stone-600 font-medium">只需一分鐘註冊，開啟您的質感露營體驗。</p>
+          </div>
+        </div>
 
-        <button 
-          type="submit" 
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
-        >
-          立即註冊
-        </button>
-      </form>
+        {/* 左側：註冊表單區 (維持不變) */}
+        <div className="w-full md:w-1/2 p-10 sm:p-14 flex flex-col justify-center">
+          <div className="max-w-md w-full mx-auto">
+            <h2 className="text-3xl font-serif font-bold text-stone-900 mb-2">建立帳號 Create Account</h2>
+            <p className="text-stone-500 mb-8">請填寫以下資訊，成為 CampingTour 的會員。</p>
+            
+            <form onSubmit={handleSubmit} className="space-y-4">
+              
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-stone-400"><User size={20} /></div>
+                <input type="text" name="name" placeholder="真實姓名 Full Name" required onChange={handleChange} className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all text-stone-700" />
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-stone-400"><Mail size={20} /></div>
+                <input type="email" name="email" placeholder="信箱 Email" required onChange={handleChange} className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all text-stone-700" />
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-stone-400"><Phone size={20} /></div>
+                <input type="tel" name="phone" placeholder="聯絡電話 Phone Number" required onChange={handleChange} className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all text-stone-700" />
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-stone-400"><Lock size={20} /></div>
+                <input type="password" name="password" placeholder="設定密碼 Password" required onChange={handleChange} className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all text-stone-700" />
+              </div>
+
+              <button 
+                type="submit" disabled={isLoading}
+                className={`w-full flex items-center justify-center gap-2 text-white font-bold py-3.5 rounded-xl transition-all shadow-md active:scale-[0.98] mt-6 
+                  ${isLoading ? 'bg-stone-400 cursor-not-allowed' : 'bg-stone-900 hover:bg-orange-600 hover:shadow-lg'}`}
+              >
+                {isLoading ? '處理中...' : <>立即註冊 Register <ArrowRight size={18} /></>}
+              </button>
+            </form>
+
+            <div className="mt-8 text-center text-stone-500">
+              已經有帳號了？{' '}
+              <Link to="/login" className="text-orange-600 font-bold hover:underline transition-all">
+                返回登入
+              </Link>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }
