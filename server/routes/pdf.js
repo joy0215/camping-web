@@ -4,28 +4,26 @@ const PDFDocument = require('pdfkit');
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
-const db = require('../config/db'); // 確保引入資料庫連線
+const db = require('../config/db');
 
+// 👇 1. 換成 Port 587，不再讓 Render 網路超時當機！
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
-  }
+  },
+  tls: { rejectUnauthorized: false } // 加上護城河
 });
 
 router.post('/generate', async (req, res) => {
-  // ⚠️ 這裡非常關鍵，必須要有 orderId
   const { orderId, guestName, cardNumber, amount, signature } = req.body;
 
   try {
     console.log(`📝 開始處理授權書。訂單號: ${orderId}, 客戶: ${guestName}`);
 
-    if (!orderId) {
-      console.warn('⚠️ 警告：前端沒有傳送 orderId！資料庫無法更新，且無法撈取詳細資料。');
-    }
-
-    // --- 🆕 1. 根據 orderId 去資料庫撈出最新的客戶資訊 ---
     let userInfo = { address: '', phone: '', email: '' };
     if (orderId) {
       const userRes = await db.query(`
@@ -37,11 +35,9 @@ router.post('/generate', async (req, res) => {
       
       if (userRes.rows.length > 0) {
         userInfo = userRes.rows[0];
-        console.log('✅ 成功撈取客戶詳細資料！');
       }
     }
 
-    // --- 開始繪製 PDF ---
     const doc = new PDFDocument({ 
         size: 'A4', 
         margins: { top: 50, bottom: 50, left: 50, right: 50 } 
@@ -104,7 +100,6 @@ router.post('/generate', async (req, res) => {
     
     currentY += 10;
     
-    // --- 🆕 2. 把資料庫撈出來的資料印上 PDF ---
     drawBoldText('【持卡人聯絡資料 / Contact Info】', startX, currentY, 13, '#d94e18');
     currentY += sectionGap;
     drawField('通訊地址 (Address):', userInfo.address || '___________________________');
@@ -189,9 +184,24 @@ router.post('/generate', async (req, res) => {
 
     doc.end();
 
+    // 👇 2. 拔掉 await，先讓前端秒跳轉，信件慢慢寄！
     doc.on('end', async () => {
         try {
             const pdfData = Buffer.concat(buffers);
+            
+            // 先更新資料庫
+            if (orderId) {
+                await db.query(
+                    'UPDATE inquiries SET signature_url = $1 WHERE id = $2',
+                    ['已簽署_請至信箱查看PDF附件', orderId]
+                );
+                console.log(`✅ 訂單 #${orderId} 狀態已更新為已簽署`);
+            }
+
+            // 🌟 關鍵：立刻回傳成功，讓客人畫面跳轉，一秒都不用等！
+            res.json({ success: true, message: 'PDF generated and database updated' });
+
+            // 信件丟到背景寄，不加 await！
             const mailOptions = {
                 from: '"CampingTour 系統" <system@campingtour.com>',
                 to: process.env.BOSS_EMAIL,
@@ -199,23 +209,14 @@ router.post('/generate', async (req, res) => {
                 html: `<h3>已收到信用卡授權書</h3><p>客戶：${guestName}</p><p>金額：$${amount}</p><p>附件為標準雙頁版 PDF。</p>`,
                 attachments: [{ filename: `Auth_${guestName}.pdf`, content: pdfData }]
             };
-            await transporter.sendMail(mailOptions);
+            
+            transporter.sendMail(mailOptions)
+                .then(() => console.log('✅ 合約 Email 已在背景成功寄出！'))
+                .catch(err => console.error('❌ 合約 Email 背景發送失敗:', err.message));
 
-            // --- 🆕 3. 確保資料庫狀態更新 ---
-            if (orderId) {
-                await db.query(
-                    'UPDATE inquiries SET signature_url = $1 WHERE id = $2',
-                    ['已簽署_請至信箱查看PDF附件', orderId]
-                );
-                console.log(`✅ 訂單 #${orderId} 狀態已更新為已簽署`);
-            } else {
-                 console.log(`❌ 找不到 orderId，無法更新資料庫狀態！`);
-            }
-
-            res.json({ success: true, message: 'PDF generated and database updated' });
         } catch (err) {
-            console.error('Email Error:', err);
-            res.status(500).json({ error: 'Email Failed' });
+            console.error('Database/Response Error:', err);
+            if (!res.headersSent) res.status(500).json({ error: 'System Error' });
         }
     });
 
