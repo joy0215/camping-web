@@ -114,7 +114,6 @@ coverage/
 Thumbs.db
 
 # Fonts / binary assets
-*.ttf
 *.woff
 *.woff2
 *.eot
@@ -130,4 +129,3 @@ serverless-state.json
 
 # Misc
 .pnp
-.ttf
