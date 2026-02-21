@@ -42,21 +42,20 @@ export default function SignaturePage() {
     setLoading(true);
 
     try {
-      // C. 取得簽名圖片 (修正重點：改用 getCanvas() 避開套件 Bug)
-      // 原本是 getTrimmedCanvas() 會導致 Vite 報錯
+      // C. 取得簽名圖片
       const signatureData = sigPad.current.getCanvas().toDataURL('image/png');
 
-      // 送出 PDF 生成請求給後端
+      // ✅ 修正重點：變數名稱正確對應 user.name 與單獨的 cardNumber 狀態
       const response = await axiosClient.post('/pdf/generate', {
-        orderId: order.id, // 👈 這一行絕對不能漏掉！！！
-        guestName: formData.cardholderName,
-        cardNumber: formData.cardNumber,
+        orderId: order.id, 
+        guestName: user.name, 
+        cardNumber: cardNumber,
         amount: amount,
         signature: signatureData
       });
 
       alert('🎉 簽署成功！\n授權書已傳送至系統，我們將盡快審核您的訂單。');
-      navigate('/'); 
+      navigate('/dashboard'); // 簽完直接導回會員中心看結果
 
     } catch (error) {
       console.error('Signature Error:', error);

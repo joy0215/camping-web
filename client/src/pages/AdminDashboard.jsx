@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import axiosClient from '../api/axiosClient';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, Clock, CheckCircle, XCircle, FileText, Phone, Mail, Calendar } from 'lucide-react';
+import { ShieldCheck, Clock, CheckCircle, XCircle, FileText, Phone, Mail, Calendar, Filter } from 'lucide-react';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // 🆕 新增：訂單過濾器狀態 ('all', 'pending', 'confirmed', 'cancelled')
+  const [filterStatus, setFilterStatus] = useState('pending'); 
 
   useEffect(() => {
-    // 檢查是否是老闆 (多一層前端防護，雖然即使破解了後端也會擋下來)
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user || user.email !== 'cheyang0326@gmail.com') {
       alert('⚠️ 權限不足，即將返回首頁');
       navigate('/');
       return;
     }
-
     fetchOrders();
   }, [navigate]);
 
@@ -26,32 +27,35 @@ export default function AdminDashboard() {
       setOrders(response.data);
     } catch (error) {
       console.error("無法取得訂單", error);
-      alert('資料讀取失敗，請確認您擁有管理員權限。');
+      alert('資料讀取失敗，請確認權限。');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 更改訂單狀態
   const handleStatusChange = async (orderId, newStatus) => {
-    const actionName = newStatus === 'confirmed' ? '✅ 確認這筆訂單' : '❌ 取消這筆訂單';
+    const actionName = newStatus === 'confirmed' ? '✅ 確認接單' : '❌ 婉拒/取消訂單';
     if (!window.confirm(`您確定要 ${actionName} 嗎？`)) return;
 
     try {
       await axiosClient.put(`/admin/orders/${orderId}/status`, { status: newStatus });
-      // 更新成功後，重新抓取資料以更新畫面
-      fetchOrders();
+      fetchOrders(); // 重新抓資料
     } catch (error) {
-      console.error("狀態更新失敗", error);
       alert('更新失敗，請稍後再試。');
     }
   };
 
   if (isLoading) return <div className="pt-32 text-center">載入戰情室資料中...</div>;
 
-  // 計算簡單數據
+  // 數據統計
   const pendingCount = orders.filter(o => o.status === 'pending').length;
   const confirmedCount = orders.filter(o => o.status === 'confirmed').length;
+
+  // 🆕 根據選擇的過濾器來顯示訂單
+  const filteredOrders = orders.filter(order => {
+    if (filterStatus === 'all') return true;
+    return order.status === filterStatus;
+  });
 
   return (
     <div className="pt-28 pb-20 bg-stone-100 min-h-screen">
@@ -79,27 +83,34 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+        {/* 🆕 分類頁籤 (Filter Tabs) */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          <button onClick={() => setFilterStatus('pending')} className={`px-5 py-2 rounded-full font-bold text-sm transition-all shadow-sm flex items-center gap-2 ${filterStatus === 'pending' ? 'bg-stone-900 text-white' : 'bg-white text-stone-500 hover:bg-stone-200'}`}><Filter size={16}/> 待審核處理中 ({pendingCount})</button>
+          <button onClick={() => setFilterStatus('confirmed')} className={`px-5 py-2 rounded-full font-bold text-sm transition-all shadow-sm ${filterStatus === 'confirmed' ? 'bg-stone-900 text-white' : 'bg-white text-stone-500 hover:bg-stone-200'}`}>✅ 已確認接單</button>
+          <button onClick={() => setFilterStatus('cancelled')} className={`px-5 py-2 rounded-full font-bold text-sm transition-all shadow-sm ${filterStatus === 'cancelled' ? 'bg-stone-900 text-white' : 'bg-white text-stone-500 hover:bg-stone-200'}`}>❌ 已取消/婉拒</button>
+          <button onClick={() => setFilterStatus('all')} className={`px-5 py-2 rounded-full font-bold text-sm transition-all shadow-sm ${filterStatus === 'all' ? 'bg-stone-900 text-white' : 'bg-white text-stone-500 hover:bg-stone-200'}`}>全部顯示</button>
+        </div>
+
         {/* --- 訂單列表 (卡片式設計) --- */}
         <div className="space-y-6">
-          {orders.length === 0 ? (
+          {filteredOrders.length === 0 ? (
             <div className="text-center py-20 text-stone-400 bg-white rounded-2xl shadow-sm border border-stone-200">
               <FileText size={48} className="mx-auto mb-4 opacity-20" />
-              <p>目前還沒有任何訂單喔！</p>
+              <p>這個分類目前沒有任何訂單喔！</p>
             </div>
           ) : (
-            orders.map(order => (
-              <div key={order.id} className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden hover:shadow-md transition-shadow">
+            filteredOrders.map(order => (
+              <div key={order.id} className={`bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-md transition-shadow ${order.status === 'cancelled' ? 'border-stone-200 opacity-75' : 'border-stone-200'}`}>
                 
-                {/* 頂部標籤條 (根據狀態變色) */}
                 <div className={`px-6 py-3 flex justify-between items-center text-white ${
                   order.status === 'pending' ? 'bg-orange-500' : 
                   order.status === 'confirmed' ? 'bg-green-600' : 'bg-stone-400'
                 }`}>
                   <div className="font-bold tracking-wider">訂單編號 #{order.id}</div>
                   <div className="flex items-center gap-2 font-bold text-sm">
-                    {order.status === 'pending' && <><Clock size={16}/> 等待老闆確認與收訂金</>}
+                    {order.status === 'pending' && <><Clock size={16}/> 等待確認與收訂金</>}
                     {order.status === 'confirmed' && <><CheckCircle size={16}/> 已確認出車</>}
-                    {order.status === 'cancelled' && <><XCircle size={16}/> 已取消 / 作廢</>}
+                    {order.status === 'cancelled' && <><XCircle size={16}/> 此訂單已作廢</>}
                   </div>
                 </div>
 
@@ -127,18 +138,19 @@ export default function AdminDashboard() {
                         <span className="font-bold text-stone-800">{new Date(order.end_date).toLocaleDateString()}</span>
                       </div>
                     </div>
-                    <div className="text-right text-stone-500 text-sm">預估金額：<span className="text-2xl font-bold text-orange-600">NT$ {Number(order.total_price).toLocaleString()}</span></div>
+                    <div className="text-right text-stone-500 text-sm">預估金額：<span className={`text-2xl font-bold ${order.status === 'cancelled' ? 'text-stone-400 line-through' : 'text-orange-600'}`}>NT$ {Number(order.total_price).toLocaleString()}</span></div>
                   </div>
 
                   {/* 右側：操作按鈕群 */}
                   <div className="md:col-span-3 flex flex-col gap-3">
-                    {/* 合約狀態 */}
+                    
+                    {/* ✅ 修正重點：因為 PDF 直接寄給信箱了，所以改成提示文字，不要觸發視窗開啟 */}
                     {order.signature_url ? (
-                      <button className="w-full bg-stone-900 text-white font-bold py-2.5 rounded-xl hover:bg-stone-800 flex items-center justify-center gap-2 text-sm shadow-sm" onClick={() => window.open(order.signature_url, '_blank')}>
-                        <FileText size={16}/> 檢視信用卡授權書
-                      </button>
+                      <div className="bg-green-50 text-green-700 font-bold py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm border border-green-200">
+                        <CheckCircle size={16}/> 已簽署 (請至Email查看)
+                      </div>
                     ) : (
-                      <div className="text-center text-xs font-bold text-red-500 bg-red-50 py-3 rounded-xl border border-red-100">⚠️ 客人尚未簽署授權書</div>
+                      order.status !== 'cancelled' && <div className="text-center text-xs font-bold text-red-500 bg-red-50 py-3 rounded-xl border border-red-100">⚠️ 客人尚未簽署授權書</div>
                     )}
 
                     {/* 狀態切換按鈕 */}
@@ -149,7 +161,7 @@ export default function AdminDashboard() {
                       </div>
                     )}
                     {order.status === 'confirmed' && (
-                       <button onClick={() => handleStatusChange(order.id, 'cancelled')} className="w-full text-stone-400 font-bold py-2 rounded-xl text-xs hover:text-red-500 mt-2">撤銷並改為取消狀態</button>
+                       <button onClick={() => handleStatusChange(order.id, 'cancelled')} className="w-full text-stone-400 font-bold py-2 rounded-xl text-xs hover:text-red-500 mt-2">撤銷並改為作廢</button>
                     )}
                   </div>
 
