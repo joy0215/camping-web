@@ -2,7 +2,8 @@ import axios from 'axios';
 
 // 建立一個 axios 實例
 const axiosClient = axios.create({
-  baseURL: '/api', // 因為我們設定了 Proxy，所以直接用 /api 開頭即可
+  // 👇 關鍵修改：換成您的 Render 雲端網址，並且保留結尾的 /api
+  baseURL: 'https://您的render網址.onrender.com/api', 
   headers: {
     'Content-Type': 'application/json',
   },
