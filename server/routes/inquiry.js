@@ -1,21 +1,187 @@
+// const express = require('express');
+// const router = express.Router();
+// const db = require('../config/db');
+// const nodemailer = require('nodemailer');
+// const authMiddleware = require('../middleware/auth'); 
+
+// // 👇 1. 這裡換成防雷的 587 通道
+// const transporter = nodemailer.createTransport({
+//   host: 'smtp.gmail.com',
+//   port: 587,
+//   secure: false,
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS
+//   },
+//   tls: { rejectUnauthorized: false },
+//   family: 4
+// });
+
+// const ADDON_NAMES = {
+//   mattress: '雙人充氣睡墊 ($500)',
+//   blanket: '保暖毛毯 ($200)',
+//   cookware: '多功能鍋具組 ($200)'
+// };
+
+// const TOTAL_VANS = 3;
+
+// const formatDate = (date) => {
+//   const d = new Date(date);
+//   let month = '' + (d.getMonth() + 1);
+//   let day = '' + d.getDate();
+//   const year = d.getFullYear();
+//   if (month.length < 2) month = '0' + month;
+//   if (day.length < 2) day = '0' + day;
+//   return [year, month, day].join('-');
+// };
+
+// // ==========================================
+// // 取得「滿檔無法預約」的日期清單
+// // ==========================================
+// router.get('/blocked-dates', async (req, res) => {
+//   try {
+//     const result = await db.query("SELECT start_date, end_date FROM inquiries WHERE status != 'cancelled'");
+//     const dateCounts = {};
+//     result.rows.forEach(order => {
+//       let current = new Date(order.start_date);
+//       const end = new Date(order.end_date);
+//       while (current <= end) {
+//         const dateStr = formatDate(current);
+//         dateCounts[dateStr] = (dateCounts[dateStr] || 0) + 1;
+//         current.setDate(current.getDate() + 1);
+//       }
+//     });
+//     const blockedDates = Object.keys(dateCounts).filter(date => dateCounts[date] >= TOTAL_VANS);
+//     res.json(blockedDates);
+//   } catch (err) {
+//     console.error('Get Blocked Dates Error:', err);
+//     res.status(500).json({ error: 'Server Error' });
+//   }
+// });
+
+// // ==========================================
+// // 取得會員自己的訂單列表
+// // ==========================================
+// router.get('/my-orders', authMiddleware, async (req, res) => {
+//   try {
+//     const userId = req.user.id; 
+//     const result = await db.query(
+//       'SELECT * FROM inquiries WHERE user_id = $1 ORDER BY created_at DESC',
+//       [userId]
+//     );
+//     res.json(result.rows); 
+//   } catch (err) {
+//     console.error('Get Orders Error:', err);
+//     res.status(500).json({ error: 'Server Error' });
+//   }
+// });
+
+// // ==========================================
+// // 送出詢價單 (加入防撞雙重驗證 + 背景寄信)
+// // ==========================================
+// router.post('/', authMiddleware, async (req, res) => {
+//   const { startDate, endDate, addons, estimatedPrice } = req.body;
+//   const userId = req.user.id; 
+
+//   try {
+//     // 🛡️ 防撞檢查
+//     const allOrders = await db.query("SELECT start_date, end_date FROM inquiries WHERE status != 'cancelled'");
+//     const dateCounts = {};
+//     allOrders.rows.forEach(order => {
+//       let current = new Date(order.start_date);
+//       const end = new Date(order.end_date);
+//       while (current <= end) {
+//         const dateStr = formatDate(current);
+//         dateCounts[dateStr] = (dateCounts[dateStr] || 0) + 1;
+//         current.setDate(current.getDate() + 1);
+//       }
+//     });
+
+//     let isOverlap = false;
+//     let checkCurrent = new Date(startDate);
+//     const checkEnd = new Date(endDate);
+//     while (checkCurrent <= checkEnd) {
+//       const dateStr = formatDate(checkCurrent);
+//       if (dateCounts[dateStr] && dateCounts[dateStr] >= TOTAL_VANS) {
+//         isOverlap = true;
+//         break;
+//       }
+//       checkCurrent.setDate(checkCurrent.getDate() + 1);
+//     }
+
+//     if (isOverlap) {
+//       return res.status(400).json({ error: '抱歉，您選擇的區間內有日期已滿檔，請重新選擇！' });
+//     }
+
+//     // 1. 查會員資料
+//     const userResult = await db.query('SELECT name, phone, email FROM users WHERE id = $1', [userId]);
+//     const user = userResult.rows[0];
+
+//     // 2. 寫入訂單
+//     const newInquiry = await db.query(
+//       `INSERT INTO inquiries (user_id, start_date, end_date, total_price, addons) 
+//        VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+//       [userId, startDate, endDate, estimatedPrice, JSON.stringify(addons)]
+//     );
+//     const order = newInquiry.rows[0];
+
+//     // 3. 準備 Email
+//     let addonsHtml = '';
+//     let hasAddons = false;
+//     for (const [key, value] of Object.entries(addons)) {
+//       if (value) { 
+//         addonsHtml += `<li style="margin-bottom: 4px;">${ADDON_NAMES[key] || key}</li>`;
+//         hasAddons = true;
+//       }
+//     }
+//     if (!hasAddons) addonsHtml = '<li>無加購項目</li>';
+
+//     const mailOptions = {
+//       from: '"CampingTour 系統" <system@campingtour.com>',
+//       to: process.env.BOSS_EMAIL,
+//       subject: `🔥 [新詢價單] #${order.id} - ${user.name}`,
+//       html: `
+//         <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+//           <h2 style="color: #d94e18;">🚐 有一筆新的露營車詢價單！</h2>
+//           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+//           <h3 style="background-color: #f5f5f5; padding: 10px; border-radius: 5px;">👤 客戶資料</h3>
+//           <p><strong>姓名：</strong> ${user.name}</p>
+//           <p><strong>電話：</strong> <a href="tel:${user.phone}">${user.phone}</a></p>
+//           <p><strong>Email：</strong> ${user.email}</p>
+//           <h3 style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; margin-top: 20px;">📅 行程內容</h3>
+//           <p><strong>訂單編號：</strong> #${order.id}</p>
+//           <p><strong>取車日期：</strong> ${startDate}</p>
+//           <p><strong>還車日期：</strong> ${endDate}</p>
+//           <p><strong>預估總金額：</strong> <span style="font-size: 1.2em; color: #d94e18; font-weight: bold;">NT$ ${estimatedPrice.toLocaleString()}</span></p>
+//           <h3 style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; margin-top: 20px;">🎒 加購配備</h3>
+//           <ul style="padding-left: 20px;">${addonsHtml}</ul>
+//         </div>
+//       `
+//     };
+
+//     // 👇 2. 🌟 關鍵改動：立刻回傳成功讓畫面秒跳轉，信件丟到背景寄！
+//     res.json({ success: true, inquiry: order });
+
+//     transporter.sendMail(mailOptions)
+//       .then(() => console.log(`✅ 詳細詢價單 Email 已在背景寄出 (Order #${order.id})`))
+//       .catch(err => console.error('❌ Email 背景發送失敗:', err.message));
+
+//   } catch (err) {
+//     console.error('Inquiry Error:', err);
+//     res.status(500).json({ error: 'Server Error' });
+//   }
+// });
+
+// module.exports = router;
+
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
-const nodemailer = require('nodemailer');
 const authMiddleware = require('../middleware/auth'); 
+const { Resend } = require('resend');
 
-// 👇 1. 這裡換成防雷的 587 通道
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  },
-  tls: { rejectUnauthorized: false },
-  family: 4
-});
+// 👇 啟用 Resend API 引擎
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const ADDON_NAMES = {
   mattress: '雙人充氣睡墊 ($500)',
@@ -35,9 +201,6 @@ const formatDate = (date) => {
   return [year, month, day].join('-');
 };
 
-// ==========================================
-// 取得「滿檔無法預約」的日期清單
-// ==========================================
 router.get('/blocked-dates', async (req, res) => {
   try {
     const result = await db.query("SELECT start_date, end_date FROM inquiries WHERE status != 'cancelled'");
@@ -59,9 +222,6 @@ router.get('/blocked-dates', async (req, res) => {
   }
 });
 
-// ==========================================
-// 取得會員自己的訂單列表
-// ==========================================
 router.get('/my-orders', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id; 
@@ -76,15 +236,11 @@ router.get('/my-orders', authMiddleware, async (req, res) => {
   }
 });
 
-// ==========================================
-// 送出詢價單 (加入防撞雙重驗證 + 背景寄信)
-// ==========================================
 router.post('/', authMiddleware, async (req, res) => {
   const { startDate, endDate, addons, estimatedPrice } = req.body;
   const userId = req.user.id; 
 
   try {
-    // 🛡️ 防撞檢查
     const allOrders = await db.query("SELECT start_date, end_date FROM inquiries WHERE status != 'cancelled'");
     const dateCounts = {};
     allOrders.rows.forEach(order => {
@@ -113,11 +269,9 @@ router.post('/', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: '抱歉，您選擇的區間內有日期已滿檔，請重新選擇！' });
     }
 
-    // 1. 查會員資料
     const userResult = await db.query('SELECT name, phone, email FROM users WHERE id = $1', [userId]);
     const user = userResult.rows[0];
 
-    // 2. 寫入訂單
     const newInquiry = await db.query(
       `INSERT INTO inquiries (user_id, start_date, end_date, total_price, addons) 
        VALUES ($1, $2, $3, $4, $5) RETURNING *`,
@@ -125,7 +279,6 @@ router.post('/', authMiddleware, async (req, res) => {
     );
     const order = newInquiry.rows[0];
 
-    // 3. 準備 Email
     let addonsHtml = '';
     let hasAddons = false;
     for (const [key, value] of Object.entries(addons)) {
@@ -136,35 +289,28 @@ router.post('/', authMiddleware, async (req, res) => {
     }
     if (!hasAddons) addonsHtml = '<li>無加購項目</li>';
 
-    const mailOptions = {
-      from: '"CampingTour 系統" <system@campingtour.com>',
+    res.json({ success: true, inquiry: order });
+
+    // 👇 使用 Resend API 背景寄信 (完全無視 Render 防火牆)
+    resend.emails.send({
+      from: 'onboarding@resend.dev', // Resend 提供的沙盒發信信箱
       to: process.env.BOSS_EMAIL,
       subject: `🔥 [新詢價單] #${order.id} - ${user.name}`,
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
           <h2 style="color: #d94e18;">🚐 有一筆新的露營車詢價單！</h2>
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-          <h3 style="background-color: #f5f5f5; padding: 10px; border-radius: 5px;">👤 客戶資料</h3>
           <p><strong>姓名：</strong> ${user.name}</p>
-          <p><strong>電話：</strong> <a href="tel:${user.phone}">${user.phone}</a></p>
+          <p><strong>電話：</strong> ${user.phone}</p>
           <p><strong>Email：</strong> ${user.email}</p>
-          <h3 style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; margin-top: 20px;">📅 行程內容</h3>
-          <p><strong>訂單編號：</strong> #${order.id}</p>
           <p><strong>取車日期：</strong> ${startDate}</p>
           <p><strong>還車日期：</strong> ${endDate}</p>
-          <p><strong>預估總金額：</strong> <span style="font-size: 1.2em; color: #d94e18; font-weight: bold;">NT$ ${estimatedPrice.toLocaleString()}</span></p>
-          <h3 style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; margin-top: 20px;">🎒 加購配備</h3>
-          <ul style="padding-left: 20px;">${addonsHtml}</ul>
+          <p><strong>預估金額：</strong> NT$ ${estimatedPrice.toLocaleString()}</p>
         </div>
       `
-    };
-
-    // 👇 2. 🌟 關鍵改動：立刻回傳成功讓畫面秒跳轉，信件丟到背景寄！
-    res.json({ success: true, inquiry: order });
-
-    transporter.sendMail(mailOptions)
-      .then(() => console.log(`✅ 詳細詢價單 Email 已在背景寄出 (Order #${order.id})`))
-      .catch(err => console.error('❌ Email 背景發送失敗:', err.message));
+    })
+    .then(() => console.log(`✅ 詢價單 API 信件已寄出`))
+    .catch(err => console.error('❌ API 信件發送失敗:', err));
 
   } catch (err) {
     console.error('Inquiry Error:', err);
