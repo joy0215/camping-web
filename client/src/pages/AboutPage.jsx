@@ -3,56 +3,59 @@ import { Mail, Phone, MapPin } from 'lucide-react';
 
 export default function AboutPage() {
   return (
-    <div className="relative pt-24 pb-20 bg-stone-50 min-h-screen">
+    <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
       
-      {/* Background Watermark Layer */}
-      {/* References image in public/images/logo.jpg */}
-      <div 
-        className="absolute inset-0 z-0 bg-center bg-no-repeat opacity-[0.03] grayscale pointer-events-none"
-        style={{ 
-          backgroundImage: 'url(/images/logo.jpg)',
-          backgroundSize: '50%'
-        }} 
-      />
-      
-      {/* Content Layer */}
-      <div className="container mx-auto px-6 max-w-6xl relative z-10">
+      {/* Page Content Container */}
+      <div className="container mx-auto px-6 max-w-6xl">
         
-        {/* Story Section */}
-        <div className="bg-white p-10 md:p-16 rounded-[2rem] shadow-sm mb-12 border border-stone-100">
+        {/* Story Section: Watermark is isolated to this container */}
+        <div className="bg-white p-10 md:p-16 rounded-[2rem] shadow-sm mb-12 border border-stone-100 relative overflow-hidden">
           
-          <div className="text-center mb-16">
-            <h1 className="text-3xl md:text-4xl font-serif font-bold text-stone-900 mb-3 tracking-tight">關於 CampingTour</h1>
-            <p className="text-orange-500 tracking-[0.3em] uppercase text-xs font-bold">Our Story</p>
-          </div>
+          {/* Watermark background layer for this container */}
+          {/* References image in public/images/logo.jpg */}
+          <div 
+            className="absolute inset-0 z-0 bg-center bg-no-repeat opacity-[0.03] grayscale pointer-events-none"
+            style={{ 
+              backgroundImage: 'url(/images/logo.jpg)',
+              backgroundSize: '80%' 
+            }} 
+          />
 
-          {/* Side-by-Side Content Layout */}
-          <div className="grid md:grid-cols-2 gap-x-12 gap-y-10 items-start">
-            
-            {/* Left Column: Traditional Chinese */}
-            <div className="space-y-6 text-stone-800 leading-loose text-lg text-justify font-medium">
-              <p>
-                CampingTour 成立於 2021 年，專門改裝客製化露營車輛，我們致力於推廣台灣的 Vanlife 文化。2025 年開始推出露營車租賃服務。
-              </p>
-              <p>
-                我們採用全新車輛合法打造的中華菱利 A180 特種露營車，從源頭即符合相關法規與使用安全標準，結合數位化預約系統與貼心管家服務，讓每一位旅人都能輕鬆展開「車泊」體驗，無需煩惱裝備與車輛準備。
-              </p>
-              <p>
-                我們相信，最動人的風景，不在終點，而是在每一段旅程之中。無論是追逐合歡山的第一道曙光，還是靜聽花東海岸的浪潮聲，CampingTour 都將成為您最安心、最自在的移動城堡。
-              </p>
+          {/* Content Layer inside this section, positioned above watermark */}
+          <div className="relative z-10">
+            <div className="text-center mb-16">
+              <h1 className="text-3xl md:text-4xl font-serif font-bold text-stone-900 mb-3 tracking-tight">關於 CampingTour</h1>
+              <p className="text-orange-500 tracking-[0.3em] uppercase text-xs font-bold">Our Story</p>
             </div>
 
-            {/* Right Column: English */}
-            <div className="space-y-6 text-stone-500 leading-relaxed text-base text-justify font-light">
-              <p>
-                CampingTour was founded in 2021, specializing in custom campervan conversions, with a mission to promote Taiwan’s vanlife culture. In 2025, we expanded our services to include campervan rentals.
-              </p>
-              <p>
-                Our fleet is built using brand-new vehicles, legally converted into Zhonghua Veryca A180 specialized campervans, fully compliant with local regulations and safety standards from the ground up. Combined with a digital booking system and personalized concierge service, we make it easy for every traveler to enjoy the campervan experience.
-              </p>
-              <p>
-                We believe the most meaningful moments are not found at the destination, but throughout every journey along the way. Whether you’re chasing the first light at Hehuanshan or listening to the waves along Taiwan’s east coast, CampingTour will be your most reliable and comfortable home on the road.
-              </p>
+            {/* Side-by-Side Content Layout */}
+            <div className="grid md:grid-cols-2 gap-x-12 gap-y-10 items-start">
+              
+              {/* Left Column: Traditional Chinese */}
+              <div className="space-y-6 text-stone-800 leading-loose text-lg text-justify font-medium">
+                <p>
+                  CampingTour 成立於 2021 年，專門改裝客製化露營車輛，我們致力於推廣台灣的 Vanlife 文化。2025 年開始推出露營車租賃服務。
+                </p>
+                <p>
+                  我們採用全新車輛合法打造的中華菱利 A180 特種露營車，從源頭即符合相關法規與使用安全標準，結合數位化預約系統與貼心管家服務，讓每一位旅人都能輕鬆展開「車泊」體驗，無需煩惱裝備與車輛準備。
+                </p>
+                <p>
+                  我們相信，最動人的風景，不在終點，而是在每一段旅程之中。無論是追逐合歡山的第一道曙光，還是靜聽花東海岸的浪潮聲，CampingTour 都將成為您最安心、最自在的移動城堡。
+                </p>
+              </div>
+
+              {/* Right Column: English */}
+              <div className="space-y-6 text-stone-500 leading-relaxed text-base text-justify font-light">
+                <p>
+                  CampingTour was founded in 2021, specializing in custom campervan conversions, with a mission to promote Taiwan’s vanlife culture. In 2025, we expanded our services to include campervan rentals.
+                </p>
+                <p>
+                  Our fleet is built using brand-new vehicles, legally converted into Zhonghua Veryca A180 specialized campervans, fully compliant with local regulations and safety standards from the ground up. Combined with a digital booking system and personalized concierge service, we make it easy for every traveler to enjoy the campervan experience.
+                </p>
+                <p>
+                  We believe the most meaningful moments are not found at the destination, but throughout every journey along the way. Whether you’re chasing the first light at Hehuanshan or listening to the waves along Taiwan’s east coast, CampingTour will be your most reliable and comfortable home on the road.
+                </p>
+              </div>
             </div>
           </div>
         </div>
