@@ -13,11 +13,13 @@ export default function AboutPage() {
           
           {/* Watermark background layer for this container */}
           {/* References image in public/images/logo.jpg */}
+          {/* Fixed: Opacity increased for visibility, explicit size cap prevents clipping */}
           <div 
-            className="absolute inset-0 z-0 bg-center bg-no-repeat opacity-[0.03] grayscale pointer-events-none"
+            className="absolute inset-0 z-0 bg-center bg-no-repeat grayscale pointer-events-none opacity-[0.08]" // Increased opacity to 8%
             style={{ 
               backgroundImage: 'url(/images/logo.jpg)',
-              backgroundSize: '80%' 
+              // Fixed size cap: Intrinsic width is automatic, but intrinsic height is capped to fit section without clipping
+              backgroundSize: 'auto 350px' 
             }} 
           />
 
