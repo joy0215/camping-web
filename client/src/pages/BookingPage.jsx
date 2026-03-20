@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import axiosClient from '../api/axiosClient';
-import { useNavigate } from 'react-router-dom';
-import { Calendar, CheckCircle, MapPin, Zap, Info, MessageCircle, Phone } from 'lucide-react';
-
+import { useNavigate, Link } from 'react-router-dom';
+import { Calendar, CheckCircle, MapPin, Zap, Info, MessageCircle, Phone, User } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -13,6 +12,13 @@ export default function BookingPage() {
   const [blockedDates, setBlockedDates] = useState([]);
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
+  
+  const [isAgreed, setIsAgreed] = useState(false);
+
+  // 🆕 新增：獨立的承租人聯絡資訊狀態
+  const [contactInfo, setContactInfo] = useState({
+    name: '', phone: '', email: ''
+  });
 
   const QR_IMAGES = {
     line: "/images/qr-line.jpg",
@@ -30,7 +36,16 @@ export default function BookingPage() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    if (storedUser) setUser(JSON.parse(storedUser));
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      // 🆕 自動帶入會員資料作為預設值
+      setContactInfo({
+        name: parsedUser.name || '',
+        phone: parsedUser.phone || '',
+        email: parsedUser.email || ''
+      });
+    }
 
     const fetchBlockedDates = async () => {
       try {
@@ -55,34 +70,25 @@ export default function BookingPage() {
     return [year, month, day].join('-');
   };
 
-  // ✅ 核心修正：監聽日曆點擊事件，阻止跨越滿檔日
   const handleDateChange = (update) => {
     const [newStart, newEnd] = update;
-
-    // 當客人點了第二下 (還車日) 時，立刻檢查整個區間
     if (newStart && newEnd) {
       let isOverlap = false;
       let current = new Date(newStart);
-      
       while (current <= newEnd) {
         const formattedCurrent = formatForBackend(current);
-        // 檢查每一天有沒有踩到地雷 (blockedDates)
         if (blockedDates.some(bd => formatForBackend(bd) === formattedCurrent)) {
           isOverlap = true; 
           break;
         }
         current.setDate(current.getDate() + 1);
       }
-
       if (isOverlap) {
-        alert("⚠️ 抱歉！您選擇的區間包含了「已滿檔」的日期，無法連續預約。\n請避開灰色日期重新選擇！");
-        // 發現撞期，保留取車日，但把還車日彈掉，逼他重選
+        alert("⚠️ 抱歉！您選擇的區間包含了「已滿檔」的日期，無法連續預約。\\n請避開灰色日期重新選擇！");
         setDateRange([newStart, null]);
         return; 
       }
     }
-
-    // 沒撞期才允許設定範圍
     setDateRange(update);
   };
 
@@ -90,10 +96,14 @@ export default function BookingPage() {
     setAddons({ ...addons, [e.target.name]: e.target.checked });
   };
 
+  // 🆕 處理聯絡人資訊變更
+  const handleContactChange = (e) => {
+    setContactInfo({ ...contactInfo, [e.target.name]: e.target.value });
+  };
+
   const calculateDaysAndTotal = () => {
     let days = 0;
     let total = 0;
-    
     if (startDate && endDate) {
       const diffTime = Math.abs(endDate - startDate);
       days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -122,18 +132,33 @@ export default function BookingPage() {
       return;
     }
 
+    // 🆕 檢查是否填寫聯絡人資訊
+    if (!contactInfo.name || !contactInfo.phone || !contactInfo.email) {
+      alert('❌ 請填寫完整的「承租人資訊」！');
+      return;
+    }
+
+    if (!isAgreed) {
+      alert('⚠️ 請先勾選同意《租賃服務條款》與《露營車使用規範》才能進行預約！');
+      return;
+    }
+
     try {
+      // 🆕 將 contactInfo 傳給後端
       const response = await axiosClient.post('/inquiry', {
         startDate: formatForBackend(startDate),
         endDate: formatForBackend(endDate),
         addons: addons,
-        estimatedPrice: estimatedTotal
+        estimatedPrice: estimatedTotal,
+        contactInfo: contactInfo 
       });
       
       const orderData = response.data.inquiry;
-      alert('✅ 訂單已建立！\n請前往下一步完成「信用卡授權簽署」。');
-      navigate(`/signature/${orderData.id}`, { 
-        state: { order: orderData, user: user, amount: estimatedTotal } 
+      alert('✅ 訂單已建立！\n即將前往確認訂單與付款。');
+      
+      // 🆕 這裡將 contactInfo 偽裝成 user 傳給結帳頁，這樣藍新收據就會寄給實際承租人
+      navigate(`/checkout/${orderData.id}`, { 
+        state: { order: orderData, user: contactInfo, amount: estimatedTotal } 
       });
     } catch (error) {
       console.error('送單失敗:', error);
@@ -145,7 +170,7 @@ export default function BookingPage() {
       }
     }
   };
-
+  
   return (
     <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
       <div className="container mx-auto px-6">
@@ -170,7 +195,7 @@ export default function BookingPage() {
                     selectsRange={true}
                     startDate={startDate}
                     endDate={endDate}
-                    onChange={handleDateChange} // ✅ 套用新的檢查邏輯
+                    onChange={handleDateChange}
                     minDate={new Date()} 
                     excludeDates={blockedDates} 
                     monthsShown={window.innerWidth > 768 ? 2 : 1} 
@@ -201,7 +226,6 @@ export default function BookingPage() {
                         <span className="text-xs text-orange-600 font-bold">+ NT$ 500</span>
                     </div>
                   </label>
-
                   <label className={`flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all ${addons.blanket ? 'border-orange-500 bg-orange-50' : 'border-stone-200 hover:bg-stone-50'}`}>
                     <input type="checkbox" name="blanket" checked={addons.blanket} onChange={handleAddonChange} className="w-5 h-5 accent-orange-600" />
                     <div className="flex flex-col">
@@ -209,7 +233,6 @@ export default function BookingPage() {
                         <span className="text-xs text-orange-600 font-bold">+ NT$ 200</span>
                     </div>
                   </label>
-
                   <label className={`flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all ${addons.cookware ? 'border-orange-500 bg-orange-50' : 'border-stone-200 hover:bg-stone-50'}`}>
                     <input type="checkbox" name="cookware" checked={addons.cookware} onChange={handleAddonChange} className="w-5 h-5 accent-orange-600" />
                     <div className="flex flex-col">
@@ -220,19 +243,61 @@ export default function BookingPage() {
                 </div>
               </div>
 
+              {/* 🆕 全新區塊：承租人資訊 */}
+              <div className="bg-stone-50 p-6 rounded-2xl border border-stone-200 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+                <h4 className="flex items-center gap-2 font-bold text-stone-800 mb-4">
+                  <User size={18} className="text-orange-600" /> 實際承租人資訊 Renter Info
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <span className="block text-xs text-stone-500 font-bold mb-1">聯絡人姓名 Name</span>
+                    <input type="text" name="name" value={contactInfo.name} onChange={handleContactChange} required className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white" placeholder="請輸入真實姓名" />
+                  </div>
+                  <div>
+                    <span className="block text-xs text-stone-500 font-bold mb-1">手機號碼 Phone</span>
+                    <input type="tel" name="phone" value={contactInfo.phone} onChange={handleContactChange} required className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white" placeholder="09XX-XXX-XXX" />
+                  </div>
+                  <div>
+                    <span className="block text-xs text-stone-500 font-bold mb-1">電子信箱 Email</span>
+                    <input type="email" name="email" value={contactInfo.email} onChange={handleContactChange} required className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white" placeholder="Email (接收訂單通知)" />
+                  </div>
+                </div>
+                <p className="text-xs text-stone-400 mt-3 flex items-center gap-1">
+                  <Info size={14}/> 預設為您的會員資料，您可直接修改為「實際用車人」的聯絡方式。
+                </p>
+              </div>
+
               <div className="bg-stone-900 p-6 rounded-2xl text-white flex flex-col md:flex-row justify-between items-center shadow-lg">
                 <div className="mb-2 md:mb-0">
                     <span className="block text-stone-400 text-sm mb-1">預估租金 Total Estimate ({totalDays} 天)</span>
-                    <span className="text-xs text-stone-500">實際金額以專員報價為準</span>
+                    <span className="text-xs text-stone-500">實際金額以最終結帳金額為準</span>
                 </div>
                 <span className="text-3xl font-bold text-orange-500">NT$ {estimatedTotal.toLocaleString()}</span>
               </div>
 
+              <div className="bg-orange-50 p-4 rounded-xl border border-orange-100 flex items-start gap-3">
+                <input 
+                  type="checkbox" 
+                  id="agreeTerms" 
+                  checked={isAgreed} 
+                  onChange={(e) => setIsAgreed(e.target.checked)} 
+                  className="mt-1 w-5 h-5 accent-orange-600 cursor-pointer shrink-0"
+                />
+                <label htmlFor="agreeTerms" className="text-sm text-stone-700 cursor-pointer leading-relaxed">
+                  我已詳閱並同意
+                  <Link to="/terms" target="_blank" className="text-orange-600 font-bold hover:underline mx-1">《租賃服務條款與退費政策》</Link>
+                  及
+                  <Link to="/guide" target="_blank" className="text-orange-600 font-bold hover:underline mx-1">《露營車使用規範與指南》</Link>。<br/>
+                  <span className="text-xs text-stone-500">I have read and agree to the Terms of Service, Refund Policy, and Campervan Guidelines.</span>
+                </label>
+              </div>
+
               <button 
                 type="submit" 
-                className="w-full bg-orange-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-orange-700 transition-colors shadow-lg flex items-center justify-center gap-2"
+                className={`w-full py-4 rounded-xl font-bold text-lg transition-colors shadow-lg flex items-center justify-center gap-2 ${isAgreed ? 'bg-orange-600 text-white hover:bg-orange-700' : 'bg-stone-300 text-stone-500 cursor-not-allowed'}`}
               >
-                {user ? '確認區間並詢價 Submit Inquiry' : '請先登入 Login First'}
+                {user ? '確認區間並前往結帳 Proceed to Checkout' : '請先登入 Login First'}
               </button>
             </form>
           </div>
@@ -257,9 +322,9 @@ export default function BookingPage() {
             <div className="bg-stone-100 text-stone-600 p-6 rounded-2xl border border-stone-200">
               <h4 className="font-bold text-stone-800 text-lg mb-4 flex items-center gap-2"><Info size={20} className="text-stone-500"/> 訂車須知 Note</h4>
               <ul className="space-y-3 text-sm">
-                <li className="flex gap-3"><CheckCircle size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>送出後專員將與您聯繫確認車況。</span></li>
-                <li className="flex gap-3"><CheckCircle size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>訂金為總金額之 50%。</span></li>
-                <li className="flex gap-3"><Zap size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>包含強制險，外籍旅客需加購額外保險。</span></li>
+                <li className="flex gap-3"><CheckCircle size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>送出後將引導至藍新金流進行加密結帳。</span></li>
+                <li className="flex gap-3"><CheckCircle size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>訂金為總金額之 30%。</span></li>
+                <li className="flex gap-3"><Zap size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>包含強制險，外籍旅客需提供有效自負額保險。</span></li>
                 <li className="flex gap-3"><MapPin size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>取車地點：台北市北投區大度路一段157-2號。</span></li>
               </ul>
             </div>
@@ -269,59 +334,18 @@ export default function BookingPage() {
       </div>
 
       <style dangerouslySetInnerHTML={{__html: `
-        .custom-datepicker-wrapper .react-datepicker {
-          font-family: inherit;
-          border: none;
-          background-color: transparent;
-        }
-        .react-datepicker__header {
-          background-color: transparent;
-          border-bottom: 1px solid #e7e5e4;
-          padding-top: 1rem;
-        }
-        .react-datepicker__current-month {
-          font-weight: 700;
-          color: #1c1917;
-          margin-bottom: 0.5rem;
-        }
-        .react-datepicker__day-name {
-          color: #a8a29e;
-          font-weight: bold;
-        }
-        .react-datepicker__day {
-          border-radius: 9999px;
-          transition: all 0.2s;
-          color: #44403c;
-          outline: none;
-        }
-        .react-datepicker__day:hover:not(.react-datepicker__day--disabled) {
-          background-color: #ffedd5;
-          color: #ea580c;
-        }
-        .react-datepicker__day--selected, 
-        .react-datepicker__day--in-selecting-range, 
-        .react-datepicker__day--in-range {
-          background-color: #ea580c !important;
-          color: white !important;
-          font-weight: bold;
-        }
-        .react-datepicker__day--keyboard-selected {
-          background-color: transparent;
-        }
-        .react-datepicker__day--disabled {
-          color: #d6d3d1;
-          background-image: linear-gradient(45deg, transparent 45%, #e7e5e4 45%, #e7e5e4 55%, transparent 55%);
-          cursor: not-allowed;
-        }
-        .react-datepicker__month-container {
-          margin: 0 10px;
-        }
-        .react-datepicker__navigation-icon::before {
-          border-color: #a8a29e;
-        }
-        .react-datepicker__navigation:hover *::before {
-          border-color: #ea580c;
-        }
+        .custom-datepicker-wrapper .react-datepicker { font-family: inherit; border: none; background-color: transparent; }
+        .react-datepicker__header { background-color: transparent; border-bottom: 1px solid #e7e5e4; padding-top: 1rem; }
+        .react-datepicker__current-month { font-weight: 700; color: #1c1917; margin-bottom: 0.5rem; }
+        .react-datepicker__day-name { color: #a8a29e; font-weight: bold; }
+        .react-datepicker__day { border-radius: 9999px; transition: all 0.2s; color: #44403c; outline: none; }
+        .react-datepicker__day:hover:not(.react-datepicker__day--disabled) { background-color: #ffedd5; color: #ea580c; }
+        .react-datepicker__day--selected, .react-datepicker__day--in-selecting-range, .react-datepicker__day--in-range { background-color: #ea580c !important; color: white !important; font-weight: bold; }
+        .react-datepicker__day--keyboard-selected { background-color: transparent; }
+        .react-datepicker__day--disabled { color: #d6d3d1; background-image: linear-gradient(45deg, transparent 45%, #e7e5e4 45%, #e7e5e4 55%, transparent 55%); cursor: not-allowed; }
+        .react-datepicker__month-container { margin: 0 10px; }
+        .react-datepicker__navigation-icon::before { border-color: #a8a29e; }
+        .react-datepicker__navigation:hover *::before { border-color: #ea580c; }
       `}} />
     </div>
   );

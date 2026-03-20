@@ -12,9 +12,11 @@ import AboutPage from './pages/AboutPage';
 import BookingPage from './pages/BookingPage';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
-import SignaturePage from './pages/SignaturePage';
 import DashboardPage from './pages/DashboardPage'; 
-import AdminDashboard from './pages/AdminDashboard'; // 👑 引入老闆後台
+import AdminDashboard from './pages/AdminDashboard'; 
+// ✅ 新增引入 CheckoutPage 與 TermsPage (取代原本的 SignaturePage)
+import CheckoutPage from './pages/CheckoutPage';
+import TermsPage from './pages/TermsPage';
 
 const CONTACT_INFO = {
   name: "楊哲 Che Yang",
@@ -73,12 +75,14 @@ const Navbar = ({ isScrolled }) => {
     navigate('/');
   };
 
+  // ✅ 在導覽列新增「條款 Terms」
   const baseLinks = [
     { id: '/', label: '首頁 Home' },
     { id: '/plans', label: '車型與方案 Plans' },
     { id: '/booking', label: '預約 Booking' },
     { id: '/guide', label: '攻略 Guide' },
     { id: '/about', label: '關於 About' },
+    { id: '/terms', label: '條款 Terms' }, 
   ];
 
   const navLinks = user 
@@ -124,7 +128,6 @@ const Navbar = ({ isScrolled }) => {
           {user ? (
             <div className={`flex items-center gap-4 ml-4 pl-4 border-l ${isLightMode ? 'border-stone-300' : 'border-white/30'}`}>
               
-              {/* 👑 老闆專屬按鈕 (僅限此 Email 顯示) */}
               {user.email === 'cheyang0326@gmail.com' && (
                 <button 
                   onClick={() => handleNavClick('/admin')}
@@ -191,7 +194,6 @@ const Navbar = ({ isScrolled }) => {
                     <>
                         <div className="text-orange-600 font-bold mb-2 text-lg">Hi, {user.name}</div>
                         
-                        {/* 👑 手機版老闆按鈕 */}
                         {user.email === 'cheyang0326@gmail.com' && (
                           <button onClick={() => handleNavClick('/admin')} className="block w-full text-left py-2 font-bold text-red-600 hover:text-red-700">👑 進入老闆後台 Admin</button>
                         )}
@@ -239,6 +241,8 @@ const Footer = () => {
             <li><button onClick={() => handleLink('/plans')} className="hover:text-white transition-colors">方案介紹 Plans</button></li>
             <li><button onClick={() => handleLink('/booking')} className="hover:text-white transition-colors">預約流程 Booking</button></li>
             <li><button onClick={() => handleLink('/guide')} className="hover:text-white transition-colors">旅遊攻略 Guide</button></li>
+            {/* ✅ 在頁尾也加入條款快速連結 */}
+            <li><button onClick={() => handleLink('/terms')} className="hover:text-white transition-colors">服務條款 Terms</button></li>
             <li><button onClick={() => handleLink('/register')} className="hover:text-white transition-colors text-orange-500">會員註冊 Sign Up</button></li>
           </ul>
         </div>
@@ -317,11 +321,12 @@ const App = () => {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/signature/:id" element={<SignaturePage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          
-          {/* 👑 老闆專屬路由 */}
           <Route path="/admin" element={<AdminDashboard />} />
+          
+          {/* ✅ 正確加入 CheckoutPage 與 TermsPage 路由 */}
+          <Route path="/checkout/:id" element={<CheckoutPage />} />
+          <Route path="/terms" element={<TermsPage />} />
         </Routes>
       </Layout>
     </Router>

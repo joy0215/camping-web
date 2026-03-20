@@ -3,10 +3,8 @@ const router = express.Router();
 const db = require('../config/db');
 const authMiddleware = require('../middleware/auth');
 
-// 👑 老闆專屬 Email (寫死在這裡作為最高權限檢查)
 const ADMIN_EMAIL = 'cheyang0326@gmail.com';
 
-// 🛡️ 老闆權限檢查 Middleware
 const checkAdmin = async (req, res, next) => {
   try {
     const userResult = await db.query('SELECT email FROM users WHERE id = $1', [req.user.id]);
@@ -20,18 +18,17 @@ const checkAdmin = async (req, res, next) => {
 };
 
 // ==========================================
-// 1. 取得所有客人的訂單 (包含客戶姓名、電話)
-// 路徑：GET /api/admin/orders
+// 1. 取得所有客人的訂單 (優先抓取自訂的聯絡人資訊，若無則抓會員資訊)
 // ==========================================
 router.get('/orders', authMiddleware, checkAdmin, async (req, res) => {
   try {
-    // JOIN 語法：把 inquiries (訂單) 和 users (會員) 兩張表合併撈出來
+    // 🆕 使用 COALESCE：如果 contact_name 有值就用它，沒有就退回用會員的 u.name
     const result = await db.query(`
       SELECT 
         i.*, 
-        u.name AS user_name, 
-        u.phone AS user_phone, 
-        u.email AS user_email
+        COALESCE(i.contact_name, u.name) AS user_name, 
+        COALESCE(i.contact_phone, u.phone) AS user_phone, 
+        COALESCE(i.contact_email, u.email) AS user_email
       FROM inquiries i
       JOIN users u ON i.user_id = u.id
       ORDER BY i.created_at DESC
@@ -43,12 +40,8 @@ router.get('/orders', authMiddleware, checkAdmin, async (req, res) => {
   }
 });
 
-// ==========================================
-// 2. 修改訂單狀態 (確認 / 取消)
-// 路徑：PUT /api/admin/orders/:id/status
-// ==========================================
 router.put('/orders/:id/status', authMiddleware, checkAdmin, async (req, res) => {
-  const { status } = req.body; // 'confirmed', 'cancelled', 'pending'
+  const { status } = req.body; 
   const orderId = req.params.id;
 
   try {

@@ -1,14 +1,18 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const db = require('./config/db'); // 引入資料庫設定
+const db = require('./config/db'); 
 
 const app = express();
 
 app.use(cors());
+
+// 👇 讓伺服器看得懂 JSON 格式 (前端預約送過來的)
 app.use(express.json({ limit: '10mb' }));
 
-// 測試路由 (確認伺服器活著)
+// 🌟 關鍵修復：讓伺服器看得懂 Form 表單格式 (藍新金流 POST 回來的)
+app.use(express.urlencoded({ extended: true }));
+
 app.get('/', (req, res) => {
   res.send('Camping Server is Running! 🚀');
 });
@@ -17,18 +21,16 @@ app.get('/', (req, res) => {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/inquiry', require('./routes/inquiry'));
 app.use('/api/pdf', require('./routes/pdf'));
-app.use('/api/admin', require('./routes/admin')); // 👑 🆕 啟用老闆 API
+app.use('/api/admin', require('./routes/admin')); 
+app.use('/api/payment', require('./routes/payment')); // 金流路由
 // -------------------------------------
 
-// 資料庫連線測試 (保留這段讓你確認連線狀態)
 db.query('SELECT NOW()')
   .then(res => {
     console.log('✅ PostgreSQL Database Connected Success!');
-    console.log('🕒 Database Time:', res.rows[0].now);
   })
   .catch(err => {
     console.error('❌ Database Connection Error:', err.message);
-    console.error('💡 提示：請檢查您的 .env 檔案中的 DATABASE_URL 是否正確，或 PostgreSQL 是否已啟動。');
   });
 
 const PORT = process.env.PORT || 5000;

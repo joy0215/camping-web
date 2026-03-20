@@ -3,7 +3,8 @@ import axios from 'axios';
 // 建立一個 axios 實例
 const axiosClient = axios.create({
   // 👇 關鍵修改：換成您的 Render 雲端網址，並且保留結尾的 /api
-  baseURL: 'https://camping-tour-api.onrender.com/api',
+  // baseURL: 'https://camping-tour-api.onrender.com/api',
+  baseURL: 'http://localhost:5000/api', // 本地測試用
   headers: {
     'Content-Type': 'application/json',
   },
