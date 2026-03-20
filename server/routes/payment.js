@@ -56,7 +56,7 @@ router.post('/create-payment', async (req, res) => {
             Email: email || '',
             ReturnURL: RETURN_URL,
             NotifyURL: NOTIFY_URL,
-            ClientBackURL: 'https://camping-web-silk.vercel.app/',
+            ClientBackURL: 'https://camping-web-silk.vercel.app/dashboard',
         });
 
         const TradeInfo = create_mpg_aes_encrypt(tradeInfoParams.toString());
