@@ -129,7 +129,7 @@ router.post('/return', async (req, res) => {
         await handlePaymentSuccess(req.body.TradeInfo);
     }
     // 更新完畢後，把客人導向會員中心，客人就能立刻看到「已確認」的狀態！
-    res.redirect('https://camping-web-silk.vercel.app/dashboard');
+    res.redirect('https://camping-web-silk.vercel.app');
 });
 
 // 🆕 藍新背景通知的 NotifyURL (POST)
