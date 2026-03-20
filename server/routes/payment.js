@@ -56,7 +56,7 @@ router.post('/create-payment', async (req, res) => {
             Email: email || '',
             ReturnURL: RETURN_URL,
             NotifyURL: NOTIFY_URL,
-            ClientBackURL: 'http://localhost:5173/', 
+            ClientBackURL: 'https://camping-web-silk.vercel.app/',
         });
 
         const TradeInfo = create_mpg_aes_encrypt(tradeInfoParams.toString());
@@ -129,7 +129,7 @@ router.post('/return', async (req, res) => {
         await handlePaymentSuccess(req.body.TradeInfo);
     }
     // 更新完畢後，把客人導向會員中心，客人就能立刻看到「已確認」的狀態！
-    res.redirect('http://localhost:5173/dashboard');
+    res.redirect('https://camping-web-silk.vercel.app/dashboard');
 });
 
 // 🆕 藍新背景通知的 NotifyURL (POST)
