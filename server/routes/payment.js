@@ -12,6 +12,9 @@ const MERCHANT_ID = process.env.NEWEBPAY_MERCHANT_ID;
 const RETURN_URL = process.env.NEWEBPAY_RETURN_URL;
 const NOTIFY_URL = process.env.NEWEBPAY_NOTIFY_URL;
 
+// 🆕 新增這行：自動抓取雲端網址，如果沒有設定就會預設用本地的 localhost
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+
 // 1. AES 加密
 function create_mpg_aes_encrypt(TradeInfo) {
     const cipher = crypto.createCipheriv('aes-256-cbc', HASH_KEY, HASH_IV);
@@ -27,7 +30,7 @@ function create_mpg_sha_encrypt(aesEncrypt) {
     return sha.update(plainText).digest('hex').toUpperCase();
 }
 
-// 🆕 3. AES 解密函數 (用來解密藍新傳回來的結果)
+// 3. AES 解密函數 (用來解密藍新傳回來的結果)
 function decryptTradeInfo(TradeInfoHex) {
     const decipher = crypto.createDecipheriv('aes-256-cbc', HASH_KEY, HASH_IV);
     decipher.setAutoPadding(false);
@@ -56,7 +59,8 @@ router.post('/create-payment', async (req, res) => {
             Email: email || '',
             ReturnURL: RETURN_URL,
             NotifyURL: NOTIFY_URL,
-            ClientBackURL: 'https://camping-web-silk.vercel.app/dashboard',
+            // 🆕 替換點 1：使用環境變數
+            ClientBackURL: `${FRONTEND_URL}/dashboard`,
         });
 
         const TradeInfo = create_mpg_aes_encrypt(tradeInfoParams.toString());
@@ -74,7 +78,7 @@ router.post('/create-payment', async (req, res) => {
     }
 });
 
-// 🆕 共用的「處理付款成功」邏輯
+// 共用的「處理付款成功」邏輯
 async function handlePaymentSuccess(tradeInfoHex) {
     try {
         const result = decryptTradeInfo(tradeInfoHex);
@@ -91,7 +95,7 @@ async function handlePaymentSuccess(tradeInfoHex) {
             const order = updateRes.rows[0];
 
             if (order) {
-                // 2. 寄出成功通知信 (因為我們已經有 contact_name，直接使用)
+                // 2. 寄出成功通知信
                 const startDate = new Date(order.start_date).toLocaleDateString();
                 const endDate = new Date(order.end_date).toLocaleDateString();
 
@@ -121,18 +125,18 @@ async function handlePaymentSuccess(tradeInfoHex) {
     }
 }
 
-// 🆕 前端跳轉回來的 ReturnURL (POST)
+// 前端跳轉回來的 ReturnURL (POST)
 router.post('/return', async (req, res) => {
     console.log('🔗 藍新 ReturnURL 觸發！');
     if (req.body.TradeInfo) {
         // 執行解密與資料庫更新
         await handlePaymentSuccess(req.body.TradeInfo);
     }
-    // 更新完畢後，把客人導向會員中心，客人就能立刻看到「已確認」的狀態！
-    res.redirect('https://camping-web-silk.vercel.app/dashboard');
+    // 🆕 替換點 2：更新完畢後，把客人導向環境變數指定的會員中心
+    res.redirect(`${FRONTEND_URL}/dashboard`);
 });
 
-// 🆕 藍新背景通知的 NotifyURL (POST)
+// 藍新背景通知的 NotifyURL (POST)
 router.post('/notify', async (req, res) => {
     console.log('🔗 藍新 NotifyURL 觸發！');
     if (req.body.TradeInfo) {
