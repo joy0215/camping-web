@@ -308,12 +308,12 @@ export default function BookingPage() {
               <div className="space-y-6">
                 <div className="text-center p-4 bg-stone-50 rounded-2xl border border-stone-100">
                   <div className="flex items-center justify-center gap-2 font-bold text-[#06C755] mb-2"><MessageCircle size={20}/> Line@ Official</div>
-                  <img src={QR_IMAGES.line} alt="Line QR" className="w-32 h-32 mx-auto mix-blend-multiply mb-3"/>
+                  <img src={QR_IMAGES.line} alt="CampingTour Line Official Account Contact QR Code" className="w-32 h-32 mx-auto mix-blend-multiply mb-3"/>
                   <a href="https://line.me/ti/p/@626twiqy" target="_blank" rel="noreferrer" className="block w-full bg-[#06C755] hover:bg-[#05b34c] text-white text-sm font-bold py-2 rounded-lg transition-colors shadow-md">加入 Line 好友</a>
                 </div>
                 <div className="text-center p-4 bg-stone-50 rounded-2xl border border-stone-100">
                   <div className="flex items-center justify-center gap-2 font-bold text-[#25D366] mb-2"><Phone size={20}/> WhatsApp</div>
-                  <img src={QR_IMAGES.whatsapp} alt="WhatsApp QR" className="w-32 h-32 mx-auto mix-blend-multiply mb-3"/>
+                  <img src={QR_IMAGES.whatsapp} alt="CampingTour WhatsApp Customer Service QR Code" className="w-32 h-32 mx-auto mix-blend-multiply mb-3"/>
                   <a href="https://wa.me/886965720586" target="_blank" rel="noreferrer" className="block w-full bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-bold py-2 rounded-lg transition-colors shadow-md">Open WhatsApp</a>
                 </div>
               </div>

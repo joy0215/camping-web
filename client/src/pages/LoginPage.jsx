@@ -38,7 +38,7 @@ export default function LoginPage() {
         <div className="md:w-1/2 relative hidden md:block">
           <img 
             src="/images/feature-awning-full.jpg" 
-            alt="CampingTour Feature" 
+            alt="CampingTour campervan with fully extended side awning in Taiwan nature" 
             className="absolute inset-0 w-full h-full object-cover"
           />
           {/* 漸層遮罩維持不變，確保文字清晰 */}

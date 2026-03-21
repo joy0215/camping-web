@@ -103,7 +103,7 @@ const Navbar = ({ isScrolled }) => {
       <div className="container mx-auto px-6 flex justify-between items-center">
         
         <div className="flex items-center gap-3 cursor-pointer group" onClick={() => handleNavClick('/')}>
-          <img src={IMAGES.logo} alt="Logo" className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white/50 shadow-sm object-cover" onError={(e) => e.target.style.display='none'} />
+          <img src={IMAGES.logo} alt="CampingTour Campervan Rental Taiwan Logo" className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white/50 shadow-sm object-cover" onError={(e) => e.target.style.display='none'} />
           <div className="flex flex-col">
             <span className="text-lg font-serif font-bold tracking-wider leading-none">CampingTour</span>
             <span className={`text-[10px] tracking-widest uppercase opacity-80 ${isLightMode ? 'text-orange-600' : 'text-orange-300'}`}>Taiwan Vanlife</span>
@@ -222,8 +222,13 @@ const Footer = () => {
       <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 border-b border-stone-800 pb-12">
         <div className="col-span-1 md:col-span-2 space-y-6">
           <div className="flex items-center gap-4">
-            <img src={IMAGES.logoStack} alt="Logo" className="w-16 h-16 rounded-xl opacity-90 invert object-cover" onError={(e) => e.target.style.display='none'} />
-            <div>
+              <img 
+                src={IMAGES.logoStack} 
+                alt="CampingTour Taiwan Campervan Rental Official Logo" 
+                className="w-28 h-28 rounded-3xl shadow-2xl invert opacity-90 border border-white/20 backdrop-blur-sm"
+                onError={(e) => e.target.style.display='none'}
+              />
+              <div>
               <h3 className="text-white text-2xl font-serif font-bold">CampingTour</h3>
               <p className="text-xs uppercase tracking-widest text-orange-500">Free Young Campervan</p>
             </div>

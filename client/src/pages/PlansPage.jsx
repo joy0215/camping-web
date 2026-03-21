@@ -62,15 +62,15 @@ export default function PlansPage() {
             {/* 左側：照片輪播區 (Ken Burns 緩慢放大特效) */}
             <div className="relative h-[450px] lg:h-auto group bg-stone-900 overflow-hidden">
               {vehicleImages.map((img, idx) => (
-                <img 
-                  key={idx}
-                  src={img} 
-                  alt={`Vehicle view ${idx + 1}`} 
-                  className={`absolute inset-0 w-full h-full object-cover transition-all duration-[2000ms] ease-out ${
-                    idx === currentImageIndex ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
-                  }`}
-                  onError={(e) => e.target.src='/images/vibe-drive.jpg'} 
-                />
+              <img 
+                key={idx}
+                src={img} 
+                alt={`CampingTour A180 Campervan exterior and interior view ${idx + 1}`} 
+                className={`absolute inset-0 w-full h-full object-cover transition-all duration-[2000ms] ease-out ${
+                  idx === currentImageIndex ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
+                }`}
+                onError={(e) => e.target.src='/images/vibe-drive.jpg'} 
+              />
               ))}
               
               <div className="absolute top-6 left-6 bg-black/50 backdrop-blur-md text-white px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest z-10 border border-white/20 shadow-lg">

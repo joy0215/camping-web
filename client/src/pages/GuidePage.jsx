@@ -56,14 +56,14 @@ export default function GuidePage() {
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                 <a href={LINKS.appStore} target="_blank" rel="noreferrer" className="flex items-center gap-3 bg-white text-stone-900 px-6 py-4 rounded-xl hover:bg-stone-200 transition-all font-bold shadow-lg hover:-translate-y-1 group/btn">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/6/67/App_Store_%28iOS%29.svg" alt="App Store" className="w-6 h-6" />
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/6/67/App_Store_%28iOS%29.svg" alt="Download CampingTour App on Apple App Store" className="w-6 h-6" />
                   <div className="text-left">
                     <div className="text-[10px] uppercase leading-none text-stone-500">Download on the</div>
                     <div className="text-sm leading-none mt-1">App Store</div>
                   </div>
                 </a>
                 <a href={LINKS.googlePlay} target="_blank" rel="noreferrer" className="flex items-center gap-3 bg-stone-800 border border-stone-700 text-white px-6 py-4 rounded-xl hover:bg-stone-700 transition-all font-bold shadow-lg hover:-translate-y-1 group/btn">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Google_Play_Arrow_logo.svg" alt="Google Play" className="w-6 h-6" />
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Google_Play_Arrow_logo.svg" alt="Get CampingTour App on Google Play Store" className="w-6 h-6" />
                   <div className="text-left">
                     <div className="text-[10px] uppercase leading-none text-stone-400">Get it on</div>
                     <div className="text-sm leading-none mt-1">Google Play</div>

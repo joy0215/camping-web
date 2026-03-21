@@ -29,26 +29,19 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4 md:p-8 pt-24">
       <div className="bg-white w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row-reverse">
-        
-        {/* 右側：品牌 Logo 區 (更換為您的 Logo) */}
+    
         <div className="md:w-1/2 relative hidden md:block bg-stone-100">
-          {/* ✅ 特別調整：
-              對於圓形 Logo，我們使用 object-contain 來保持它的完整性，不強行拉伸。
-              加上 p-12 (內距) 和 bg-stone-100 (米色背景) 讓它看起來更有質感。
-          */}
           <img 
             src="/images/logo-stack.jpg" 
-            alt="CampingTour Logo" 
+            alt="CampingTour Campervan Rental Taiwan Brand Logo" 
             className="absolute inset-0 w-full h-full object-contain p-12"
           />
-          {/* Logo 區通常不需要太強烈的文字遮罩，這裡稍微調整一下，讓它更乾淨 */}
           <div className="absolute inset-0 flex flex-col justify-end p-12 text-stone-900">
             <h2 className="text-4xl font-serif font-bold mb-2">加入車泊，擁抱大自然</h2>
             <p className="text-stone-600 font-medium">只需一分鐘註冊，開啟您的質感露營體驗。</p>
           </div>
         </div>
 
-        {/* 左側：註冊表單區 (維持不變) */}
         <div className="w-full md:w-1/2 p-10 sm:p-14 flex flex-col justify-center">
           <div className="max-w-md w-full mx-auto">
             <h2 className="text-3xl font-serif font-bold text-stone-900 mb-2">建立帳號 Create Account</h2>
