@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Zap, Users, Info, ChevronLeft, ChevronRight, Car, Tent, Wind, ShieldCheck } from 'lucide-react';
+import { useTranslation } from 'react-i18next'; // 🌟 Import translation hook
 
 export default function PlansPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation(); // 🌟 Initialize translation
   
   const vehicleImages = [
     "/images/exterior-side.jpg",       
@@ -19,7 +21,7 @@ export default function PlansPage() {
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // 自動輪播特效
+  // Auto-play carousel
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % vehicleImages.length);
@@ -37,35 +39,43 @@ export default function PlansPage() {
     setCurrentImageIndex((prev) => (prev - 1 + vehicleImages.length) % vehicleImages.length);
   };
 
-  // ✅ 新增：合法合規圖示
+  // 🌟 Translated Specs
   const specs = [
-    { icon: ShieldCheck, label: "合法特種露營車 Legal Conversion" }, // 🆕 強調重點
-    { icon: Car, label: "中華菱利 A180 (New Fleet)" },             // 🆕 強調車型
-    { icon: Tent, label: "車邊帳 Car Awning" },
-    { icon: Users, label: "雙人床鋪 Double Bed" },
-    { icon: Wind, label: "駐車冷氣 AC System" },
-    { icon: Zap, label: "300Ah 高容量電池 Battery" },
+    { icon: ShieldCheck, label: t('plans.spec1') }, 
+    { icon: Car, label: t('plans.spec2') },             
+    { icon: Tent, label: t('plans.spec3') },
+    { icon: Users, label: t('plans.spec4') },
+    { icon: Wind, label: t('plans.spec5') },
+    { icon: Zap, label: t('plans.spec6') },
+  ];
+
+  // 🌟 Translated Equipment List
+  const equipmentList = [
+    t('plans.equip1'), t('plans.equip2'), t('plans.equip3'), t('plans.equip4'),
+    t('plans.equip5'), t('plans.equip6'), t('plans.equip7'), t('plans.equip8')
   ];
 
   return (
     <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
       <div className="container mx-auto px-6">
         
+        {/* Header Section */}
         <div className="text-center max-w-2xl mx-auto mb-16 animate-fade-in">
-          <span className="text-orange-600 font-bold tracking-widest uppercase text-xs border border-orange-200 bg-orange-50 px-3 py-1 rounded-full mb-4 inline-block">Our Vehicles</span>
-          <h2 className="text-4xl md:text-5xl font-serif font-bold text-stone-900 mt-2 mb-6">頂級車型與方案</h2>
+          <span className="text-orange-600 font-bold tracking-widest uppercase text-xs border border-orange-200 bg-orange-50 px-3 py-1 rounded-full mb-4 inline-block">{t('plans.badge')}</span>
+          <h2 className="text-4xl md:text-5xl font-serif font-bold text-stone-900 mt-2 mb-6">{t('plans.title')}</h2>
         </div>
 
+        {/* Main Content Card */}
         <div className="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl max-w-6xl mx-auto border border-stone-100 mb-20 animate-fade-in delay-100">
           <div className="grid grid-cols-1 lg:grid-cols-2">
             
-            {/* 左側：照片輪播區 (Ken Burns 緩慢放大特效) */}
+            {/* Left: Image Carousel */}
             <div className="relative h-[450px] lg:h-auto group bg-stone-900 overflow-hidden">
               {vehicleImages.map((img, idx) => (
               <img 
                 key={idx}
                 src={img} 
-                alt={`CampingTour A180 Campervan exterior and interior view ${idx + 1}`} 
+                alt={`CampingTour A180 Campervan view ${idx + 1}`} 
                 className={`absolute inset-0 w-full h-full object-cover transition-all duration-[2000ms] ease-out ${
                   idx === currentImageIndex ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
                 }`}
@@ -101,19 +111,13 @@ export default function PlansPage() {
               </div>
             </div>
             
-            {/* 右側：詳細資訊 */}
+            {/* Right: Vehicle Details */}
             <div className="p-8 lg:p-14 flex flex-col justify-center bg-white">
-              <h3 className="text-4xl font-bold text-stone-900 mb-2">Nomad A180</h3>
-              <p className="text-xl text-orange-600 font-bold tracking-widest mb-8 uppercase text-sm">合法特種露營車 Legal Campervan</p>
+              <h3 className="text-4xl font-bold text-stone-900 mb-2">{t('plans.model')}</h3>
+              <p className="text-xl text-orange-600 font-bold tracking-widest mb-8 uppercase text-sm">{t('plans.legal')}</p>
               
-              {/* ✅ 修正後的精準中英雙語文案 */}
               <div className="space-y-4 text-stone-600 leading-relaxed mb-10 text-lg font-medium border-l-4 border-orange-100 pl-6">
-                <p>
-                  CampingTour 堅持採用<span className="text-stone-900 font-bold">全新中華菱利 A180 車輛</span>，依法規<span className="text-green-600 font-bold">合法改裝為特種露營車</span>。從源頭即符合相關安全標準，讓您無需煩惱裝備準備，輕鬆展開安心自在的「車泊」旅程。
-                </p>
-                <p className="text-sm text-stone-500">
-                  Our fleet utilizes <span className="text-stone-800 font-bold">brand-new Zhonghua Veryca A180 vehicles</span>, legally converted into <span className="text-green-600 font-bold">specialized campervans</span> that fully comply with local regulations and safety standards. Enjoy a hassle-free and safe "vanlife" experience.
-                </p>
+                <p dangerouslySetInnerHTML={{ __html: t('plans.desc') }} />
               </div>
               
               <div className="grid grid-cols-2 gap-4 mb-10">
@@ -128,11 +132,11 @@ export default function PlansPage() {
               <div className="bg-stone-900 rounded-2xl p-6 mb-8 text-white shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500 rounded-full blur-[60px] opacity-20 -mr-10 -mt-10"></div>
                 <div className="relative z-10 flex justify-between items-center mb-4 border-b border-stone-700 pb-4">
-                  <span className="text-stone-400 font-medium">平日 (Weekday)</span>
+                  <span className="text-stone-400 font-medium">{t('plans.weekday')}</span>
                   <span className="font-bold text-2xl">NT$ 3,700<span className="text-sm font-normal text-stone-400">/Day</span></span>
                 </div>
                 <div className="relative z-10 flex justify-between items-center">
-                  <span className="text-stone-400 font-medium">假日 (Weekend)</span>
+                  <span className="text-stone-400 font-medium">{t('plans.weekend')}</span>
                   <span className="font-bold text-2xl text-orange-400">NT$ 4,700<span className="text-sm font-normal text-stone-500">/Day</span></span>
                 </div>
               </div>
@@ -141,20 +145,20 @@ export default function PlansPage() {
                 onClick={() => navigate('/booking')}
                 className="w-full bg-orange-600 text-white py-4.5 rounded-xl font-bold hover:bg-orange-700 transition-all shadow-[0_4px_14px_0_rgba(234,88,12,0.39)] hover:shadow-[0_6px_20px_rgba(234,88,12,0.23)] hover:-translate-y-1 text-lg flex items-center justify-center gap-2"
               >
-                查看可預約日期 Check Availability
+                {t('plans.btnCheck')}
               </button>
             </div>
           </div>
         </div>
 
-        {/* 隨車配備區保留 */}
+        {/* Included Equipment Section */}
         <div className="mb-20 animate-fade-in delay-200">
           <div className="text-center mb-10">
-            <h3 className="text-3xl font-serif font-bold text-stone-900">隨車配備 Included Equipment</h3>
-            <p className="text-stone-500 mt-2">免裝備露營，我們都幫您準備好了 / All set for your adventure</p>
+            <h3 className="text-3xl font-serif font-bold text-stone-900">{t('plans.equipTitle')}</h3>
+            <p className="text-stone-500 mt-2">{t('plans.equipSub')}</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
-            {['睡袋 ×2、枕頭 ×2 (Bedding)', '小瓦斯爐 + 鍋具 (Stove & Pot)', '110V 插座及延長線 (Power)', '摺疊水桶 + 淋浴器 (Shower)', '露營桌椅組 (Table & Chairs)', '露營餐具組 (Kitchenware)', '營燈 ×2、串燈 (Lights)', '烤盤 (Grill Pan)'].map((item, i) => (
+            {equipmentList.map((item, i) => (
               <div key={i} className="flex flex-col items-center gap-3 bg-white p-6 rounded-2xl shadow-sm border border-stone-100 text-center hover:shadow-xl hover:-translate-y-1 transition-all group min-h-[140px] justify-center">
                 <CheckCircle size={28} className="text-stone-300 group-hover:text-green-500 transition-colors mb-2 flex-shrink-0"/>
                 <span className="font-bold text-stone-800 text-sm leading-dashed">{item}</span>
@@ -162,8 +166,8 @@ export default function PlansPage() {
             ))}
           </div>
           <div className="text-center mt-8 text-sm text-stone-600 bg-stone-100 py-4 rounded-xl max-w-2xl mx-auto font-medium">
-            <Info size={18} className="inline mr-2 text-stone-400 mb-0.5"/> 貼心提醒：個人盥洗用具（毛巾、牙刷）基於衛生考量，請旅客自行準備。<br/>
-            <span className="text-xs text-stone-500 ml-6">Notice: Please bring your own personal toiletries (towels, toothbrushes) for hygiene reasons.</span>
+            <Info size={18} className="inline mr-2 text-stone-400 mb-0.5"/> 
+            {t('plans.noticeTitle')}：{t('plans.noticeDesc')}
           </div>
         </div>
 

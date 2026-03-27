@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'; // Import translation hook
 
 import HomePage from './pages/HomePage';
 import PlansPage from './pages/PlansPage';
@@ -14,14 +15,13 @@ import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage'; 
 import AdminDashboard from './pages/AdminDashboard'; 
-// ✅ 新增引入 CheckoutPage 與 TermsPage (取代原本的 SignaturePage)
 import CheckoutPage from './pages/CheckoutPage';
 import TermsPage from './pages/TermsPage';
 
 const CONTACT_INFO = {
-  name: "楊哲 Che Yang",
-  phone: "0965-720-586",
-  email: "cheyang0326@gmail.com",
+  name: "何錦程 Jace He",
+  phone: "0968-823-606",
+  email: "jchenghe@gmail.com",
   fb: "車泊輕旅",
   ig: "freeyoung_campervan",
   igLink: "https://www.instagram.com/freeyoung_campervan?igsh=MW43eXRvajExeXFoeg==",
@@ -52,6 +52,15 @@ const Navbar = ({ isScrolled }) => {
   const location = useLocation();
   const [user, setUser] = useState(null);
 
+  // Initialize translation and language state
+  const { t, i18n } = useTranslation();
+
+  // Function to toggle between English and Traditional Chinese
+  const toggleLanguage = () => {
+    const newLang = i18n.language.startsWith('zh') ? 'en' : 'zh';
+    i18n.changeLanguage(newLang);
+  };
+
   useEffect(() => {
     const checkUser = () => {
       const storedUser = localStorage.getItem('user');
@@ -71,22 +80,24 @@ const Navbar = ({ isScrolled }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
-    alert('已登出 👋');
+    // Use translation for logout alert
+    alert(t('nav.logout') + ' 👋');
     navigate('/');
   };
 
-  // ✅ 在導覽列新增「條款 Terms」
+  // Base navigation links using i18n keys
   const baseLinks = [
-    { id: '/', label: '首頁 Home' },
-    { id: '/plans', label: '車型與方案 Plans' },
-    { id: '/booking', label: '預約 Booking' },
-    { id: '/guide', label: '攻略 Guide' },
-    { id: '/about', label: '關於 About' },
-    { id: '/terms', label: '條款 Terms' }, 
+    { id: '/', label: t('nav.home') },
+    { id: '/plans', label: t('nav.plans') },
+    { id: '/booking', label: t('nav.booking') },
+    { id: '/guide', label: t('nav.guide') },
+    { id: '/about', label: t('nav.about') },
+    { id: '/terms', label: t('nav.terms') }, 
   ];
 
+  // Add Member Center to links if user is logged in
   const navLinks = user 
-    ? [...baseLinks, { id: '/dashboard', label: '會員中心 Member' }]
+    ? [...baseLinks, { id: '/dashboard', label: t('nav.member') }]
     : baseLinks;
 
   const handleNavClick = (path) => {
@@ -102,6 +113,7 @@ const Navbar = ({ isScrolled }) => {
     <nav className={`fixed w-full z-50 transition-all duration-300 ${isLightMode ? 'bg-white/95 backdrop-blur-md shadow-sm py-3 text-stone-800' : 'bg-transparent py-6 text-white'}`}>
       <div className="container mx-auto px-6 flex justify-between items-center">
         
+        {/* Brand Logo Section */}
         <div className="flex items-center gap-3 cursor-pointer group" onClick={() => handleNavClick('/')}>
           <img src={IMAGES.logo} alt="CampingTour Campervan Rental Taiwan Logo" className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white/50 shadow-sm object-cover" onError={(e) => e.target.style.display='none'} />
           <div className="flex flex-col">
@@ -110,6 +122,7 @@ const Navbar = ({ isScrolled }) => {
           </div>
         </div>
 
+        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8 font-medium text-sm tracking-wide">
           {navLinks.map((link) => (
               <button 
@@ -128,19 +141,24 @@ const Navbar = ({ isScrolled }) => {
           {user ? (
             <div className={`flex items-center gap-4 ml-4 pl-4 border-l ${isLightMode ? 'border-stone-300' : 'border-white/30'}`}>
               
+              {/* Language Toggle Button (Desktop, Logged In) */}
+              <button onClick={toggleLanguage} className="font-bold text-lg hover:scale-110 transition-transform" title="Change Language">
+                {i18n.language.startsWith('zh') ? '🇺🇸 EN' : '🇹🇼 中'}
+              </button>
+
               {user.email === 'cheyang0326@gmail.com' && (
                 <button 
                   onClick={() => handleNavClick('/admin')}
                   className="flex items-center gap-1 bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-700 transition-colors shadow-sm"
                 >
-                  👑 老闆後台
+                  👑 {t('nav.admin')}
                 </button>
               )}
 
               <button 
                 onClick={() => handleNavClick('/dashboard')}
                 className={`font-bold hover:underline cursor-pointer flex items-center gap-1 ${isLightMode ? 'text-orange-600' : 'text-orange-300'}`}
-                title="進入會員中心"
+                title="Member Center"
               >
                 Hi, {user.name}
               </button>
@@ -149,32 +167,45 @@ const Navbar = ({ isScrolled }) => {
                 onClick={handleLogout} 
                 className={`px-4 py-2 rounded-full border transition-all text-xs ${isLightMode ? 'border-stone-300 hover:bg-stone-100 text-stone-600' : 'border-white/50 hover:bg-white/20 text-white'}`}
               >
-                登出
+                {t('nav.logout')}
               </button>
             </div>
           ) : (
-            <div className="flex gap-2 ml-4">
-               <button 
+            <div className="flex items-center gap-2 ml-4">
+              {/* Language Toggle Button (Desktop, Logged Out) */}
+              <button onClick={toggleLanguage} className="font-bold text-lg mr-2 hover:scale-110 transition-transform" title="Change Language">
+                {i18n.language.startsWith('zh') ? '🇺🇸 EN' : '🇹🇼 中'}
+              </button>
+
+              <button 
                 onClick={() => handleNavClick('/login')} 
                 className={`px-4 py-2 rounded-full transition-all ${isLightMode ? 'text-stone-800 hover:text-orange-600' : 'text-white hover:text-orange-300'}`}
               >
-                登入
+                {t('nav.login')}
               </button>
               <button 
                 onClick={() => handleNavClick('/register')} 
                 className="px-4 py-2 rounded-full bg-orange-600 text-white hover:bg-orange-700 shadow-md transition-all"
               >
-                註冊
+                {t('nav.signup')}
               </button>
             </div>
           )}
         </div>
 
-        <button className="md:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-          {isMobileMenuOpen ? <X className="text-stone-800" /> : <Menu />}
-        </button>
+        {/* Mobile Menu Toggle & Language Button */}
+        <div className="md:hidden flex items-center gap-4">
+          {/* Language Toggle Button (Mobile) */}
+          <button onClick={toggleLanguage} className="font-bold text-xl hover:scale-110 transition-transform">
+              {i18n.language.startsWith('zh') ? '🇺🇸' : '🇹🇼'}
+          </button>
+          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+            {isMobileMenuOpen ? <X className="text-stone-800" /> : <Menu />}
+          </button>
+        </div>
       </div>
 
+      {/* Mobile Dropdown Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-lg py-6 px-6 flex flex-col space-y-4 border-t border-stone-100 text-stone-800 h-screen">
           {navLinks.map((link) => (
@@ -195,15 +226,23 @@ const Navbar = ({ isScrolled }) => {
                         <div className="text-orange-600 font-bold mb-2 text-lg">Hi, {user.name}</div>
                         
                         {user.email === 'cheyang0326@gmail.com' && (
-                          <button onClick={() => handleNavClick('/admin')} className="block w-full text-left py-2 font-bold text-red-600 hover:text-red-700">👑 進入老闆後台 Admin</button>
+                          <button onClick={() => handleNavClick('/admin')} className="block w-full text-left py-2 font-bold text-red-600 hover:text-red-700">
+                            👑 {t('nav.admin')}
+                          </button>
                         )}
 
-                        <button onClick={handleLogout} className="text-stone-500 w-full text-left py-2 hover:text-stone-800">登出 Logout</button>
+                        <button onClick={handleLogout} className="text-stone-500 w-full text-left py-2 hover:text-stone-800">
+                          {t('nav.logout')}
+                        </button>
                     </>
                 ) : (
                     <>
-                        <button onClick={() => handleNavClick('/login')} className="block w-full text-left mb-4 py-2 font-medium hover:text-orange-600">登入 Login</button>
-                        <button onClick={() => handleNavClick('/register')} className="block w-full text-left text-orange-600 font-bold py-2 hover:text-orange-700">註冊 Sign Up</button>
+                        <button onClick={() => handleNavClick('/login')} className="block w-full text-left mb-4 py-2 font-medium hover:text-orange-600">
+                          {t('nav.login')}
+                        </button>
+                        <button onClick={() => handleNavClick('/register')} className="block w-full text-left text-orange-600 font-bold py-2 hover:text-orange-700">
+                          {t('nav.signup')}
+                        </button>
                     </>
                 )}
              </div>
@@ -215,7 +254,13 @@ const Navbar = ({ isScrolled }) => {
 
 const Footer = () => {
   const navigate = useNavigate();
+  // 🌟 Initialize translation hook
+  const { t, i18n } = useTranslation(); 
+  
   const handleLink = (path) => { navigate(path); window.scrollTo(0, 0); };
+
+  // 🌟 Check if current language is Chinese for dynamic info
+  const isZh = i18n.language.startsWith('zh');
 
   return (
     <footer className="bg-stone-900 text-stone-400 py-16 text-sm border-t border-stone-800">
@@ -233,7 +278,8 @@ const Footer = () => {
               <p className="text-xs uppercase tracking-widest text-orange-500">Free Young Campervan</p>
             </div>
           </div>
-          <p className="max-w-sm leading-relaxed">台灣最專業的露營車租賃服務。<br />Explore Taiwan your way with our fully equipped campervans.</p>
+          {/* 🌟 Translate Description */}
+          <p className="max-w-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: t('footer.desc') }} />
           <div className="flex gap-4 pt-2">
             <a href={CONTACT_INFO.fbLink} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all"><Facebook size={20} /></a>
             <a href={CONTACT_INFO.igLink} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all"><Instagram size={20} /></a>
@@ -241,54 +287,56 @@ const Footer = () => {
         </div>
         
         <div>
-          <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Quick Links</h4>
+          {/* 🌟 Translate Quick Links */}
+          <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">{t('footer.quickLinks')}</h4>
           <ul className="space-y-3">
-            <li><button onClick={() => handleLink('/plans')} className="hover:text-white transition-colors">方案介紹 Plans</button></li>
-            <li><button onClick={() => handleLink('/booking')} className="hover:text-white transition-colors">預約流程 Booking</button></li>
-            <li><button onClick={() => handleLink('/guide')} className="hover:text-white transition-colors">旅遊攻略 Guide</button></li>
-            {/* ✅ 在頁尾也加入條款快速連結 */}
-            <li><button onClick={() => handleLink('/terms')} className="hover:text-white transition-colors">服務條款 Terms</button></li>
-            <li><button onClick={() => handleLink('/register')} className="hover:text-white transition-colors text-orange-500">會員註冊 Sign Up</button></li>
+            <li><button onClick={() => handleLink('/plans')} className="hover:text-white transition-colors">{t('footer.plans')}</button></li>
+            <li><button onClick={() => handleLink('/booking')} className="hover:text-white transition-colors">{t('footer.booking')}</button></li>
+            <li><button onClick={() => handleLink('/guide')} className="hover:text-white transition-colors">{t('footer.guide')}</button></li>
+            <li><button onClick={() => handleLink('/terms')} className="hover:text-white transition-colors">{t('footer.terms')}</button></li>
+            <li><button onClick={() => handleLink('/register')} className="hover:text-white transition-colors text-orange-500">{t('footer.signup')}</button></li>
           </ul>
         </div>
         
         <div>
-          <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Contact</h4>
+          {/* 🌟 Translate Contact */}
+          <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">{t('footer.contact')}</h4>
           <ul className="space-y-4">
-            <li className="flex items-start gap-3"><Phone size={18} className="mt-1 text-orange-500" /> <div><span className="block text-white font-medium">{CONTACT_INFO.name}</span><span>{CONTACT_INFO.phone}</span></div></li>
+            <li className="flex items-start gap-3"><Phone size={18} className="mt-1 text-orange-500" /> <div><span className="block text-white font-medium">{isZh ? CONTACT_INFO.name : 'Jace He'}</span><span>{CONTACT_INFO.phone}</span></div></li>
             <li className="flex items-start gap-3"><Mail size={18} className="mt-1 text-orange-500" /> <span>{CONTACT_INFO.email}</span></li>
-            <li className="flex items-start gap-3"><MapPin size={18} className="mt-1 text-orange-500" /> <span>{CONTACT_INFO.addressEn}</span></li>
+            <li className="flex items-start gap-3"><MapPin size={18} className="mt-1 text-orange-500" /> <span>{isZh ? CONTACT_INFO.address : CONTACT_INFO.addressEn}</span></li>
           </ul>
         </div>
       </div>
 
       <div className="container mx-auto px-6 border-b border-stone-800 pb-8 mb-8">
-        <h4 className="text-stone-500 font-bold mb-4 uppercase tracking-widest text-xs">Company Info</h4>
+        {/* 🌟 Translate Company Info */}
+        <h4 className="text-stone-500 font-bold mb-4 uppercase tracking-widest text-xs">{t('footer.companyInfo')}</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-xs text-stone-500">
           <div>
-            <span className="block text-stone-400 font-bold">{CONTACT_INFO.company.name}</span>
-            <span className="block text-stone-500 mb-1">{CONTACT_INFO.company.nameEn}</span>
+            <span className="block text-stone-400 font-bold">{isZh ? CONTACT_INFO.company.name : CONTACT_INFO.company.nameEn}</span>
+            <span className="block text-stone-500 mb-1">{isZh ? CONTACT_INFO.company.nameEn : ''}</span>
             <span className="block text-orange-600 font-bold">{CONTACT_INFO.company.license}</span>
           </div>
           <div>
-            <span className="block text-stone-400 font-bold">Address</span>
+            <span className="block text-stone-400 font-bold">{t('footer.address')}</span>
             <span>{CONTACT_INFO.company.address}</span>
           </div>
           <div>
-            <span className="block text-stone-400 font-bold">Details</span>
-            <span>統編 (Tax ID): {CONTACT_INFO.company.taxId}</span><br/>
-            <span>代表人: {CONTACT_INFO.company.rep}</span>
+            <span className="block text-stone-400 font-bold">{t('footer.details')}</span>
+            <span>{t('footer.taxId')}: {CONTACT_INFO.company.taxId}</span><br/>
+            <span>{t('footer.rep')}: {CONTACT_INFO.company.rep}</span>
           </div>
           <div>
-            <span className="block text-stone-400 font-bold">Contact</span>
-            <span>TEL: {CONTACT_INFO.company.phone}</span><br/>
-            <span>FAX: {CONTACT_INFO.company.fax}</span>
+            <span className="block text-stone-400 font-bold">{t('footer.contact')}</span>
+            <span>{t('footer.tel')}: {CONTACT_INFO.company.phone}</span><br/>
+            <span>{t('footer.fax')}: {CONTACT_INFO.company.fax}</span>
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-6 text-center text-xs text-stone-600">
-        <p>&copy; 2026 CampingTour Taiwan. All Rights Reserved.</p>
+        <p>{t('footer.rights')}</p>
       </div>
     </footer>
   );
@@ -328,8 +376,6 @@ const App = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/admin" element={<AdminDashboard />} />
-          
-          {/* ✅ 正確加入 CheckoutPage 與 TermsPage 路由 */}
           <Route path="/checkout/:id" element={<CheckoutPage />} />
           <Route path="/terms" element={<TermsPage />} />
         </Routes>
