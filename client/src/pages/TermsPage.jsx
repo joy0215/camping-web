@@ -112,9 +112,9 @@ export default function TermsPage() {
               </div>
               <div className="space-y-4">
                 <p className="font-bold text-lg text-white mb-2">{t('terms.support')}</p>
-                <p className="flex items-center gap-3"><User size={18} className="text-orange-500 shrink-0"/> <span>{t('terms.contact')}：{isZh ? '楊哲' : 'Che Yang'}</span></p>
-                <p className="flex items-center gap-3"><Phone size={18} className="text-orange-500 shrink-0"/> <span>{t('terms.phone')}：0965-720-586</span></p>
-                <p className="flex items-center gap-3"><Mail size={18} className="text-orange-500 shrink-0"/> <span>{t('terms.email')}：cheyang0326@gmail.com</span></p>
+                <p className="flex items-center gap-3"><User size={18} className="text-orange-500 shrink-0"/> <span>{t('terms.contact')}：{isZh ? '何錦程' : 'Jace He'}</span></p>
+                <p className="flex items-center gap-3"><Phone size={18} className="text-orange-500 shrink-0"/> <span>{t('terms.phone')}：0963-823-606</span></p>
+                <p className="flex items-center gap-3"><Mail size={18} className="text-orange-500 shrink-0"/> <span>{t('terms.email')}：jchenghe@gmail.com</span></p>
                 <p className="flex items-start gap-3"><MapPin size={18} className="text-orange-500 shrink-0 mt-1"/> <span>{t('terms.pickup')}：<br/>{isZh ? '台北市北投區大度路一段157-2號' : 'No. 157-2, Sec. 1, Dadu Rd., Beitou Dist., Taipei City'}</span></p>
               </div>
             </div>

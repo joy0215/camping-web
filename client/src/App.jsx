@@ -20,7 +20,7 @@ import TermsPage from './pages/TermsPage';
 
 const CONTACT_INFO = {
   name: "何錦程 Jace He",
-  phone: "0968-823-606",
+  phone: "0963-823-606",
   email: "jchenghe@gmail.com",
   fb: "車泊輕旅",
   ig: "freeyoung_campervan",
