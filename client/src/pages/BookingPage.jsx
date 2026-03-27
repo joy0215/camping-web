@@ -4,9 +4,11 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Calendar, CheckCircle, MapPin, Zap, Info, MessageCircle, Phone, User } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useTranslation } from 'react-i18next'; // 🌟 Import translation hook
 
 export default function BookingPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation(); // 🌟 Initialize translation
   const [user, setUser] = useState(null);
   
   const [blockedDates, setBlockedDates] = useState([]);
@@ -15,7 +17,7 @@ export default function BookingPage() {
   
   const [isAgreed, setIsAgreed] = useState(false);
 
-  // 🆕 新增：獨立的承租人聯絡資訊狀態
+  // Contact info state
   const [contactInfo, setContactInfo] = useState({
     name: '', phone: '', email: ''
   });
@@ -39,7 +41,7 @@ export default function BookingPage() {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
-      // 🆕 自動帶入會員資料作為預設值
+      // Automatically load member info
       setContactInfo({
         name: parsedUser.name || '',
         phone: parsedUser.phone || '',
@@ -53,7 +55,7 @@ export default function BookingPage() {
         const dates = response.data.map(d => new Date(d));
         setBlockedDates(dates);
       } catch (error) {
-        console.error("無法取得滿檔日期", error);
+        console.error("Failed to load blocked dates", error);
       }
     };
     fetchBlockedDates();
@@ -96,7 +98,6 @@ export default function BookingPage() {
     setAddons({ ...addons, [e.target.name]: e.target.checked });
   };
 
-  // 🆕 處理聯絡人資訊變更
   const handleContactChange = (e) => {
     setContactInfo({ ...contactInfo, [e.target.name]: e.target.value });
   };
@@ -122,29 +123,27 @@ export default function BookingPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) {
-      alert('🔒 請先登入會員才能預約喔！');
+      alert('🔒 請先登入會員才能預約喔！ Login required.');
       navigate('/login');
       return;
     }
 
     if (!startDate || !endDate || estimatedTotal === 0) {
-      alert('❌ 請在日曆上選擇完整的「取車」與「還車」日期區間！');
+      alert('❌ 請在日曆上選擇完整的「取車」與「還車」日期區間！ Dates required.');
       return;
     }
 
-    // 🆕 檢查是否填寫聯絡人資訊
     if (!contactInfo.name || !contactInfo.phone || !contactInfo.email) {
-      alert('❌ 請填寫完整的「承租人資訊」！');
+      alert('❌ 請填寫完整的「承租人資訊」！ Contact info required.');
       return;
     }
 
     if (!isAgreed) {
-      alert('⚠️ 請先勾選同意《租賃服務條款》與《露營車使用規範》才能進行預約！');
+      alert('⚠️ 請先勾選同意條款！ Please agree to the terms.');
       return;
     }
 
     try {
-      // 🆕 將 contactInfo 傳給後端
       const response = await axiosClient.post('/inquiry', {
         startDate: formatForBackend(startDate),
         endDate: formatForBackend(endDate),
@@ -154,19 +153,18 @@ export default function BookingPage() {
       });
       
       const orderData = response.data.inquiry;
-      alert('✅ 訂單已建立！\n即將前往確認訂單與付款。');
+      alert('✅ 訂單已建立！即將前往付款。 Redirecting to checkout...');
       
-      // 🆕 這裡將 contactInfo 偽裝成 user 傳給結帳頁，這樣藍新收據就會寄給實際承租人
       navigate(`/checkout/${orderData.id}`, { 
         state: { order: orderData, user: contactInfo, amount: estimatedTotal } 
       });
     } catch (error) {
-      console.error('送單失敗:', error);
+      console.error('Submit failed:', error);
       if (error.response && error.response.status === 400) {
         alert(error.response.data.error);
         setDateRange([null, null]);
       } else {
-        alert('❌ 送出失敗，請檢查網路或稍後再試');
+        alert('❌ 送出失敗，請稍後再試。 Failed to submit.');
       }
     }
   };
@@ -175,21 +173,21 @@ export default function BookingPage() {
     <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
       <div className="container mx-auto px-6">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-serif font-bold text-stone-900 mb-4">預約詢價 Booking</h2>
-          <p className="text-stone-600">選擇日期，開啟您的冒險旅程</p>
+          <h2 className="text-4xl font-serif font-bold text-stone-900 mb-4">{t('booking.title')}</h2>
+          <p className="text-stone-600">{t('booking.subtitle')}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-6xl mx-auto items-start">
           
           <div className="lg:col-span-8 bg-white p-8 md:p-10 rounded-3xl shadow-xl border border-stone-100">
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2 border-b pb-4">
-              <Calendar className="text-orange-600" /> 選擇租車區間
+              <Calendar className="text-orange-600" /> {t('booking.step1')}
             </h3>
             
             <form onSubmit={handleSubmit} className="space-y-8">
               
               <div className="flex flex-col items-center bg-stone-50 p-6 rounded-2xl border border-stone-200">
-                <p className="text-sm font-bold text-stone-700 mb-4 self-start">請點擊選擇「取車」與「還車」日期 (灰底為滿檔)</p>
+                <p className="text-sm font-bold text-stone-700 mb-4 self-start">{t('booking.calendarHint')}</p>
                 <div className="w-full overflow-x-auto flex justify-center pb-2 custom-datepicker-wrapper">
                   <DatePicker
                     selectsRange={true}
@@ -206,72 +204,72 @@ export default function BookingPage() {
                 
                 <div className="w-full mt-4 flex justify-between items-center bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
                   <div className="text-center flex-1 border-r border-stone-100">
-                    <span className="block text-xs text-stone-400 font-bold uppercase tracking-wider mb-1">取車 Start</span>
-                    <span className="font-bold text-stone-800">{startDate ? formatForBackend(startDate) : '尚未選擇'}</span>
+                    <span className="block text-xs text-stone-400 font-bold uppercase tracking-wider mb-1">{t('booking.start')}</span>
+                    <span className="font-bold text-stone-800">{startDate ? formatForBackend(startDate) : t('booking.unselected')}</span>
                   </div>
                   <div className="text-center flex-1">
-                    <span className="block text-xs text-stone-400 font-bold uppercase tracking-wider mb-1">還車 End</span>
-                    <span className="font-bold text-orange-600">{endDate ? formatForBackend(endDate) : '尚未選擇'}</span>
+                    <span className="block text-xs text-stone-400 font-bold uppercase tracking-wider mb-1">{t('booking.end')}</span>
+                    <span className="font-bold text-orange-600">{endDate ? formatForBackend(endDate) : t('booking.unselected')}</span>
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-stone-700 mb-4">加購配備 Optional Add-ons</label>
+                <label className="block text-sm font-bold text-stone-700 mb-4">{t('booking.addonsTitle')}</label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <label className={`flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all ${addons.mattress ? 'border-orange-500 bg-orange-50' : 'border-stone-200 hover:bg-stone-50'}`}>
                     <input type="checkbox" name="mattress" checked={addons.mattress} onChange={handleAddonChange} className="w-5 h-5 accent-orange-600" />
                     <div className="flex flex-col">
-                        <span className="font-bold text-stone-800">雙人充氣睡墊</span>
+                        <span className="font-bold text-stone-800">{t('booking.addon1')}</span>
                         <span className="text-xs text-orange-600 font-bold">+ NT$ 500</span>
                     </div>
                   </label>
                   <label className={`flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all ${addons.blanket ? 'border-orange-500 bg-orange-50' : 'border-stone-200 hover:bg-stone-50'}`}>
                     <input type="checkbox" name="blanket" checked={addons.blanket} onChange={handleAddonChange} className="w-5 h-5 accent-orange-600" />
                     <div className="flex flex-col">
-                        <span className="font-bold text-stone-800">保暖毛毯</span>
+                        <span className="font-bold text-stone-800">{t('booking.addon2')}</span>
                         <span className="text-xs text-orange-600 font-bold">+ NT$ 200</span>
                     </div>
                   </label>
                   <label className={`flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all ${addons.cookware ? 'border-orange-500 bg-orange-50' : 'border-stone-200 hover:bg-stone-50'}`}>
                     <input type="checkbox" name="cookware" checked={addons.cookware} onChange={handleAddonChange} className="w-5 h-5 accent-orange-600" />
                     <div className="flex flex-col">
-                        <span className="font-bold text-stone-800">多功能鍋具組</span>
+                        <span className="font-bold text-stone-800">{t('booking.addon3')}</span>
                         <span className="text-xs text-orange-600 font-bold">+ NT$ 200</span>
                     </div>
                   </label>
                 </div>
               </div>
 
-              {/* 🆕 全新區塊：承租人資訊 */}
+              {/* Renter Info Section */}
               <div className="bg-stone-50 p-6 rounded-2xl border border-stone-200 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
                 <h4 className="flex items-center gap-2 font-bold text-stone-800 mb-4">
-                  <User size={18} className="text-orange-600" /> 實際承租人資訊 Renter Info
+                  <User size={18} className="text-orange-600" /> {t('booking.renterTitle')}
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <span className="block text-xs text-stone-500 font-bold mb-1">聯絡人姓名 Name</span>
-                    <input type="text" name="name" value={contactInfo.name} onChange={handleContactChange} required className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white" placeholder="請輸入真實姓名" />
+                    <span className="block text-xs text-stone-500 font-bold mb-1">{t('booking.name')}</span>
+                    <input type="text" name="name" value={contactInfo.name} onChange={handleContactChange} required className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white" placeholder={t('booking.namePh')} />
                   </div>
                   <div>
-                    <span className="block text-xs text-stone-500 font-bold mb-1">手機號碼 Phone</span>
-                    <input type="tel" name="phone" value={contactInfo.phone} onChange={handleContactChange} required className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white" placeholder="09XX-XXX-XXX" />
+                    <span className="block text-xs text-stone-500 font-bold mb-1">{t('booking.phone')}</span>
+                    <input type="tel" name="phone" value={contactInfo.phone} onChange={handleContactChange} required className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white" placeholder={t('booking.phonePh')} />
                   </div>
                   <div>
-                    <span className="block text-xs text-stone-500 font-bold mb-1">電子信箱 Email</span>
-                    <input type="email" name="email" value={contactInfo.email} onChange={handleContactChange} required className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white" placeholder="Email (接收訂單通知)" />
+                    <span className="block text-xs text-stone-500 font-bold mb-1">{t('booking.email')}</span>
+                    <input type="email" name="email" value={contactInfo.email} onChange={handleContactChange} required className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white" placeholder={t('booking.emailPh')} />
                   </div>
                 </div>
                 <p className="text-xs text-stone-400 mt-3 flex items-center gap-1">
-                  <Info size={14}/> 預設為您的會員資料，您可直接修改為「實際用車人」的聯絡方式。
+                  <Info size={14}/> {t('booking.infoHint')}
                 </p>
               </div>
 
               <div className="bg-stone-900 p-6 rounded-2xl text-white flex flex-col md:flex-row justify-between items-center shadow-lg">
                 <div className="mb-2 md:mb-0">
-                    <span className="block text-stone-400 text-sm mb-1">預估租金 Total Estimate ({totalDays} 天)</span>
-                    <span className="text-xs text-stone-500">實際金額以最終結帳金額為準</span>
+                    <span className="block text-stone-400 text-sm mb-1">{t('booking.estimateTitle')} ({totalDays} Days)</span>
+                    <span className="text-xs text-stone-500">{t('booking.estimateSub')}</span>
                 </div>
                 <span className="text-3xl font-bold text-orange-500">NT$ {estimatedTotal.toLocaleString()}</span>
               </div>
@@ -285,11 +283,10 @@ export default function BookingPage() {
                   className="mt-1 w-5 h-5 accent-orange-600 cursor-pointer shrink-0"
                 />
                 <label htmlFor="agreeTerms" className="text-sm text-stone-700 cursor-pointer leading-relaxed">
-                  我已詳閱並同意
-                  <Link to="/terms" target="_blank" className="text-orange-600 font-bold hover:underline mx-1">《租賃服務條款與退費政策》</Link>
-                  及
-                  <Link to="/guide" target="_blank" className="text-orange-600 font-bold hover:underline mx-1">《露營車使用規範與指南》</Link>。<br/>
-                  <span className="text-xs text-stone-500">I have read and agree to the Terms of Service, Refund Policy, and Campervan Guidelines.</span>
+                  {t('booking.agreeText')}
+                  <Link to="/terms" target="_blank" className="text-orange-600 font-bold hover:underline mx-1">{t('booking.termsLink1')}</Link>
+                  {t('booking.and')}
+                  <Link to="/guide" target="_blank" className="text-orange-600 font-bold hover:underline mx-1">{t('booking.termsLink2')}</Link>.
                 </label>
               </div>
 
@@ -297,14 +294,14 @@ export default function BookingPage() {
                 type="submit" 
                 className={`w-full py-4 rounded-xl font-bold text-lg transition-colors shadow-lg flex items-center justify-center gap-2 ${isAgreed ? 'bg-orange-600 text-white hover:bg-orange-700' : 'bg-stone-300 text-stone-500 cursor-not-allowed'}`}
               >
-                {user ? '確認區間並前往結帳 Proceed to Checkout' : '請先登入 Login First'}
+                {user ? t('booking.btnSubmit') : t('booking.btnLoginFirst')}
               </button>
             </form>
           </div>
 
           <div className="lg:col-span-4 space-y-6">
             <div className="bg-white p-6 rounded-3xl shadow-xl border-t-4 border-green-500">
-              <h3 className="text-xl font-bold text-stone-900 mb-6 text-center">Contact Us 聯繫我們</h3>
+              <h3 className="text-xl font-bold text-stone-900 mb-6 text-center">{t('booking.contactTitle')}</h3>
               <div className="space-y-6">
                 <div className="text-center p-4 bg-stone-50 rounded-2xl border border-stone-100">
                   <div className="flex items-center justify-center gap-2 font-bold text-[#06C755] mb-2"><MessageCircle size={20}/> Line@ Official</div>
@@ -320,12 +317,12 @@ export default function BookingPage() {
             </div>
 
             <div className="bg-stone-100 text-stone-600 p-6 rounded-2xl border border-stone-200">
-              <h4 className="font-bold text-stone-800 text-lg mb-4 flex items-center gap-2"><Info size={20} className="text-stone-500"/> 訂車須知 Note</h4>
+              <h4 className="font-bold text-stone-800 text-lg mb-4 flex items-center gap-2"><Info size={20} className="text-stone-500"/> {t('booking.noteTitle')}</h4>
               <ul className="space-y-3 text-sm">
-                <li className="flex gap-3"><CheckCircle size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>送出後將引導至藍新金流進行加密結帳。</span></li>
-                <li className="flex gap-3"><CheckCircle size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>訂金為總金額之 30%。</span></li>
-                <li className="flex gap-3"><Zap size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>包含強制險，外籍旅客需提供有效自負額保險。</span></li>
-                <li className="flex gap-3"><MapPin size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>取車地點：台北市北投區大度路一段157-2號。</span></li>
+                <li className="flex gap-3"><CheckCircle size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>{t('booking.note1')}</span></li>
+                <li className="flex gap-3"><CheckCircle size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>{t('booking.note2')}</span></li>
+                <li className="flex gap-3"><Zap size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>{t('booking.note3')}</span></li>
+                <li className="flex gap-3"><MapPin size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>{t('booking.note4')}</span></li>
               </ul>
             </div>
           </div>

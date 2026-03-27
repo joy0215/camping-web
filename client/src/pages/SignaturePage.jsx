@@ -3,22 +3,19 @@ import SignatureCanvas from 'react-signature-canvas';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
 import { CreditCard, Eraser, CheckCircle, Lock } from 'lucide-react';
+import { useTranslation } from 'react-i18next'; // 🌟 引入翻譯
 
 export default function SignaturePage() {
   const sigPad = useRef({});
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation(); // 🌟 啟動翻譯
   const [loading, setLoading] = useState(false);
-  
-  // 1. 信用卡號狀態
   const [cardNumber, setCardNumber] = useState('');
-
-  // 2. 從上一頁接收資料
   const { order, user, amount } = location.state || {};
 
   useEffect(() => {
     if (!order) {
-      alert('⚠️ 無效的訂單路徑，請重新預約');
       navigate('/');
     }
   }, [order, navigate]);
@@ -28,25 +25,21 @@ export default function SignaturePage() {
   };
 
   const handleSubmit = async () => {
-    // A. 驗證是否有簽名
     if (sigPad.current.isEmpty()) {
-      alert('❌ 請先簽名 (Please sign first)');
+      alert(`❌ ${t('signature.errSign')}`);
       return;
     }
-    // B. 驗證卡號
     if (cardNumber.length < 16) {
-      alert('❌ 請輸入完整 16 碼信用卡號');
+      alert(`❌ ${t('signature.errCard')}`);
       return;
     }
 
     setLoading(true);
 
     try {
-      // C. 取得簽名圖片
       const signatureData = sigPad.current.getCanvas().toDataURL('image/png');
 
-      // ✅ 修正重點：變數名稱正確對應 user.name 與單獨的 cardNumber 狀態
-      const response = await axiosClient.post('/pdf/generate', {
+      await axiosClient.post('/pdf/generate', {
         orderId: order.id, 
         guestName: user.name, 
         cardNumber: cardNumber,
@@ -54,12 +47,12 @@ export default function SignaturePage() {
         signature: signatureData
       });
 
-      alert('🎉 簽署成功！\n授權書已傳送至系統，我們將盡快審核您的訂單。');
-      navigate('/dashboard'); // 簽完直接導回會員中心看結果
+      alert(`🎉 ${t('signature.success')}`);
+      navigate('/dashboard'); 
 
     } catch (error) {
       console.error('Signature Error:', error);
-      alert('❌ 傳送失敗，請稍後再試');
+      alert('❌ Upload failed.');
     } finally {
       setLoading(false);
     }
@@ -72,21 +65,19 @@ export default function SignaturePage() {
       <div className="bg-white p-8 rounded-3xl shadow-xl border border-stone-100 max-w-lg w-full mx-4">
         
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-serif font-bold text-stone-900 mb-2">信用卡授權簽署</h2>
-          <p className="text-stone-500 text-sm">Credit Card Authorization</p>
+          <h2 className="text-2xl font-serif font-bold text-stone-900 mb-2">{t('signature.title')}</h2>
+          <p className="text-stone-500 text-sm">{t('signature.subtitle')}</p>
         </div>
 
-        {/* 訂單摘要 */}
         <div className="bg-stone-50 p-4 rounded-xl mb-6 text-sm text-stone-600 space-y-2 border border-stone-200">
-          <div className="flex justify-between"><span>訂單編號：</span><span className="font-bold">#{order.id}</span></div>
-          <div className="flex justify-between"><span>承租人：</span><span className="font-bold">{user.name}</span></div>
-          <div className="flex justify-between"><span>授權金額：</span><span className="font-bold text-orange-600 text-lg">NT$ {amount.toLocaleString()}</span></div>
+          <div className="flex justify-between"><span>{t('signature.orderId')}：</span><span className="font-bold">#{order.id}</span></div>
+          <div className="flex justify-between"><span>{t('signature.renter')}：</span><span className="font-bold">{user.name}</span></div>
+          <div className="flex justify-between"><span>{t('signature.amount')}：</span><span className="font-bold text-orange-600 text-lg">NT$ {amount.toLocaleString()}</span></div>
         </div>
 
-        {/* 信用卡輸入 */}
         <div className="mb-6">
           <label className="block text-sm font-bold text-stone-700 mb-2 flex items-center gap-2">
-            <CreditCard size={18}/> 信用卡號 Card Number
+            <CreditCard size={18}/> {t('signature.cardNum')}
           </label>
           <input 
             type="text" 
@@ -97,41 +88,34 @@ export default function SignaturePage() {
             className="w-full p-3 border border-stone-300 rounded-xl text-center tracking-widest text-lg outline-none focus:ring-2 focus:ring-orange-500"
           />
           <p className="text-xs text-stone-400 mt-2 flex items-center gap-1 justify-center">
-            <Lock size={12}/> 資料將直接加密寫入 PDF，不儲存於資料庫
+            <Lock size={12}/> {t('signature.cardHint')}
           </p>
         </div>
 
-        {/* 簽名板區域 */}
         <div className="mb-6">
-          <label className="block text-sm font-bold text-stone-700 mb-2">請在此簽名 Signature</label>
+          <label className="block text-sm font-bold text-stone-700 mb-2">{t('signature.signTitle')}</label>
           <div className="border-2 border-dashed border-stone-300 rounded-xl bg-stone-50 overflow-hidden touch-none relative">
             <SignatureCanvas 
               ref={sigPad}
               penColor="black"
-              canvasProps={{
-                width: 320, 
-                height: 200, 
-                className: 'mx-auto' 
-              }} 
+              canvasProps={{ width: 320, height: 200, className: 'mx-auto' }} 
             />
             <button 
               onClick={clearSig}
               className="absolute top-2 right-2 text-stone-400 hover:text-red-500 bg-white rounded-full p-1 shadow-sm"
-              title="Clear"
             >
               <Eraser size={16}/>
             </button>
           </div>
-          <p className="text-xs text-stone-400 mt-2 text-center">請使用手指或滑鼠簽名</p>
+          <p className="text-xs text-stone-400 mt-2 text-center">{t('signature.signHint')}</p>
         </div>
 
-        {/* 送出按鈕 */}
         <button 
           onClick={handleSubmit}
           disabled={loading}
           className={`w-full py-4 rounded-xl font-bold text-white shadow-lg flex items-center justify-center gap-2 transition-all ${loading ? 'bg-stone-400 cursor-not-allowed' : 'bg-stone-900 hover:bg-orange-600'}`}
         >
-          {loading ? '處理中 Processing...' : <><CheckCircle size={20}/> 確認簽署並送出</>}
+          {loading ? t('signature.btnProcessing') : <><CheckCircle size={20}/> {t('signature.btnSubmit')}</>}
         </button>
 
       </div>
