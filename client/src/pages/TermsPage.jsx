@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, FileText, AlertCircle, Phone, MapPin, Mail, Building, CreditCard } from 'lucide-react';
+import { Shield, FileText, AlertCircle, Phone, MapPin, Mail, Building, CreditCard, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next'; // 🌟 引入翻譯
 
 export default function TermsPage() {
