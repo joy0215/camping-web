@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'; // 🌟 Import translation hook
 
 export default function BookingPage() {
   const navigate = useNavigate();
-  const { t } = useTranslation(); // 🌟 Initialize translation
+  const { t, i18n} = useTranslation(); // 🌟 Initialize translation
   const [user, setUser] = useState(null);
   
   const [blockedDates, setBlockedDates] = useState([]);
