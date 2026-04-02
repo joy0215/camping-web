@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const db = require('../config/db'); 
+const db = require('../config/db'); // 確保這裡的路徑正確對應你的資料庫設定
 
 // 🌟 設定 Multer：將客人上傳的照片存進 uploads/ 資料夾
 const storage = multer.diskStorage({
@@ -26,11 +26,27 @@ router.post('/feedback', upload.single('photo'), async (req, res) => {
     // 如果客人有傳照片，組合出圖片路徑；沒有就是 null
     const photoUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
-    // 將資料寫入 Neon 資料庫
+    // 🌟 已修正：SQL 欄位順序與底下的陣列參數順序完全對齊！
+    // 對應關係：
+    // $1 -> orderId
+    // $2 -> userName
+    // $3 -> userAvatar
+    // $4 -> country
+    // $5 -> rating
+    // $6 -> comment
+    // $7 -> photoUrl
     const newReview = await db.query(
       `INSERT INTO reviews (order_id, user_name, user_avatar, country, rating, comment, photo_url) 
        VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [orderId, rating, comment, userName || 'Guest', userAvatar || 'G', country || 'OTHER', photoUrl]
+      [
+        orderId, 
+        userName || 'Guest', 
+        userAvatar || 'G', 
+        country || 'OTHER', 
+        rating, 
+        comment, 
+        photoUrl
+      ]
     );
 
     res.json({ success: true, review: newReview.rows[0] });
