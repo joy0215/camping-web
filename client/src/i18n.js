@@ -56,6 +56,7 @@ const resources = {
         "feat3Desc2": "For the most comfortable night experience.",
         "homeReviewsTitle": "Traveler Stories",
         "homeReviewsSub": "Hear from our global vanlifers",
+        "homeViewAll": "View All Reviews",
       },
       "plans": {
         "badge": "Our Vehicles",
@@ -228,7 +229,12 @@ const resources = {
         "btnSave": "Save Changes",
         "btnSaving": "Saving...",
         "btnReview": "Write Review",
-        "btnEditReview": "Edit Review"
+        "btnEditReview": "Edit Review",
+        "tabReviews": "My Reviews",
+        "profileAvatar": "Profile Picture",
+        "profileNickname": "Nickname",
+        "profileCountry": "Country / Region",
+        "noReviews": "You haven't written any reviews yet.",
       },
       "checkout": {
         "title": "Order Checkout",
@@ -368,6 +374,7 @@ const resources = {
         "feat3Desc2": "給您最舒適的過夜體驗",
         "homeReviewsTitle": "真實旅客回饋",
         "homeReviewsSub": "Traveler Stories",
+        "homeViewAll": "查看全部評價",
       },
       "plans": {
         "badge": "Our Vehicles",
@@ -539,7 +546,12 @@ const resources = {
         "btnSave": "儲存變更 Save Changes",
         "btnSaving": "儲存中 Saving...",
         "btnReview": "撰寫評價",
-        "btnEditReview": "修改評價"
+        "btnEditReview": "修改評價",
+        "tabReviews": "我的評價",
+        "profileAvatar": "個人大頭貼",
+        "profileNickname": "顯示暱稱",
+        "profileCountry": "國家 / 地區",
+        "noReviews": "您目前還沒有撰寫過評價喔！",
       },
       "checkout": {
         "title": "訂單確認與付款",
