@@ -18,6 +18,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import CheckoutPage from './pages/CheckoutPage';
 import TermsPage from './pages/TermsPage';
 import FeedbackPage from './pages/FeedbackPage';
+import ReviewsPage from './pages/ReviewsPage';
 
 const CONTACT_INFO = {
   name: "何錦程 Jace He",
@@ -380,6 +381,7 @@ const App = () => {
           <Route path="/checkout/:id" element={<CheckoutPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/feedback/:orderId" element={<FeedbackPage />} />
+          <Route path="/reviews" element={<ReviewsPage />} />
         </Routes>
       </Layout>
     </Router>

@@ -318,6 +318,12 @@ const resources = {
         "success": "Thank you! Your feedback has been submitted.",
         "error": "Submission failed. Please try again."
       },
+      "reviews": {
+        "title": "Traveler Stories",
+        "subtitle": "Real experiences from our global vanlifers",
+        "btnLoadMore": "Load More Reviews",
+        "noMore": "You've reached the end! Time to make your own story."
+      },
     }
   },
   // 🇹🇼 繁體中文版字典
@@ -634,6 +640,12 @@ const resources = {
         "btnSubmitting": "上傳中...",
         "success": "感謝您！您的寶貴回饋已成功送出。",
         "error": "送出失敗，請稍後再試一次。"
+      },
+      "reviews": {
+        "title": "真實旅客回饋",
+        "subtitle": "看看來自世界各地的車友們怎麼說",
+        "btnLoadMore": "載入更多評價",
+        "noMore": "沒有更多評價囉！快來創造你的專屬回憶吧！"
       },
     }
   }
