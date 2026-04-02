@@ -3,7 +3,6 @@ import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
 const resources = {
-  // 🇺🇸 英文版字典
   en: {
     translation: {
       "nav": {
@@ -54,7 +53,9 @@ const resources = {
         "feat3Title": "Full Power",
         "feat3Sub": "Off-Grid Ready",
         "feat3Desc1": "Equipped with A/C and high-capacity battery.",
-        "feat3Desc2": "For the most comfortable night experience."
+        "feat3Desc2": "For the most comfortable night experience.",
+        "homeReviewsTitle": "Traveler Stories",
+        "homeReviewsSub": "Hear from our global vanlifers",
       },
       "plans": {
         "badge": "Our Vehicles",
@@ -117,7 +118,7 @@ const resources = {
         "name": "Full Name",
         "namePh": "Enter full name",
         "phone": "Phone",
-        "phonePh": "Phone number",
+        "phonePh": "e.g. +44 7911... (Include country code)",
         "email": "Email",
         "emailPh": "Email address",
         "infoHint": "Defaults to your member profile. You can change this to the actual driver's info.",
@@ -173,7 +174,6 @@ const resources = {
         "acc4q2": "Interior & Equipment:",
         "acc4a2": "Keep vehicle/equipment clean. Excessive dirt/damage incurs NT$500–1,500 cleaning/repair fees (deducted from deposit)."
       },
-      // 🌟 新增：登入頁
       "login": {
         "imgTitle": "Hit the road, endless journeys await.",
         "imgSub": "Log in to view your upcoming perfect trips.",
@@ -186,7 +186,6 @@ const resources = {
         "noAccount": "Don't have an account?",
         "registerLink": "Register Now"
       },
-      // 🌟 新增：註冊頁
       "register": {
         "imgTitle": "Join Vanlife, Embrace Nature",
         "imgSub": "Register in just one minute and start your premium camping experience.",
@@ -194,14 +193,13 @@ const resources = {
         "subtitle": "Please fill out the information below to become a member.",
         "namePh": "Full Name",
         "emailPh": "Email",
-        "phonePh": "Phone Number",
+        "phonePh": "Phone Number (e.g. +1 202... (Include country code))",
         "passPh": "Password",
         "btn": "Register",
         "btnLoading": "Processing...",
         "hasAccount": "Already have an account?",
         "loginLink": "Back to Login"
       },
-      // 🌟 新增：會員中心
       "dashboard": {
         "title": "Member Center",
         "welcome": "Welcome back",
@@ -228,7 +226,9 @@ const resources = {
         "name": "Full Name",
         "phone": "Phone Number",
         "btnSave": "Save Changes",
-        "btnSaving": "Saving..."
+        "btnSaving": "Saving...",
+        "btnReview": "Write Review",
+        "btnEditReview": "Edit Review"
       },
       "checkout": {
         "title": "Order Checkout",
@@ -297,7 +297,21 @@ const resources = {
         "phone": "Phone",
         "email": "Email",
         "pickup": "Pickup Location"
-      }
+      },
+      "feedback": {
+        "title": "Share Your Experience",
+        "subtitle": "How was your vanlife journey with us?",
+        "orderId": "Order ID",
+        "rating": "Rate your experience",
+        "comment": "Tell us more (Optional)",
+        "commentPh": "What did you love about the campervan? Any hidden gems you visited?",
+        "photo": "Upload a Photo (Optional)",
+        "photoHint": "Share your best vanlife moment with us! (Max 5MB)",
+        "btnSubmit": "Submit Feedback",
+        "btnSubmitting": "Uploading...",
+        "success": "Thank you! Your feedback has been submitted.",
+        "error": "Submission failed. Please try again."
+      },
     }
   },
   // 🇹🇼 繁體中文版字典
@@ -351,7 +365,9 @@ const resources = {
         "feat3Title": "電力充足",
         "feat3Sub": "Full Power",
         "feat3Desc1": "配備駐車冷氣與大容量電池",
-        "feat3Desc2": "給您最舒適的過夜體驗"
+        "feat3Desc2": "給您最舒適的過夜體驗",
+        "homeReviewsTitle": "真實旅客回饋",
+        "homeReviewsSub": "Traveler Stories",
       },
       "plans": {
         "badge": "Our Vehicles",
@@ -413,7 +429,7 @@ const resources = {
         "name": "聯絡人姓名 Name",
         "namePh": "請輸入真實姓名",
         "phone": "手機號碼 Phone",
-        "phonePh": "09XX-XXX-XXX",
+        "phonePh": "例如：+886 9XX... (請加註國碼)",
         "email": "電子信箱 Email",
         "emailPh": "Email (接收訂單通知)",
         "infoHint": "預設為您的會員資料，您可直接修改為「實際用車人」的聯絡方式。",
@@ -469,7 +485,6 @@ const resources = {
         "acc4q2": "內裝與設備使用 Interior & Equipment Notice：",
         "acc4a2": "租用期間請妥善使用車輛及所有設備（含車內裝、座椅、寢具、露營設備、車邊帳等）。歸還時請保持整潔。若車輛或設備髒污、損壞超出正常範圍，將酌收特別清潔或維修費（NT$500–1,500，押金可直接扣除，差額需補足）。"
       },
-      // 🌟 新增：登入頁
       "login": {
         "imgTitle": "出發，沒有盡頭的公路旅行",
         "imgSub": "登入您的帳號，查看即將到來的完美旅程。",
@@ -482,7 +497,6 @@ const resources = {
         "noAccount": "還沒有帳號嗎？",
         "registerLink": "立即註冊"
       },
-      // 🌟 新增：註冊頁
       "register": {
         "imgTitle": "加入車泊，擁抱大自然",
         "imgSub": "只需一分鐘註冊，開啟您的質感露營體驗。",
@@ -490,14 +504,13 @@ const resources = {
         "subtitle": "請填寫以下資訊，成為 CampingTour 的會員。",
         "namePh": "真實姓名 Full Name",
         "emailPh": "信箱 Email",
-        "phonePh": "聯絡電話 Phone Number",
+        "phonePh": "例如：+886 9XX... (請加註國碼)",
         "passPh": "設定密碼 Password",
         "btn": "立即註冊 Register",
         "btnLoading": "處理中...",
         "hasAccount": "已經有帳號了？",
         "loginLink": "返回登入"
       },
-      // 🌟 新增：會員中心
       "dashboard": {
         "title": "會員中心 Member Center",
         "welcome": "歡迎回來",
@@ -524,7 +537,9 @@ const resources = {
         "name": "姓名 Full Name",
         "phone": "聯絡電話 Phone Number",
         "btnSave": "儲存變更 Save Changes",
-        "btnSaving": "儲存中 Saving..."
+        "btnSaving": "儲存中 Saving...",
+        "btnReview": "撰寫評價",
+        "btnEditReview": "修改評價"
       },
       "checkout": {
         "title": "訂單確認與付款",
@@ -593,7 +608,21 @@ const resources = {
         "phone": "客服專線",
         "email": "客服信箱",
         "pickup": "取車地址"
-      }
+      },
+      "feedback": {
+        "title": "分享您的車泊體驗",
+        "subtitle": "這趟旅程還順利嗎？告訴我們您的真實感受！",
+        "orderId": "訂單編號",
+        "rating": "整體評分",
+        "comment": "想說的話 (選填)",
+        "commentPh": "最喜歡這台車的哪個部分？去了哪些秘境？歡迎與我們分享！",
+        "photo": "上傳旅程美照 (選填)",
+        "photoHint": "與我們分享您最棒的 Vanlife 時刻！（檔案上限 5MB）",
+        "btnSubmit": "送出評價",
+        "btnSubmitting": "上傳中...",
+        "success": "感謝您！您的寶貴回饋已成功送出。",
+        "error": "送出失敗，請稍後再試一次。"
+      },
     }
   }
 };
