@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, MapPin, Car, Zap, ChevronDown, Star, Edit3, ArrowUpRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import axiosClient from '../api/axiosClient'; // Import your API client
 
-// 🌟 匯入 Swiper 核心組件與樣式
+// Import Swiper React components and modules
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
@@ -13,6 +14,9 @@ export default function HomePage() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isZh = i18n.language.startsWith('zh');
+
+  // State to hold real reviews fetched from the database
+  const [reviews, setReviews] = useState([]);
 
   const IMAGES = {
     hero: "/images/vibe-drive.jpg", 
@@ -25,11 +29,12 @@ export default function HomePage() {
       alert(isZh ? '請先登入會員，即可撰寫評價喔！' : 'Please login to share your experience.');
       navigate('/login');
     } else {
-      navigate('/dashboard'); // 導向會員中心讓他們去 Reviews tab 寫
+      // Redirect to dashboard so the user can write a review in the Reviews tab
+      navigate('/dashboard'); 
     }
   };
 
-  // 🌟 擴充的模擬評價資料 (共 5 筆，讓輪播有感)
+  // Expanded mock reviews (Fallback data if backend is empty or offline)
   const mockReviews = [
     {
       id: 1,
@@ -56,7 +61,7 @@ export default function HomePage() {
       name: "Liad",
       country: "🇮🇱 Israel",
       avatar: "L",
-      image: "/images/vibe-drive.jpg" // 模擬有上傳照片的評價
+      image: "/images/vibe-drive.jpg" 
     },
     {
       id: 4,
@@ -77,6 +82,38 @@ export default function HomePage() {
       image: null
     }
   ];
+
+  // Fetch real reviews when the component mounts
+  useEffect(() => {
+    axiosClient.get('/reviews')
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          // Format backend data to match the Swiper component's expected structure
+          const formattedReviews = data.map(r => ({
+            id: r.id,
+            stars: r.rating,
+            text: r.comment,
+            name: r.user_name,
+            country: r.country === 'OTHER' ? '🌍' : r.country, // Simple country display
+            avatar: r.user_avatar,
+            // Attach backend URL prefix if an image exists
+            image: r.photo_url ? `https://camping-tour-api.onrender.com${r.photo_url}` : null 
+          }));
+          
+          // Only take the 5 most recent reviews for the homepage slider
+          setReviews(formattedReviews.slice(0, 5));
+        } else {
+          // Fallback to mock data if the database has no reviews yet
+          setReviews(mockReviews);
+        }
+      })
+      .catch(err => {
+        console.error("Fetch reviews failed:", err);
+        // Fallback to mock data if the API call fails
+        setReviews(mockReviews); 
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -167,13 +204,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 🌟 旅客評價輪播區塊 (Reviews Section) */}
+      {/* Traveler Reviews Slider Section */}
       <section className="py-24 bg-stone-900 text-white overflow-hidden relative">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-600 to-orange-400"></div>
         
         <div className="container mx-auto px-6 relative z-10">
           
-          {/* 標題與按鈕區塊 */}
+          {/* Header and buttons */}
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
             <div className="text-center md:text-left">
               <h2 className="text-4xl font-serif font-bold mb-3">{t('homeReviewsTitle', 'Traveler Stories')}</h2>
@@ -181,7 +218,7 @@ export default function HomePage() {
             </div>
             
             <div className="flex flex-wrap gap-4 justify-center md:justify-end">
-              {/* 查看全部按鈕 */}
+              {/* View all button */}
               <button 
                 onClick={() => navigate('/reviews')} 
                 className="text-stone-300 hover:text-orange-500 px-4 py-3.5 font-bold transition-colors flex items-center gap-1"
@@ -189,34 +226,35 @@ export default function HomePage() {
                 {t('homeViewAll', 'View All Reviews')} <ArrowUpRight size={18} />
               </button>
               
-              {/* 撰寫評價按鈕 */}
+              {/* Write review button */}
               <button 
                 onClick={handleWriteReview} 
                 className="bg-stone-800 hover:bg-orange-600 border border-stone-700 hover:border-orange-500 text-white px-6 py-3.5 rounded-full font-bold transition-all duration-300 flex items-center gap-2 shadow-lg hover:-translate-y-1"
               >
-                <Edit3 size={18} /> {t('feedback.title', '分享您的車泊體驗')}
+                <Edit3 size={18} /> {t('feedback.title', 'Share Your Experience')}
               </button>
             </div>
           </div>
 
-          {/* 🌟 Swiper 輪播主體 */}
+          {/* Swiper Main Component */}
           <Swiper
             modules={[Pagination, Autoplay]}
             spaceBetween={32}
             slidesPerView={1}
             breakpoints={{
-              768: { slidesPerView: 2 }, // 平板顯示 2 則
-              1024: { slidesPerView: 3 }, // 電腦顯示 3 則
+              768: { slidesPerView: 2 }, // Display 2 items on tablets
+              1024: { slidesPerView: 3 }, // Display 3 items on desktop
             }}
             pagination={{ clickable: true, dynamicBullets: true }}
             autoplay={{ delay: 5000, disableOnInteraction: false }}
-            className="pb-16" // 留空間給底部的 pagination 點點
+            className="pb-16" // Leave space for bottom pagination bullets
           >
-            {mockReviews.map((review) => (
+            {/* Map over the fetched reviews state */}
+            {reviews.map((review) => (
               <SwiperSlide key={review.id} className="h-auto">
                 <div className="bg-stone-800 p-8 rounded-3xl border border-stone-700 h-full flex flex-col hover:-translate-y-2 transition-transform duration-300">
                   
-                  {/* 可選：照片預覽 */}
+                  {/* Optional: Photo Preview */}
                   {review.image && (
                     <div className="w-full h-40 bg-stone-700 rounded-2xl mb-6 overflow-hidden shrink-0">
                       <img src={review.image} alt="User trip" className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity" />
