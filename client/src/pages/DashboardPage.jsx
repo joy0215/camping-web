@@ -111,8 +111,15 @@ export default function DashboardPage() {
       formData.append('comment', comment);
       if (photo) formData.append('photo', photo);
 
-      // 模擬 API 延遲
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // 補上使用者的基本資料
+      formData.append('userName', user.nickname || user.name);
+      formData.append('userAvatar', user.name?.charAt(0).toUpperCase() || 'U');
+      // 如果有其他資料也可以在這裡 append
+
+      // 🚀 呼叫我們剛剛寫好的後端 API
+      await axiosClient.post('/feedback', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
 
       setReviewSuccess(true);
       
