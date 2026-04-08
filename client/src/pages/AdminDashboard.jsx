@@ -11,9 +11,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
-
-    // ✅ 不在前端比對 email，改為信任後端登入時給的 isAdmin 值
-    if (!user || !user.isAdmin) {
+    if (!user || user.email !== 'cheyang0326@gmail.com') {
       alert('⚠️ 權限不足，即將返回首頁');
       navigate('/');
       return;
@@ -136,6 +134,7 @@ export default function AdminDashboard() {
 
                   <div className="md:col-span-3 flex flex-col gap-3">
                     
+                    {/* ✅ 全新金流狀態判定 */}
                     {order.merchant_order_no ? (
                       <div className="bg-blue-50 text-blue-700 font-bold py-2 px-3 rounded-xl flex flex-col items-center justify-center gap-1 text-sm border border-blue-200 text-center">
                         <div className="flex items-center gap-1"><CreditCard size={16}/> 藍新金流已立帳</div>
