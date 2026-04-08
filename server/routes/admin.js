@@ -3,13 +3,20 @@ const router = express.Router();
 const db = require('../config/db');
 const authMiddleware = require('../middleware/auth');
 
-const ADMIN_EMAIL = 'cheyang0326@gmail.com';
+// 🌟 Use an array to store multiple admin emails
+const ADMIN_EMAILS = [
+  'cheyang0326@gmail.com',
+  'jchenghe06@gmail.com'
+];
 
+// Middleware to verify if the logged-in user is an admin
 const checkAdmin = async (req, res, next) => {
   try {
     const userResult = await db.query('SELECT email FROM users WHERE id = $1', [req.user.id]);
-    if (userResult.rows.length === 0 || userResult.rows[0].email !== ADMIN_EMAIL) {
-      return res.status(403).json({ error: '權限不足，您不是管理員！' });
+    
+    // 🌟 Check if the user's email exists in the ADMIN_EMAILS array
+    if (userResult.rows.length === 0 || !ADMIN_EMAILS.includes(userResult.rows[0].email)) {
+      return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
     }
     next();
   } catch (err) {
@@ -18,11 +25,12 @@ const checkAdmin = async (req, res, next) => {
 };
 
 // ==========================================
-// 1. 取得所有客人的訂單 (優先抓取自訂的聯絡人資訊，若無則抓會員資訊)
+// 1. Get all customer orders 
+// (Prioritize custom contact info, fallback to user info)
 // ==========================================
 router.get('/orders', authMiddleware, checkAdmin, async (req, res) => {
   try {
-    // 🆕 使用 COALESCE：如果 contact_name 有值就用它，沒有就退回用會員的 u.name
+    // 🆕 Use COALESCE: If contact_name has a value, use it; otherwise, fallback to u.name
     const result = await db.query(`
       SELECT 
         i.*, 
@@ -40,6 +48,9 @@ router.get('/orders', authMiddleware, checkAdmin, async (req, res) => {
   }
 });
 
+// ==========================================
+// 2. Update order status
+// ==========================================
 router.put('/orders/:id/status', authMiddleware, checkAdmin, async (req, res) => {
   const { status } = req.body; 
   const orderId = req.params.id;
@@ -51,7 +62,7 @@ router.put('/orders/:id/status', authMiddleware, checkAdmin, async (req, res) =>
     );
 
     if (updateResult.rows.length === 0) {
-      return res.status(404).json({ error: '找不到該訂單' });
+      return res.status(404).json({ error: 'Order not found' });
     }
 
     res.json({ success: true, order: updateResult.rows[0] });
