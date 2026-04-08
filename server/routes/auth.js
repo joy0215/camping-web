@@ -6,6 +6,12 @@ const jwt = require('jsonwebtoken');
 const db = require('../config/db'); 
 const authMiddleware = require('../middleware/auth'); 
 
+// ✅ Admin 名單統一在後端管理，前端不需要知道
+const ADMIN_EMAILS = [
+  'cheyang0326@gmail.com',
+  'jchenghe06@gmail.com'
+];
+
 // @route   POST /api/auth/register
 // @desc    註冊新會員
 // @access  Public
@@ -65,7 +71,8 @@ router.post('/login', async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
-        address: user.address 
+        address: user.address,
+        isAdmin: ADMIN_EMAILS.includes(user.email) // ✅ 由後端判斷，前端只讀這個值
       }
     });
 
@@ -76,7 +83,7 @@ router.post('/login', async (req, res) => {
 });
 
 // ==========================================
-// 🆕 功能：更新會員個人資料 (已修正路徑與前端一致)
+// 🆕 功能：更新會員個人資料
 // @route   PUT /api/auth/profile
 // @access  Private (需要登入)
 // ==========================================
@@ -98,7 +105,15 @@ router.put('/profile', authMiddleware, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json({ success: true, user: result.rows[0] });
+    // ✅ 更新個人資料時，也一併回傳 isAdmin，確保 localStorage 資料一致
+    const updatedUser = result.rows[0];
+    res.json({
+      success: true,
+      user: {
+        ...updatedUser,
+        isAdmin: ADMIN_EMAILS.includes(updatedUser.email)
+      }
+    });
 
   } catch (err) {
     console.error('Update Profile Error:', err);

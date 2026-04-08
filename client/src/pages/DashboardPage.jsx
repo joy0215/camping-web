@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LogOut, User, ShoppingBag, MapPin, Calendar as CalendarIcon, CheckCircle, Clock, Edit3, ChevronDown, ChevronUp, Star, Camera, Globe, UploadCloud, X, ArrowLeft } from 'lucide-react';
+import { LogOut, User, ShoppingBag, MapPin, Calendar as CalendarIcon, CheckCircle, Clock, Edit3, ChevronDown, ChevronUp, Star, Camera, Globe, UploadCloud, X, ArrowLeft, ShieldCheck } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 import { countriesData } from '../data/countries';
 
@@ -43,7 +43,7 @@ export default function DashboardPage() {
       setProfileForm({
         name: parsedUser.name || '',
         phone: parsedUser.phone || '',
-        address: parsedUser.address || '' // 我們用 address 欄位來存國家
+        address: parsedUser.address || ''
       });
       fetchMyOrders();
     }
@@ -128,7 +128,7 @@ export default function DashboardPage() {
       formData.append('comment', comment);
       formData.append('userName', user.name || 'Guest');
       formData.append('userAvatar', user.name?.charAt(0).toUpperCase() || 'U');
-      formData.append('country', profileForm.address || 'TW'); // 取代碼
+      formData.append('country', profileForm.address || 'TW');
       if (photo) formData.append('photo', photo);
 
       await axiosClient.post('/feedback', formData, {
@@ -174,6 +174,16 @@ export default function DashboardPage() {
               <button onClick={() => setActiveTab('profile')} className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${activeTab === 'profile' ? 'bg-orange-600 text-white shadow-lg' : 'bg-white text-stone-600 hover:bg-stone-50'}`}>
                 <User size={20} /> {t('dashboard.tabProfile', 'Profile')}
               </button>
+
+              {/* ✅ 只有後端認證為 admin 的使用者才看得到這個按鈕 */}
+              {user.isAdmin && (
+                <button
+                  onClick={() => navigate('/admin')}
+                  className="w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all bg-red-600 text-white hover:bg-red-700 shadow-md mt-2"
+                >
+                  <ShieldCheck size={20} /> 老闆後台
+                </button>
+              )}
             </nav>
 
             <button onClick={() => { localStorage.removeItem('user'); localStorage.removeItem('token'); navigate('/login'); }} className="w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold text-red-500 hover:bg-red-50 transition-all mt-10">

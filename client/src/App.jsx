@@ -23,7 +23,7 @@ import ReviewsPage from './pages/ReviewsPage';
 const CONTACT_INFO = {
   name: "何錦程 Jace He",
   phone: "0963-823-606",
-  email: "jchenghe@gmail.com",
+  email: "jchenghe06@gmail.com",
   fb: "車泊輕旅",
   ig: "freeyoung_campervan",
   igLink: "https://www.instagram.com/freeyoung_campervan?igsh=MW43eXRvajExeXFoeg==",
