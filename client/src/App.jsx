@@ -148,7 +148,8 @@ const Navbar = ({ isScrolled }) => {
                 {i18n.language.startsWith('zh') ? '🇺🇸 EN' : '🇹🇼 中'}
               </button>
 
-              {user.email === 'cheyang0326@gmail.com' && (
+              {/* 🌟 已經將 user.email 判斷修改為 user.isAdmin */}
+              {user.isAdmin && (
                 <button 
                   onClick={() => handleNavClick('/admin')}
                   className="flex items-center gap-1 bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-700 transition-colors shadow-sm"
@@ -227,7 +228,8 @@ const Navbar = ({ isScrolled }) => {
                     <>
                         <div className="text-orange-600 font-bold mb-2 text-lg">Hi, {user.name}</div>
                         
-                        {user.email === 'cheyang0326@gmail.com' && (
+                        {/* 🌟 已經將 user.email 判斷修改為 user.isAdmin */}
+                        {user.isAdmin && (
                           <button onClick={() => handleNavClick('/admin')} className="block w-full text-left py-2 font-bold text-red-600 hover:text-red-700">
                             👑 {t('nav.admin')}
                           </button>
