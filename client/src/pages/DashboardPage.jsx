@@ -174,12 +174,6 @@ export default function DashboardPage() {
               <button onClick={() => setActiveTab('profile')} className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${activeTab === 'profile' ? 'bg-orange-600 text-white shadow-lg' : 'bg-white text-stone-600 hover:bg-stone-50'}`}>
                 <User size={20} /> {t('dashboard.tabProfile', 'Profile')}
               </button>
-                
-              {user?.isAdmin && (
-                <button onClick={() => navigate('/admin')} className="w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all bg-red-600 text-white hover:bg-red-700 shadow-lg mt-4 border-2 border-red-700">
-                  <ShieldCheck size={20} /> 🔴 Admin Dashboard
-                </button>
-              )}
             </nav>
 
             <button onClick={() => { localStorage.removeItem('user'); localStorage.removeItem('token'); navigate('/login'); }} className="w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold text-red-500 hover:bg-red-50 transition-all mt-10">
