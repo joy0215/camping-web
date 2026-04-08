@@ -11,7 +11,9 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
-    if (!user || user.email !== 'cheyang0326@gmail.com') {
+
+    // ✅ 檢查後端回傳的 isAdmin 標記（而不是檢查 email）
+    if (!user || !user.isAdmin) {
       alert('⚠️ 權限不足，即將返回首頁');
       navigate('/');
       return;

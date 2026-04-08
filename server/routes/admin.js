@@ -3,16 +3,15 @@ const router = express.Router();
 const db = require('../config/db');
 const authMiddleware = require('../middleware/auth');
 
-const ADMIN_EMAIL = 'cheyang0326@gmail.com';
-
 const checkAdmin = async (req, res, next) => {
   try {
-    const userResult = await db.query('SELECT email FROM users WHERE id = $1', [req.user.id]);
-    if (userResult.rows.length === 0 || userResult.rows[0].email !== ADMIN_EMAIL) {
+    const userResult = await db.query('SELECT is_admin FROM users WHERE id = $1', [req.user.id]);
+    if (userResult.rows.length === 0 || !userResult.rows[0].is_admin) {
       return res.status(403).json({ error: '權限不足，您不是管理員！' });
     }
     next();
   } catch (err) {
+    console.error('Check Admin Error:', err);
     res.status(500).json({ error: 'Server Error' });
   }
 };

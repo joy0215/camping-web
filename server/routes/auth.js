@@ -37,6 +37,7 @@ router.post('/register', async (req, res) => {
 // @route   POST /api/auth/login
 // @desc    會員登入 (取得 Token)
 // @access  Public
+
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -65,7 +66,8 @@ router.post('/login', async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
-        address: user.address 
+        address: user.address,
+        isAdmin: user.is_admin  
       }
     });
 
@@ -74,6 +76,7 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 // ==========================================
 // 🆕 功能：更新會員個人資料 (已修正路徑與前端一致)
