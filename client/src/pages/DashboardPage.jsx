@@ -29,331 +29,320 @@ export default function DashboardPage() {
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState('');
   const [photo, setPhoto] = useState(null);
-  const [previewReviewPhoto, setPreviewReviewPhoto] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
-  const [reviewSuccess, setReviewSuccess] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (!storedUser) {
       navigate('/login');
-    } else {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-      setProfileForm({
-        name: parsedUser.name || '',
-        phone: parsedUser.phone || '',
-        address: parsedUser.address || '' // 我們用 address 欄位來存國家
-      });
-      fetchMyOrders();
+      return;
     }
+    const userData = JSON.parse(storedUser);
+    setUser(userData);
+    setProfileForm({
+      name: userData.name || '',
+      phone: userData.phone || '',
+      address: userData.address || ''
+    });
+    fetchOrders();
   }, [navigate]);
 
-  // 🔌 呼叫 API 獲取真實訂單
-  const fetchMyOrders = async () => {
+  const fetchOrders = async () => {
     try {
-      const { data } = await axiosClient.get('/inquiry/my-orders');
-      setOrders(data);
+      const response = await axiosClient.get('/inquiry/my-orders');
+      setOrders(response.data);
     } catch (error) {
-      console.error('Failed to fetch orders:', error);
+      console.error('Fetch orders error:', error);
     } finally {
       setIsLoadingOrders(false);
     }
   };
 
-  // 🔌 呼叫 API 儲存個人資料
-  const handleProfileSave = async (e) => {
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/');
+  };
+
+  const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setIsSavingProfile(true);
     try {
-      const { data } = await axiosClient.put('/auth/profile', profileForm);
-      if (data.success) {
-        const updatedUser = { ...user, ...data.user };
+      const response = await axiosClient.put('/auth/profile', profileForm);
+      if (response.data.success) {
+        const updatedUser = { ...user, ...response.data.user };
         setUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));
-        alert(isZh ? '個人資料儲存成功！' : 'Profile updated successfully!');
+        alert('✅ Profile updated successfully!');
       }
     } catch (error) {
-      console.error('Failed to save profile:', error);
-      alert(isZh ? '儲存失敗' : 'Failed to update profile.');
+      console.error('Update profile error:', error);
+      alert('❌ Failed to update profile');
     } finally {
       setIsSavingProfile(false);
     }
   };
 
-  const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setPreviewAvatar(reader.result);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const toggleOrder = (id) => setExpandedOrder(expandedOrder === id ? null : id);
-
-  const handleReviewClick = (orderId) => {
-    setReviewOrderId(orderId);
-    setRating(5);
-    setComment('');
-    setPhoto(null);
-    setPreviewReviewPhoto(null);
-    setReviewSuccess(false);
-    setActiveTab('write-review');
-  };
-
-  const handleReviewPhotoChange = (e) => {
+  const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setPhoto(file);
       const reader = new FileReader();
-      reader.onloadend = () => setPreviewReviewPhoto(reader.result);
+      reader.onloadend = () => setPhotoPreview(reader.result);
       reader.readAsDataURL(file);
     }
-  };
-
-  const clearReviewPhoto = () => {
-    setPhoto(null);
-    setPreviewReviewPhoto(null);
   };
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
     setIsSubmittingReview(true);
+    
+    const formData = new FormData();
+    formData.append('orderId', reviewOrderId);
+    formData.append('rating', rating);
+    formData.append('comment', comment);
+    formData.append('userName', user.name);
+    formData.append('userAvatar', user.name.charAt(0).toUpperCase());
+    formData.append('country', 'TW'); 
+    if (photo) formData.append('photo', photo);
 
     try {
-      const formData = new FormData();
-      formData.append('orderId', reviewOrderId);
-      formData.append('rating', rating);
-      formData.append('comment', comment);
-      formData.append('userName', user.name || 'Guest');
-      formData.append('userAvatar', user.name?.charAt(0).toUpperCase() || 'U');
-      formData.append('country', profileForm.address || 'TW'); // 取代碼
-      if (photo) formData.append('photo', photo);
-
-      await axiosClient.post('/feedback', formData, {
+      const response = await axiosClient.post('/feedback', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-
-      setReviewSuccess(true);
-      setTimeout(() => setActiveTab('reviews'), 2000);
+      if (response.data.success) {
+        alert('🎉 Thank you for your review!');
+        setReviewOrderId(null);
+        setRating(5);
+        setComment('');
+        setPhoto(null);
+        setPhotoPreview(null);
+      }
     } catch (error) {
-      console.error('Submission failed:', error);
-      alert(isZh ? '送出失敗，請稍後再試' : 'Submission failed.');
+      console.error('Review error:', error);
+      alert('❌ Failed to submit review');
     } finally {
       setIsSubmittingReview(false);
     }
   };
 
+  // 🌟 核心修正：新增這個輔助函數，用來解析並翻譯加購品物件
+  const formatAddons = (addonsData) => {
+    if (!addonsData) return t('dashboard.noAddons');
+    
+    let parsed = addonsData;
+    // 預防萬一它是字串，先嘗試解析它
+    if (typeof addonsData === 'string') {
+      try { 
+        parsed = JSON.parse(addonsData); 
+      } catch (e) { 
+        return addonsData; 
+      }
+    }
+
+    // 抓出值為 true 的項目，並套用 i18n 翻譯
+    if (typeof parsed === 'object' && parsed !== null) {
+      const selected = [];
+      if (parsed.mattress) selected.push(t('dashboard.addonMattress'));
+      if (parsed.blanket) selected.push(t('dashboard.addonBlanket'));
+      if (parsed.cookware) selected.push(t('dashboard.addonCookware'));
+      
+      return selected.length > 0 ? selected.join('、') : t('dashboard.noAddons');
+    }
+    
+    return String(parsed);
+  };
+
   if (!user) return null;
 
   return (
-    <div className="pt-28 pb-20 bg-stone-50 min-h-screen">
+    <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
       <div className="container mx-auto px-6 max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
-          {/* 左側 Sidebar */}
-          <div className="lg:col-span-3 space-y-2">
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100 text-center mb-6">
-              <div className="relative w-24 h-24 mx-auto mb-4">
-                <div className="w-full h-full bg-orange-500 rounded-full flex items-center justify-center text-3xl font-bold text-white overflow-hidden shadow-inner">
-                  {previewAvatar ? <img src={previewAvatar} alt="Avatar" className="w-full h-full object-cover" /> : user.name?.charAt(0).toUpperCase()}
-                </div>
-              </div>
-              <h2 className="font-bold text-xl text-stone-900">{user.name}</h2>
-              <p className="text-stone-400 text-sm">{user.email}</p>
+        
+        {/* Header Section */}
+        <div className="bg-white p-8 rounded-[2rem] shadow-sm mb-8 flex flex-col md:flex-row justify-between items-center gap-6 border border-stone-100">
+          <div className="flex items-center gap-6">
+            <div className="w-20 h-20 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-3xl font-bold border-4 border-orange-50 shadow-inner">
+              {user.name.charAt(0).toUpperCase()}
             </div>
+            <div>
+              <h1 className="text-2xl font-bold text-stone-900 leading-tight">{t('dashboard.welcome')}, {user.name}</h1>
+              <p className="text-stone-400 text-sm flex items-center gap-1 mt-1"><Mail size={14}/> {user.email}</p>
+            </div>
+          </div>
+          <button onClick={handleLogout} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-stone-100 text-stone-600 hover:bg-red-50 hover:text-red-600 transition-all font-bold text-sm">
+            <LogOut size={18} /> {t('dashboard.btnLogout')}
+          </button>
+        </div>
 
-            <nav className="space-y-2">
-              <button onClick={() => setActiveTab('orders')} className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${activeTab === 'orders' ? 'bg-orange-600 text-white shadow-lg' : 'bg-white text-stone-600 hover:bg-stone-50'}`}>
-                <ShoppingBag size={20} /> {t('dashboard.tabOrders', 'My Orders')}
-              </button>
-              <button onClick={() => setActiveTab('reviews')} className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${(activeTab === 'reviews' || activeTab === 'write-review') ? 'bg-orange-600 text-white shadow-lg' : 'bg-white text-stone-600 hover:bg-stone-50'}`}>
-                <Star size={20} /> {t('dashboard.tabReviews', 'My Reviews')}
-              </button>
-              <button onClick={() => setActiveTab('profile')} className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${activeTab === 'profile' ? 'bg-orange-600 text-white shadow-lg' : 'bg-white text-stone-600 hover:bg-stone-50'}`}>
-                <User size={20} /> {t('dashboard.tabProfile', 'Profile')}
-              </button>
-            </nav>
-
-            <button onClick={() => { localStorage.removeItem('user'); localStorage.removeItem('token'); navigate('/login'); }} className="w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold text-red-500 hover:bg-red-50 transition-all mt-10">
-              <LogOut size={20} /> {t('dashboard.btnLogout', 'Log Out')}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Sidebar Tabs */}
+          <div className="lg:col-span-1 space-y-2">
+            <button onClick={() => setActiveTab('orders')} className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${activeTab === 'orders' ? 'bg-stone-900 text-white shadow-lg' : 'bg-white text-stone-500 hover:bg-stone-100'}`}>
+              <ShoppingBag size={20} /> {t('dashboard.tabOrders')}
+            </button>
+            <button onClick={() => setActiveTab('profile')} className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${activeTab === 'profile' ? 'bg-stone-900 text-white shadow-lg' : 'bg-white text-stone-500 hover:bg-stone-100'}`}>
+              <User size={20} /> {t('dashboard.tabProfile')}
             </button>
           </div>
 
-          {/* 右側主內容區 */}
-          <div className="lg:col-span-9">
-            
-            {/* 1. 我的訂單 (Real Data) */}
-            {activeTab === 'orders' && (
-              <div className="space-y-6 animate-fade-in">
-                <h3 className="text-2xl font-bold mb-6 text-stone-900">{t('dashboard.tabOrders', 'My Orders')}</h3>
-                
+          {/* Main Content Area */}
+          <div className="lg:col-span-3">
+            {activeTab === 'orders' ? (
+              <div className="space-y-4">
                 {isLoadingOrders ? (
-                   <div className="text-center py-10 text-stone-400">Loading orders...</div>
+                  <div className="bg-white p-12 rounded-3xl text-center text-stone-400 border border-stone-100">Loading orders...</div>
                 ) : orders.length === 0 ? (
-                   <div className="text-center py-12 text-stone-400 border-2 border-dashed border-stone-100 rounded-2xl bg-white">
-                      <ShoppingBag size={48} className="mx-auto mb-4 opacity-20" />
-                      <p className="font-bold">No orders found.</p>
-                      <button onClick={() => navigate('/booking')} className="mt-4 text-orange-600 font-bold hover:underline">Book a campervan now</button>
-                   </div>
+                  <div className="bg-white p-12 rounded-3xl text-center text-stone-400 border border-stone-100">{t('dashboard.noOrders')}</div>
                 ) : (
                   orders.map(order => (
-                    <div key={order.id} className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                      <div className="p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div>
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className="font-bold text-stone-900 text-lg">#{order.merchant_order_no || `CT-${order.id}`}</span>
-                            {order.status === 'confirmed' ? (
-                              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><CheckCircle size={14}/> Paid</span>
-                            ) : (
-                              <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><Clock size={14}/> {order.status}</span>
-                            )}
+                    <div key={order.id} className="bg-white rounded-3xl shadow-sm border border-stone-100 overflow-hidden hover:shadow-md transition-shadow">
+                      <div className="p-6 md:p-8">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                          <div>
+                            <span className="text-[10px] uppercase tracking-widest text-stone-400 font-bold block mb-1">Order ID: #{order.id}</span>
+                            <h3 className="text-xl font-bold text-stone-900">Nomad A180</h3>
                           </div>
-                          <div className="text-sm text-stone-500 flex items-center gap-2">
-                            <CalendarIcon size={16}/> {new Date(order.start_date).toLocaleDateString()} ~ {new Date(order.end_date).toLocaleDateString()}
+                          <div className={`px-4 py-1.5 rounded-full text-xs font-bold ${
+                            order.status === 'confirmed' ? 'bg-green-100 text-green-700' : 
+                            order.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'
+                          }`}>
+                            {order.status === 'confirmed' ? t('dashboard.paid') : order.status === 'cancelled' ? t('dashboard.cancelled') : t('dashboard.pending')}
                           </div>
                         </div>
-                        <div className="text-right w-full md:w-auto">
-                          <p className="text-stone-400 text-xs font-bold uppercase mb-1">Total</p>
-                          <p className="text-2xl font-bold text-orange-600">NT$ {Number(order.total_price).toLocaleString()}</p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                          <div className="flex items-center gap-3 text-stone-600 bg-stone-50 p-4 rounded-2xl">
+                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-orange-500 shadow-sm"><CalendarIcon size={20}/></div>
+                            <div>
+                              <p className="text-[10px] uppercase font-bold text-stone-400">{t('dashboard.startDate')}</p>
+                              <p className="font-bold text-stone-800">{new Date(order.start_date).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 text-stone-600 bg-stone-50 p-4 rounded-2xl">
+                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-orange-500 shadow-sm"><CalendarIcon size={20}/></div>
+                            <div>
+                              <p className="text-[10px] uppercase font-bold text-stone-400">{t('dashboard.endDate')}</p>
+                              <p className="font-bold text-stone-800">{new Date(order.end_date).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-stone-100">
+                          <div className="flex items-center gap-2">
+                             <button onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)} className="flex items-center gap-1 text-sm font-bold text-stone-400 hover:text-stone-900 transition-colors">
+                               {expandedOrder === order.id ? <><ChevronUp size={16}/> {t('dashboard.btnHide')}</> : <><ChevronDown size={16}/> {t('dashboard.btnShow')}</>}
+                             </button>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            {order.status === 'pending' && (
+                               <button onClick={() => navigate(`/checkout/${order.id}`, { state: { order, user, amount: order.total_price } })} className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all">
+                                 {t('dashboard.btnPay')}
+                               </button>
+                            )}
+                            {order.status === 'confirmed' && (
+                               <button onClick={() => setReviewOrderId(order.id)} className="flex items-center gap-1 bg-stone-900 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all">
+                                 <Edit3 size={16}/> {t('dashboard.btnReview')}
+                               </button>
+                            )}
+                          </div>
                         </div>
                       </div>
 
-                      <div className="bg-stone-50 px-6 py-4 flex flex-wrap justify-between items-center gap-4 border-t border-stone-100">
-                        <button onClick={() => toggleOrder(order.id)} className="text-stone-600 font-bold text-sm flex items-center gap-1 hover:text-orange-600 transition-colors">
-                          {expandedOrder === order.id ? <><ChevronUp size={16}/> Hide</> : <><ChevronDown size={16}/> Details</>}
-                        </button>
-                        
-                        <div className="flex gap-3">
-                          {order.status === 'confirmed' && (
-                            <button 
-                              onClick={() => handleReviewClick(order.merchant_order_no || `CT-${order.id}`)}
-                              className="bg-orange-100 text-orange-700 hover:bg-orange-200 border border-orange-200 px-5 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors"
-                            >
-                              <Edit3 size={16} /> Write Review
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      
+                      {/* 🌟 核心修正：使用 formatAddons 解析加購品物件 */}
                       {expandedOrder === order.id && (
-                        <div className="p-6 border-t border-stone-200 bg-white text-sm text-stone-600">
-                          <p><strong>Contact:</strong> {order.contact_name} ({order.contact_phone})</p>
-                          <p><strong>Addons:</strong> {order.addons}</p>
+                        <div className="p-6 border-t border-stone-200 bg-white text-sm text-stone-600 leading-relaxed">
+                          <p className="mb-1">
+                            <strong className="text-stone-800">{t('dashboard.contactInfo')}: </strong> 
+                            {order.contact_name} ({order.contact_phone})
+                          </p>
+                          <p>
+                            <strong className="text-stone-800">{t('dashboard.addons')}: </strong> 
+                            {formatAddons(order.addons)}
+                          </p>
                         </div>
                       )}
                     </div>
                   ))
                 )}
-              </div>
-            )}
 
-            {/* 2. 我的評價總覽 & 早鳥通道 */}
-            {activeTab === 'reviews' && (
-              <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-sm animate-fade-in">
-                <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                  <h3 className="text-2xl font-bold">My Reviews</h3>
-                  <button 
-                    onClick={() => handleReviewClick('EARLY-BIRD')} 
-                    className="bg-stone-900 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md flex items-center gap-2"
-                  >
-                    <Edit3 size={16} /> Write Early Bird Review
-                  </button>
-                </div>
-                <div className="text-center py-12 text-stone-400 border-2 border-dashed border-stone-100 rounded-2xl bg-stone-50">
-                   <Star size={48} className="mx-auto mb-4 opacity-20" />
-                   <p className="mb-2 font-bold text-stone-500">Share your experience!</p>
-                </div>
-              </div>
-            )}
-
-            {/* 3. 評價填寫表單 */}
-            {activeTab === 'write-review' && (
-              <div className="bg-white p-8 md:p-10 rounded-3xl border border-stone-200 shadow-sm animate-fade-in relative">
-                {reviewSuccess ? (
-                  <div className="text-center py-16">
-                    <CheckCircle size={80} className="text-green-500 mx-auto mb-6 animate-bounce" />
-                    <h2 className="text-3xl font-bold text-stone-900 mb-2">Thank you!</h2>
-                  </div>
-                ) : (
-                  <>
-                    <button onClick={() => setActiveTab('reviews')} className="flex items-center gap-2 text-stone-500 hover:text-orange-600 font-bold text-sm mb-8 transition-colors">
-                      <ArrowLeft size={16} /> Back
-                    </button>
-                    <div className="text-center mb-8">
-                      <h2 className="text-3xl font-serif font-bold text-stone-900 mb-2">Share Your Experience</h2>
-                      <p className="text-stone-500 font-bold text-orange-600">Order: {reviewOrderId}</p>
-                    </div>
-                    <form onSubmit={handleReviewSubmit} className="space-y-6 max-w-xl mx-auto">
-                      <div className="text-center">
-                        <div className="flex justify-center gap-2">
-                          {[...Array(5)].map((_, i) => (
-                            <button type="button" key={i} className={`transition-all ${i + 1 <= (hover || rating) ? 'text-yellow-400 scale-110' : 'text-stone-300'}`} onClick={() => setRating(i + 1)} onMouseEnter={() => setHover(i + 1)} onMouseLeave={() => setHover(0)}>
-                              <Star size={40} fill={i + 1 <= (hover || rating) ? "currentColor" : "none"} />
-                            </button>
-                          ))}
-                        </div>
+                {/* 評價彈窗 (簡易版) */}
+                {reviewOrderId && (
+                  <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
+                    <div className="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl overflow-hidden p-8">
+                      <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-2xl font-bold text-stone-900">Share Your Experience</h2>
+                        <button onClick={() => setReviewOrderId(null)} className="p-2 hover:bg-stone-100 rounded-full"><X/></button>
                       </div>
-                      <textarea rows="4" value={comment} onChange={(e) => setComment(e.target.value)} placeholder="What did you love about the campervan?" className="w-full p-4 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-stone-50 resize-none"></textarea>
-                      
-                      <div>
-                        {!previewReviewPhoto ? (
-                          <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-stone-300 border-dashed rounded-2xl cursor-pointer bg-stone-50 hover:bg-orange-50 transition-colors">
-                            <UploadCloud size={40} className="text-orange-500 mb-3" />
-                            <p className="text-sm font-bold">Upload Photo (Max 5MB)</p>
-                            <input type="file" accept="image/*" onChange={handleReviewPhotoChange} className="hidden" />
-                          </label>
-                        ) : (
-                          <div className="relative w-full h-48 rounded-2xl overflow-hidden border">
-                            <img src={previewReviewPhoto} alt="Preview" className="w-full h-full object-cover" />
-                            <button type="button" onClick={clearReviewPhoto} className="absolute top-3 right-3 bg-white text-red-500 p-1.5 rounded-full shadow hover:bg-red-500 hover:text-white"><X size={20} /></button>
+                      <form onSubmit={handleReviewSubmit} className="space-y-6">
+                        <div>
+                          <label className="block text-sm font-bold text-stone-700 mb-2">Rating</label>
+                          <div className="flex gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button key={star} type="button" onClick={() => setRating(star)} onMouseEnter={() => setHover(star)} onMouseLeave={() => setHover(0)}>
+                                <Star size={32} fill={(hover || rating) >= star ? "#ea580c" : "none"} className={(hover || rating) >= star ? "text-orange-600" : "text-stone-300"} />
+                              </button>
+                            ))}
                           </div>
-                        )}
-                      </div>
-                      <button type="submit" disabled={isSubmittingReview} className={`w-full py-4 rounded-xl font-bold text-white shadow-lg transition-all ${isSubmittingReview ? 'bg-stone-400 cursor-not-allowed' : 'bg-stone-900 hover:bg-orange-600 hover:-translate-y-1'}`}>
-                        {isSubmittingReview ? 'Uploading...' : 'Submit Feedback'}
-                      </button>
-                    </form>
-                  </>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-stone-700 mb-2">Comment</label>
+                          <textarea value={comment} onChange={e => setComment(e.target.value)} className="w-full p-4 border border-stone-200 rounded-2xl outline-none focus:ring-2 focus:ring-orange-500 min-h-[120px]" placeholder="Tell us about your trip..." required />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-stone-700 mb-2">Photo</label>
+                          <div className="flex items-center gap-4">
+                            <label className="cursor-pointer flex items-center gap-2 bg-stone-100 px-4 py-2 rounded-xl text-stone-600 hover:bg-stone-200 font-bold transition-all text-sm">
+                              <Camera size={18}/> {photo ? 'Change Photo' : 'Upload Photo'}
+                              <input type="file" className="hidden" accept="image/*" onChange={handlePhotoChange} />
+                            </label>
+                            {photoPreview && <img src={photoPreview} alt="Preview" className="w-16 h-16 object-cover rounded-xl border-2 border-orange-100"/>}
+                          </div>
+                        </div>
+                        <button type="submit" disabled={isSubmittingReview} className={`w-full py-4 rounded-xl font-bold text-white transition-all shadow-lg ${isSubmittingReview ? 'bg-stone-400' : 'bg-stone-900 hover:bg-orange-600'}`}>
+                          {isSubmittingReview ? 'Uploading...' : 'Submit Review'}
+                        </button>
+                      </form>
+                    </div>
+                  </div>
                 )}
               </div>
-            )}
-
-            {/* 4. 個人資料設定 (Real API) */}
-            {activeTab === 'profile' && (
-              <div className="bg-white p-8 md:p-10 rounded-3xl border border-stone-200 shadow-sm animate-fade-in">
-                <h3 className="text-2xl font-bold mb-8">Profile Settings</h3>
-                <form onSubmit={handleProfileSave} className="space-y-8 max-w-2xl">
-                  
-                  <div className="flex flex-col md:flex-row items-center gap-6 pb-8 border-b border-stone-100">
-                    <div className="relative group">
-                      <div className="w-28 h-28 bg-stone-100 rounded-full overflow-hidden border-4 border-white shadow-md">
-                        {previewAvatar ? <img src={previewAvatar} alt="Preview" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-stone-300 text-4xl font-bold">{user.name?.charAt(0).toUpperCase()}</div>}
+            ) : (
+              <div className="bg-white p-8 md:p-12 rounded-[2rem] shadow-sm border border-stone-100">
+                <h2 className="text-2xl font-bold text-stone-900 mb-8 flex items-center gap-3">
+                   <User className="text-orange-600" /> {t('dashboard.profileTitle')}
+                </h2>
+                
+                <form onSubmit={handleUpdateProfile} className="space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-bold text-stone-700 mb-2">{t('dashboard.name')}</label>
+                        <input type="text" value={profileForm.name} onChange={e => setProfileForm({...profileForm, name: e.target.value})} className="w-full p-4 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-stone-50" required />
                       </div>
-                      <label className="absolute bottom-0 right-0 bg-stone-900 text-white p-2 rounded-full cursor-pointer shadow-lg hover:bg-orange-600 transition-colors">
-                        <Camera size={18} />
-                        <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
-                      </label>
+                      <div>
+                        <label className="block text-sm font-bold text-stone-700 mb-2">Address</label>
+                        <div className="relative">
+                          <input type="text" value={profileForm.address} onChange={e => setProfileForm({...profileForm, address: e.target.value})} className="w-full pl-12 pr-4 py-4 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-stone-50" />
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-stone-400">
+                            <MapPin size={18} />
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-bold text-stone-700 mb-2">Name</label>
-                      <input type="text" value={profileForm.name} onChange={e => setProfileForm({...profileForm, name: e.target.value})} className="w-full p-4 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-stone-50" required />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-stone-700 mb-2">Country</label>
-                      <div className="relative">
-                        <select value={profileForm.address} onChange={e => setProfileForm({...profileForm, address: e.target.value})} className="w-full p-4 pl-12 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-stone-50 appearance-none cursor-pointer">
-                          <option value="">Select Country</option>
-                          {countriesData.map(c => (
-                            <option key={c.code} value={c.code}>{c.flag} {isZh ? c.zh : c.en}</option>
-                          ))}
-                        </select>
-                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-stone-400">
-                          <Globe size={18} />
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-bold text-stone-700 mb-2">Country / Region</label>
+                        <div className="relative">
+                          <select className="w-full pl-12 pr-4 py-4 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-stone-50 appearance-none">
+                            <option value="TW">Taiwan 🇹🇼</option>
+                            {countriesData.map(c => <option key={c.code} value={c.code}>{isZh ? c.zh : c.en} {c.flag}</option>)}
+                          </select>
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-stone-400">
+                            <Globe size={18} />
+                          </div>
                         </div>
                       </div>
                     </div>
