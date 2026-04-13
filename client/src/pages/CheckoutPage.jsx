@@ -100,7 +100,7 @@ export default function CheckoutPage() {
         </p>
 
         {payData && (
-          <form ref={formRef} action="https://ccore.newebpay.com/MPG/mpg_gateway" method="POST" className="hidden">
+          <form ref={formRef} action="https://core.newebpay.com/MPG/mpg_gateway" method="POST" className="hidden">
             <input type="hidden" name="MerchantID" value={payData.MerchantID} />
             <input type="hidden" name="TradeInfo" value={payData.TradeInfo} />
             <input type="hidden" name="TradeSha" value={payData.TradeSha} />
