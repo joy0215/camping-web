@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LogOut, User, ShoppingBag, MapPin, Calendar as CalendarIcon, CheckCircle, Clock, Edit3, ChevronDown, ChevronUp, Star, Camera, Globe, UploadCloud, X, ArrowLeft } from 'lucide-react';
+// 🌟 已修正：補上 Mail 圖示的引用
+import { 
+  LogOut, User, ShoppingBag, MapPin, Calendar as CalendarIcon, 
+  CheckCircle, Clock, Edit3, ChevronDown, ChevronUp, Star, 
+  Camera, Globe, UploadCloud, X, ArrowLeft, Mail 
+} from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 import { countriesData } from '../data/countries';
 
@@ -127,12 +132,11 @@ export default function DashboardPage() {
     }
   };
 
-  // 🌟 核心修正：新增這個輔助函數，用來解析並翻譯加購品物件
+  // 🌟 輔助函數：解析並翻譯加購品物件
   const formatAddons = (addonsData) => {
     if (!addonsData) return t('dashboard.noAddons');
     
     let parsed = addonsData;
-    // 預防萬一它是字串，先嘗試解析它
     if (typeof addonsData === 'string') {
       try { 
         parsed = JSON.parse(addonsData); 
@@ -141,7 +145,6 @@ export default function DashboardPage() {
       }
     }
 
-    // 抓出值為 true 的項目，並套用 i18n 翻譯
     if (typeof parsed === 'object' && parsed !== null) {
       const selected = [];
       if (parsed.mattress) selected.push(t('dashboard.addonMattress'));
@@ -250,9 +253,8 @@ export default function DashboardPage() {
                         </div>
                       </div>
 
-                      {/* 🌟 核心修正：使用 formatAddons 解析加購品物件 */}
                       {expandedOrder === order.id && (
-                        <div className="p-6 border-t border-stone-200 bg-white text-sm text-stone-600 leading-relaxed">
+                        <div className="p-6 border-t border-stone-200 bg-white text-sm text-stone-600 leading-relaxed animate-fade-in">
                           <p className="mb-1">
                             <strong className="text-stone-800">{t('dashboard.contactInfo')}: </strong> 
                             {order.contact_name} ({order.contact_phone})
@@ -267,7 +269,7 @@ export default function DashboardPage() {
                   ))
                 )}
 
-                {/* 評價彈窗 (簡易版) */}
+                {/* 評價彈窗 */}
                 {reviewOrderId && (
                   <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
                     <div className="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl overflow-hidden p-8">
