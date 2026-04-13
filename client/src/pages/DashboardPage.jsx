@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { 
   LogOut, User, ShoppingBag, MapPin, Calendar as CalendarIcon, 
   CheckCircle, Clock, Edit3, ChevronDown, ChevronUp, Star, 
-  Camera, Globe, UploadCloud, X, ArrowLeft, Mail 
+  Camera, Globe, UploadCloud, X, ArrowLeft, Mail, MessageSquare 
 } from 'lucide-react';
 import axiosClient from '../api/axiosClient';
 import { countriesData } from '../data/countries';
@@ -14,6 +14,7 @@ export default function DashboardPage() {
   const { t, i18n } = useTranslation();
   const isZh = i18n.language.startsWith('zh');
   
+  // 🌟 將 activeTab 預設狀態擴充，現在有 'orders', 'profile', 'reviews' 三種
   const [activeTab, setActiveTab] = useState('orders');
   const [user, setUser] = useState(null);
 
@@ -26,7 +27,7 @@ export default function DashboardPage() {
   const [profileForm, setProfileForm] = useState({ name: '', phone: '', address: '' });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
-  // 🌟 評價表單專用 (新增獨立控制彈窗的狀態)
+  // 評價表單專用
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewOrderId, setReviewOrderId] = useState(null);
   const [rating, setRating] = useState(5);
@@ -103,7 +104,6 @@ export default function DashboardPage() {
     setIsSubmittingReview(true);
     
     const formData = new FormData();
-    // 🌟 如果有訂單編號才附上，沒有的話就是一般客人的自由反饋
     if (reviewOrderId) {
         formData.append('orderId', reviewOrderId);
     }
@@ -120,13 +120,15 @@ export default function DashboardPage() {
       });
       if (response.data.success) {
         alert('🎉 Thank you for your review!');
-        // 成功後關閉彈窗並清空資料
+        // 成功後清空表單狀態
         setIsReviewModalOpen(false);
         setReviewOrderId(null);
         setRating(5);
         setComment('');
         setPhoto(null);
         setPhotoPreview(null);
+        // 如果是在獨立頁籤送出，可以將畫面切回訂單
+        if (activeTab === 'reviews') setActiveTab('orders');
       }
     } catch (error) {
       console.error('Review error:', error);
@@ -136,7 +138,7 @@ export default function DashboardPage() {
     }
   };
 
-  // 🌟 保留完美的加購品解析與翻譯函數
+  // 保留完美的加購品解析與翻譯函數
   const formatAddons = (addonsData) => {
     if (!addonsData) return t('dashboard.noAddons');
     
@@ -184,7 +186,8 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar Tabs */}
+          
+          {/* 🌟 側邊欄：現在有三個按鈕可以選擇 */}
           <div className="lg:col-span-1 space-y-2">
             <button onClick={() => setActiveTab('orders')} className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${activeTab === 'orders' ? 'bg-stone-900 text-white shadow-lg' : 'bg-white text-stone-500 hover:bg-stone-100'}`}>
               <ShoppingBag size={20} /> {t('dashboard.tabOrders', 'My Orders')}
@@ -192,30 +195,23 @@ export default function DashboardPage() {
             <button onClick={() => setActiveTab('profile')} className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${activeTab === 'profile' ? 'bg-stone-900 text-white shadow-lg' : 'bg-white text-stone-500 hover:bg-stone-100'}`}>
               <User size={20} /> {t('dashboard.tabProfile', 'Profile')}
             </button>
+            <button 
+              onClick={() => {
+                setActiveTab('reviews');
+                setReviewOrderId(null); // 切換到獨立評價頁籤時，不綁定特定訂單
+              }} 
+              className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${activeTab === 'reviews' ? 'bg-stone-900 text-white shadow-lg' : 'bg-white text-stone-500 hover:bg-stone-100'}`}
+            >
+              <MessageSquare size={20} /> {isZh ? '撰寫評價' : 'Write Review'}
+            </button>
           </div>
 
           {/* Main Content Area */}
           <div className="lg:col-span-3">
-            {activeTab === 'orders' ? (
-              <div className="space-y-6">
-                
-                {/* 🌟 新增：所有會員(不管有沒有訂單)都能看到的「撰寫評價」按鈕 */}
-                <div className="flex flex-col sm:flex-row justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
-                  <div className="mb-4 sm:mb-0 text-center sm:text-left">
-                    <h2 className="text-xl font-bold text-stone-900">Trip Records</h2>
-                    <p className="text-sm text-stone-500 mt-1">Manage bookings or share your campervan experience!</p>
-                  </div>
-                  <button
-                    onClick={() => { 
-                      setReviewOrderId(null); // 代表這是一般評價，不綁定特定訂單
-                      setIsReviewModalOpen(true); 
-                    }}
-                    className="flex items-center gap-2 bg-stone-900 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md hover:-translate-y-0.5"
-                  >
-                    <Star size={18} /> {isZh ? '撰寫評價' : 'Write Review'}
-                  </button>
-                </div>
-
+            
+            {/* 頁籤 1：訂單列表 */}
+            {activeTab === 'orders' && (
+              <div className="space-y-4">
                 {isLoadingOrders ? (
                   <div className="bg-white p-12 rounded-3xl text-center text-stone-400 border border-stone-100">Loading orders...</div>
                 ) : orders.length === 0 ? (
@@ -270,7 +266,7 @@ export default function DashboardPage() {
                                    {t('dashboard.btnPay', 'Pay Now')}
                                  </button>
                               )}
-                              {/* 針對此訂單的專屬評價按鈕 */}
+                              {/* 特定訂單專屬評價按鈕 (會開啟彈窗並綁定 orderId) */}
                               {order.status === 'confirmed' && (
                                  <button 
                                    onClick={() => { 
@@ -286,7 +282,7 @@ export default function DashboardPage() {
                           </div>
                         </div>
 
-                        {/* 🌟 完美的訂單明細展開 */}
+                        {/* 訂單明細展開 */}
                         {expandedOrder === order.id && (
                           <div className="p-6 border-t border-stone-200 bg-white text-sm text-stone-600 leading-relaxed animate-fade-in">
                             <p className="mb-1">
@@ -303,50 +299,12 @@ export default function DashboardPage() {
                     ))}
                   </div>
                 )}
-
-                {/* 🌟 獨立的評價彈窗 (透過 isReviewModalOpen 觸發) */}
-                {isReviewModalOpen && (
-                  <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
-                    <div className="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl overflow-hidden p-8 animate-fade-in">
-                      <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-2xl font-bold text-stone-900">Share Your Experience</h2>
-                        <button onClick={() => setIsReviewModalOpen(false)} className="p-2 hover:bg-stone-100 rounded-full transition-colors"><X/></button>
-                      </div>
-                      <form onSubmit={handleReviewSubmit} className="space-y-6">
-                        <div>
-                          <label className="block text-sm font-bold text-stone-700 mb-2">Rating</label>
-                          <div className="flex gap-2">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <button key={star} type="button" onClick={() => setRating(star)} onMouseEnter={() => setHover(star)} onMouseLeave={() => setHover(0)}>
-                                <Star size={32} fill={(hover || rating) >= star ? "#ea580c" : "none"} className={(hover || rating) >= star ? "text-orange-600" : "text-stone-300"} />
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-bold text-stone-700 mb-2">Comment</label>
-                          <textarea value={comment} onChange={e => setComment(e.target.value)} className="w-full p-4 border border-stone-200 rounded-2xl outline-none focus:ring-2 focus:ring-orange-500 min-h-[120px]" placeholder="Tell us about your trip..." required />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-bold text-stone-700 mb-2">Photo</label>
-                          <div className="flex items-center gap-4">
-                            <label className="cursor-pointer flex items-center gap-2 bg-stone-100 px-4 py-2 rounded-xl text-stone-600 hover:bg-stone-200 font-bold transition-all text-sm">
-                              <Camera size={18}/> {photo ? 'Change Photo' : 'Upload Photo'}
-                              <input type="file" className="hidden" accept="image/*" onChange={handlePhotoChange} />
-                            </label>
-                            {photoPreview && <img src={photoPreview} alt="Preview" className="w-16 h-16 object-cover rounded-xl border-2 border-orange-100"/>}
-                          </div>
-                        </div>
-                        <button type="submit" disabled={isSubmittingReview} className={`w-full py-4 rounded-xl font-bold text-white transition-all shadow-lg ${isSubmittingReview ? 'bg-stone-400' : 'bg-stone-900 hover:bg-orange-600'}`}>
-                          {isSubmittingReview ? 'Uploading...' : 'Submit Review'}
-                        </button>
-                      </form>
-                    </div>
-                  </div>
-                )}
               </div>
-            ) : (
-              <div className="bg-white p-8 md:p-12 rounded-[2rem] shadow-sm border border-stone-100">
+            )}
+
+            {/* 頁籤 2：個人資料 */}
+            {activeTab === 'profile' && (
+              <div className="bg-white p-8 md:p-12 rounded-[2rem] shadow-sm border border-stone-100 animate-fade-in">
                 <h2 className="text-2xl font-bold text-stone-900 mb-8 flex items-center gap-3">
                    <User className="text-orange-600" /> {t('dashboard.profileTitle', 'Profile Details')}
                 </h2>
@@ -402,9 +360,94 @@ export default function DashboardPage() {
                 </form>
               </div>
             )}
+
+            {/* 🌟 頁籤 3：撰寫評價 (獨立區塊，不綁定訂單) */}
+            {activeTab === 'reviews' && (
+              <div className="bg-white p-8 md:p-12 rounded-[2rem] shadow-sm border border-stone-100 animate-fade-in">
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-stone-900 flex items-center gap-3">
+                    <MessageSquare className="text-orange-600" /> {isZh ? '分享您的體驗' : 'Share Your Experience'}
+                  </h2>
+                  <p className="text-stone-500 mt-2">
+                    {isZh ? '感謝您選擇車泊輕旅！不論是透過網站、LINE 或電話預約，都歡迎在這裡留下評價與美照。' : 'Thanks for choosing us! Leave your review and photos below.'}
+                  </p>
+                </div>
+
+                <form onSubmit={handleReviewSubmit} className="space-y-8">
+                  <div>
+                    <label className="block text-sm font-bold text-stone-700 mb-3">Rating</label>
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button key={star} type="button" onClick={() => setRating(star)} onMouseEnter={() => setHover(star)} onMouseLeave={() => setHover(0)} className="hover:scale-110 transition-transform">
+                          <Star size={36} fill={(hover || rating) >= star ? "#ea580c" : "none"} className={(hover || rating) >= star ? "text-orange-600" : "text-stone-300"} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-stone-700 mb-3">Comment</label>
+                    <textarea value={comment} onChange={e => setComment(e.target.value)} className="w-full p-5 border border-stone-200 rounded-2xl outline-none focus:ring-2 focus:ring-orange-500 min-h-[150px] bg-stone-50" placeholder="Tell us about your trip..." required />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-stone-700 mb-3">Photo</label>
+                    <div className="flex items-center gap-6">
+                      <label className="cursor-pointer flex items-center gap-2 bg-stone-100 px-6 py-3 rounded-xl text-stone-600 hover:bg-stone-200 font-bold transition-all text-sm shadow-sm">
+                        <Camera size={18}/> {photo ? 'Change Photo' : 'Upload Photo'}
+                        <input type="file" className="hidden" accept="image/*" onChange={handlePhotoChange} />
+                      </label>
+                      {photoPreview && <img src={photoPreview} alt="Preview" className="w-20 h-20 object-cover rounded-2xl border-2 border-orange-100 shadow-sm"/>}
+                    </div>
+                  </div>
+                  <button type="submit" disabled={isSubmittingReview} className={`px-10 py-4 rounded-xl font-bold text-white transition-all shadow-lg hover:-translate-y-1 ${isSubmittingReview ? 'bg-stone-400' : 'bg-stone-900 hover:bg-orange-600'}`}>
+                    {isSubmittingReview ? 'Uploading...' : 'Submit Review'}
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* 特定訂單專屬的評價彈窗 (當在「我的訂單」列表中點擊 Review 時出現) */}
+      {isReviewModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl overflow-hidden p-8 animate-fade-in">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-stone-900">Share Your Experience</h2>
+              <button onClick={() => setIsReviewModalOpen(false)} className="p-2 hover:bg-stone-100 rounded-full transition-colors"><X/></button>
+            </div>
+            <form onSubmit={handleReviewSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-bold text-stone-700 mb-2">Rating</label>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button key={star} type="button" onClick={() => setRating(star)} onMouseEnter={() => setHover(star)} onMouseLeave={() => setHover(0)}>
+                      <Star size={32} fill={(hover || rating) >= star ? "#ea580c" : "none"} className={(hover || rating) >= star ? "text-orange-600" : "text-stone-300"} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-stone-700 mb-2">Comment</label>
+                <textarea value={comment} onChange={e => setComment(e.target.value)} className="w-full p-4 border border-stone-200 rounded-2xl outline-none focus:ring-2 focus:ring-orange-500 min-h-[120px]" placeholder="Tell us about your trip..." required />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-stone-700 mb-2">Photo</label>
+                <div className="flex items-center gap-4">
+                  <label className="cursor-pointer flex items-center gap-2 bg-stone-100 px-4 py-2 rounded-xl text-stone-600 hover:bg-stone-200 font-bold transition-all text-sm">
+                    <Camera size={18}/> {photo ? 'Change Photo' : 'Upload Photo'}
+                    <input type="file" className="hidden" accept="image/*" onChange={handlePhotoChange} />
+                  </label>
+                  {photoPreview && <img src={photoPreview} alt="Preview" className="w-16 h-16 object-cover rounded-xl border-2 border-orange-100"/>}
+                </div>
+              </div>
+              <button type="submit" disabled={isSubmittingReview} className={`w-full py-4 rounded-xl font-bold text-white transition-all shadow-lg ${isSubmittingReview ? 'bg-stone-400' : 'bg-stone-900 hover:bg-orange-600'}`}>
+                {isSubmittingReview ? 'Uploading...' : 'Submit Review'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
