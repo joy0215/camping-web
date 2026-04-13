@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-// 🌟 已修正：補上 Mail 圖示的引用
 import { 
   LogOut, User, ShoppingBag, MapPin, Calendar as CalendarIcon, 
   CheckCircle, Clock, Edit3, ChevronDown, ChevronUp, Star, 
@@ -17,18 +16,18 @@ export default function DashboardPage() {
   
   const [activeTab, setActiveTab] = useState('orders');
   const [user, setUser] = useState(null);
-  const [previewAvatar, setPreviewAvatar] = useState(null);
 
-  // 🌟 真實訂單與狀態
+  // 真實訂單與狀態
   const [orders, setOrders] = useState([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState(null);
 
-  // 🌟 個人資料表單
+  // 個人資料表單
   const [profileForm, setProfileForm] = useState({ name: '', phone: '', address: '' });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
-  // 評價表單專用
+  // 🌟 評價表單專用 (新增獨立控制彈窗的狀態)
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewOrderId, setReviewOrderId] = useState(null);
   const [rating, setRating] = useState(5);
   const [hover, setHover] = useState(0);
@@ -104,7 +103,10 @@ export default function DashboardPage() {
     setIsSubmittingReview(true);
     
     const formData = new FormData();
-    formData.append('orderId', reviewOrderId);
+    // 🌟 如果有訂單編號才附上，沒有的話就是一般客人的自由反饋
+    if (reviewOrderId) {
+        formData.append('orderId', reviewOrderId);
+    }
     formData.append('rating', rating);
     formData.append('comment', comment);
     formData.append('userName', user.name);
@@ -118,6 +120,8 @@ export default function DashboardPage() {
       });
       if (response.data.success) {
         alert('🎉 Thank you for your review!');
+        // 成功後關閉彈窗並清空資料
+        setIsReviewModalOpen(false);
         setReviewOrderId(null);
         setRating(5);
         setComment('');
@@ -132,7 +136,7 @@ export default function DashboardPage() {
     }
   };
 
-  // 🌟 輔助函數：解析並翻譯加購品物件
+  // 🌟 保留完美的加購品解析與翻譯函數
   const formatAddons = (addonsData) => {
     if (!addonsData) return t('dashboard.noAddons');
     
@@ -147,9 +151,9 @@ export default function DashboardPage() {
 
     if (typeof parsed === 'object' && parsed !== null) {
       const selected = [];
-      if (parsed.mattress) selected.push(t('dashboard.addonMattress'));
-      if (parsed.blanket) selected.push(t('dashboard.addonBlanket'));
-      if (parsed.cookware) selected.push(t('dashboard.addonCookware'));
+      if (parsed.mattress) selected.push(t('dashboard.addonMattress') || '雙人充氣睡墊');
+      if (parsed.blanket) selected.push(t('dashboard.addonBlanket') || '保暖毛毯');
+      if (parsed.cookware) selected.push(t('dashboard.addonCookware') || '露營廚具組');
       
       return selected.length > 0 ? selected.join('、') : t('dashboard.noAddons');
     }
@@ -170,12 +174,12 @@ export default function DashboardPage() {
               {user.name.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-stone-900 leading-tight">{t('dashboard.welcome')}, {user.name}</h1>
+              <h1 className="text-2xl font-bold text-stone-900 leading-tight">{t('dashboard.welcome', 'Welcome')}, {user.name}</h1>
               <p className="text-stone-400 text-sm flex items-center gap-1 mt-1"><Mail size={14}/> {user.email}</p>
             </div>
           </div>
           <button onClick={handleLogout} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-stone-100 text-stone-600 hover:bg-red-50 hover:text-red-600 transition-all font-bold text-sm">
-            <LogOut size={18} /> {t('dashboard.btnLogout')}
+            <LogOut size={18} /> {t('dashboard.btnLogout', 'Logout')}
           </button>
         </div>
 
@@ -183,99 +187,130 @@ export default function DashboardPage() {
           {/* Sidebar Tabs */}
           <div className="lg:col-span-1 space-y-2">
             <button onClick={() => setActiveTab('orders')} className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${activeTab === 'orders' ? 'bg-stone-900 text-white shadow-lg' : 'bg-white text-stone-500 hover:bg-stone-100'}`}>
-              <ShoppingBag size={20} /> {t('dashboard.tabOrders')}
+              <ShoppingBag size={20} /> {t('dashboard.tabOrders', 'My Orders')}
             </button>
             <button onClick={() => setActiveTab('profile')} className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${activeTab === 'profile' ? 'bg-stone-900 text-white shadow-lg' : 'bg-white text-stone-500 hover:bg-stone-100'}`}>
-              <User size={20} /> {t('dashboard.tabProfile')}
+              <User size={20} /> {t('dashboard.tabProfile', 'Profile')}
             </button>
           </div>
 
           {/* Main Content Area */}
           <div className="lg:col-span-3">
             {activeTab === 'orders' ? (
-              <div className="space-y-4">
+              <div className="space-y-6">
+                
+                {/* 🌟 新增：所有會員(不管有沒有訂單)都能看到的「撰寫評價」按鈕 */}
+                <div className="flex flex-col sm:flex-row justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
+                  <div className="mb-4 sm:mb-0 text-center sm:text-left">
+                    <h2 className="text-xl font-bold text-stone-900">Trip Records</h2>
+                    <p className="text-sm text-stone-500 mt-1">Manage bookings or share your campervan experience!</p>
+                  </div>
+                  <button
+                    onClick={() => { 
+                      setReviewOrderId(null); // 代表這是一般評價，不綁定特定訂單
+                      setIsReviewModalOpen(true); 
+                    }}
+                    className="flex items-center gap-2 bg-stone-900 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md hover:-translate-y-0.5"
+                  >
+                    <Star size={18} /> {isZh ? '撰寫評價' : 'Write Review'}
+                  </button>
+                </div>
+
                 {isLoadingOrders ? (
                   <div className="bg-white p-12 rounded-3xl text-center text-stone-400 border border-stone-100">Loading orders...</div>
                 ) : orders.length === 0 ? (
-                  <div className="bg-white p-12 rounded-3xl text-center text-stone-400 border border-stone-100">{t('dashboard.noOrders')}</div>
+                  <div className="bg-white p-12 rounded-3xl text-center text-stone-400 border border-stone-100 flex flex-col items-center">
+                    <ShoppingBag size={48} className="text-stone-200 mb-4" />
+                    <p>{t('dashboard.noOrders', 'You have no orders yet.')}</p>
+                  </div>
                 ) : (
-                  orders.map(order => (
-                    <div key={order.id} className="bg-white rounded-3xl shadow-sm border border-stone-100 overflow-hidden hover:shadow-md transition-shadow">
-                      <div className="p-6 md:p-8">
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                          <div>
-                            <span className="text-[10px] uppercase tracking-widest text-stone-400 font-bold block mb-1">Order ID: #{order.id}</span>
-                            <h3 className="text-xl font-bold text-stone-900">Nomad A180</h3>
+                  <div className="space-y-4">
+                    {orders.map(order => (
+                      <div key={order.id} className="bg-white rounded-3xl shadow-sm border border-stone-100 overflow-hidden hover:shadow-md transition-shadow">
+                        <div className="p-6 md:p-8">
+                          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                            <div>
+                              <span className="text-[10px] uppercase tracking-widest text-stone-400 font-bold block mb-1">Order ID: #{order.id}</span>
+                              <h3 className="text-xl font-bold text-stone-900">Nomad A180</h3>
+                            </div>
+                            <div className={`px-4 py-1.5 rounded-full text-xs font-bold ${
+                              order.status === 'confirmed' ? 'bg-green-100 text-green-700' : 
+                              order.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'
+                            }`}>
+                              {order.status === 'confirmed' ? t('dashboard.paid') : order.status === 'cancelled' ? t('dashboard.cancelled') : t('dashboard.pending')}
+                            </div>
                           </div>
-                          <div className={`px-4 py-1.5 rounded-full text-xs font-bold ${
-                            order.status === 'confirmed' ? 'bg-green-100 text-green-700' : 
-                            order.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'
-                          }`}>
-                            {order.status === 'confirmed' ? t('dashboard.paid') : order.status === 'cancelled' ? t('dashboard.cancelled') : t('dashboard.pending')}
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div className="flex items-center gap-3 text-stone-600 bg-stone-50 p-4 rounded-2xl">
+                              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-orange-500 shadow-sm"><CalendarIcon size={20}/></div>
+                              <div>
+                                <p className="text-[10px] uppercase font-bold text-stone-400">{t('dashboard.startDate')}</p>
+                                <p className="font-bold text-stone-800">{new Date(order.start_date).toLocaleDateString()}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3 text-stone-600 bg-stone-50 p-4 rounded-2xl">
+                              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-orange-500 shadow-sm"><CalendarIcon size={20}/></div>
+                              <div>
+                                <p className="text-[10px] uppercase font-bold text-stone-400">{t('dashboard.endDate')}</p>
+                                <p className="font-bold text-stone-800">{new Date(order.end_date).toLocaleDateString()}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-stone-100">
+                            <div className="flex items-center gap-2">
+                               <button onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)} className="flex items-center gap-1 text-sm font-bold text-stone-400 hover:text-stone-900 transition-colors">
+                                 {expandedOrder === order.id ? <><ChevronUp size={16}/> {t('dashboard.btnHide', 'Hide Details')}</> : <><ChevronDown size={16}/> {t('dashboard.btnShow', 'View Details')}</>}
+                               </button>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              {order.status === 'pending' && (
+                                 <button onClick={() => navigate(`/checkout/${order.id}`, { state: { order, user, amount: order.total_price } })} className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all">
+                                   {t('dashboard.btnPay', 'Pay Now')}
+                                 </button>
+                              )}
+                              {/* 針對此訂單的專屬評價按鈕 */}
+                              {order.status === 'confirmed' && (
+                                 <button 
+                                   onClick={() => { 
+                                     setReviewOrderId(order.id); 
+                                     setIsReviewModalOpen(true); 
+                                   }} 
+                                   className="flex items-center gap-1 bg-stone-900 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all"
+                                 >
+                                   <Edit3 size={16}/> {t('dashboard.btnReview', 'Review')}
+                                 </button>
+                              )}
+                            </div>
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                          <div className="flex items-center gap-3 text-stone-600 bg-stone-50 p-4 rounded-2xl">
-                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-orange-500 shadow-sm"><CalendarIcon size={20}/></div>
-                            <div>
-                              <p className="text-[10px] uppercase font-bold text-stone-400">{t('dashboard.startDate')}</p>
-                              <p className="font-bold text-stone-800">{new Date(order.start_date).toLocaleDateString()}</p>
-                            </div>
+                        {/* 🌟 完美的訂單明細展開 */}
+                        {expandedOrder === order.id && (
+                          <div className="p-6 border-t border-stone-200 bg-white text-sm text-stone-600 leading-relaxed animate-fade-in">
+                            <p className="mb-1">
+                              <strong className="text-stone-800">{t('dashboard.contactInfo', 'Contact')}: </strong> 
+                              {order.contact_name} ({order.contact_phone})
+                            </p>
+                            <p>
+                              <strong className="text-stone-800">{t('dashboard.addons', 'Addons')}: </strong> 
+                              {formatAddons(order.addons)}
+                            </p>
                           </div>
-                          <div className="flex items-center gap-3 text-stone-600 bg-stone-50 p-4 rounded-2xl">
-                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-orange-500 shadow-sm"><CalendarIcon size={20}/></div>
-                            <div>
-                              <p className="text-[10px] uppercase font-bold text-stone-400">{t('dashboard.endDate')}</p>
-                              <p className="font-bold text-stone-800">{new Date(order.end_date).toLocaleDateString()}</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-stone-100">
-                          <div className="flex items-center gap-2">
-                             <button onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)} className="flex items-center gap-1 text-sm font-bold text-stone-400 hover:text-stone-900 transition-colors">
-                               {expandedOrder === order.id ? <><ChevronUp size={16}/> {t('dashboard.btnHide')}</> : <><ChevronDown size={16}/> {t('dashboard.btnShow')}</>}
-                             </button>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            {order.status === 'pending' && (
-                               <button onClick={() => navigate(`/checkout/${order.id}`, { state: { order, user, amount: order.total_price } })} className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all">
-                                 {t('dashboard.btnPay')}
-                               </button>
-                            )}
-                            {order.status === 'confirmed' && (
-                               <button onClick={() => setReviewOrderId(order.id)} className="flex items-center gap-1 bg-stone-900 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all">
-                                 <Edit3 size={16}/> {t('dashboard.btnReview')}
-                               </button>
-                            )}
-                          </div>
-                        </div>
+                        )}
                       </div>
-
-                      {expandedOrder === order.id && (
-                        <div className="p-6 border-t border-stone-200 bg-white text-sm text-stone-600 leading-relaxed animate-fade-in">
-                          <p className="mb-1">
-                            <strong className="text-stone-800">{t('dashboard.contactInfo')}: </strong> 
-                            {order.contact_name} ({order.contact_phone})
-                          </p>
-                          <p>
-                            <strong className="text-stone-800">{t('dashboard.addons')}: </strong> 
-                            {formatAddons(order.addons)}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 )}
 
-                {/* 評價彈窗 */}
-                {reviewOrderId && (
+                {/* 🌟 獨立的評價彈窗 (透過 isReviewModalOpen 觸發) */}
+                {isReviewModalOpen && (
                   <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
-                    <div className="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl overflow-hidden p-8">
+                    <div className="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl overflow-hidden p-8 animate-fade-in">
                       <div className="flex justify-between items-center mb-6">
                         <h2 className="text-2xl font-bold text-stone-900">Share Your Experience</h2>
-                        <button onClick={() => setReviewOrderId(null)} className="p-2 hover:bg-stone-100 rounded-full"><X/></button>
+                        <button onClick={() => setIsReviewModalOpen(false)} className="p-2 hover:bg-stone-100 rounded-full transition-colors"><X/></button>
                       </div>
                       <form onSubmit={handleReviewSubmit} className="space-y-6">
                         <div>
@@ -313,14 +348,14 @@ export default function DashboardPage() {
             ) : (
               <div className="bg-white p-8 md:p-12 rounded-[2rem] shadow-sm border border-stone-100">
                 <h2 className="text-2xl font-bold text-stone-900 mb-8 flex items-center gap-3">
-                   <User className="text-orange-600" /> {t('dashboard.profileTitle')}
+                   <User className="text-orange-600" /> {t('dashboard.profileTitle', 'Profile Details')}
                 </h2>
                 
                 <form onSubmit={handleUpdateProfile} className="space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-bold text-stone-700 mb-2">{t('dashboard.name')}</label>
+                        <label className="block text-sm font-bold text-stone-700 mb-2">{t('dashboard.name', 'Name')}</label>
                         <input type="text" value={profileForm.name} onChange={e => setProfileForm({...profileForm, name: e.target.value})} className="w-full p-4 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-stone-50" required />
                       </div>
                       <div>
