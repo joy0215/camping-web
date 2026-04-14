@@ -48,7 +48,7 @@ export default function AboutPage() {
                <Phone size={20} className="text-orange-400 shrink-0"/>
                <div>
                   <span className="block text-[10px] text-stone-400 uppercase tracking-widest mb-1">{t('about.phone')}</span>
-                  <span className="font-medium tracking-wide">0965-720-586</span>
+                  <span className="font-medium tracking-wide">0963-823-606</span>
                </div>
             </div>
             
@@ -56,7 +56,7 @@ export default function AboutPage() {
                <Mail size={20} className="text-orange-400 shrink-0"/>
                <div>
                   <span className="block text-[10px] text-stone-400 uppercase tracking-widest mb-1">{t('about.email')}</span>
-                  <span className="font-medium tracking-wide">cheyang0326@gmail.com</span>
+                  <span className="font-medium tracking-wide">jchenghe06@gmail.com</span>
                </div>
             </div>
             
@@ -64,7 +64,7 @@ export default function AboutPage() {
                <MapPin size={20} className="text-orange-400 shrink-0"/>
                <div>
                   <span className="block text-[10px] text-stone-400 uppercase tracking-widest mb-1">{t('about.location')}</span>
-                  <span className="font-medium leading-relaxed">台北市北投區大度路一段157-2號</span>
+                  <span className="font-medium leading-relaxed">北投奇岩捷運站 2 號出口 (抵達後將安排接駁車至車輛所在地)</span>
                </div>
             </div>
           </div>
