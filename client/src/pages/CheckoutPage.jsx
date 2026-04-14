@@ -1,24 +1,37 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
 import { CreditCard, ShieldCheck, ArrowRight, Lock } from 'lucide-react';
-import { useTranslation } from 'react-i18next'; // 🌟 引入翻譯
+import { useTranslation } from 'react-i18next'; 
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useTranslation(); // 🌟 啟動翻譯
+  const { id } = useParams(); // Extract order ID from URL params
+  const { t } = useTranslation(); 
+  
   const [loading, setLoading] = useState(false);
   const [payData, setPayData] = useState(null);
   const formRef = useRef(null);
   
-  const { order, user, amount } = location.state || {};
+  // Dynamic state: use data passed from booking page if available, else null
+  const [orderData, setOrderData] = useState(location.state?.order || null);
+  const [orderAmount, setOrderAmount] = useState(location.state?.amount || null);
 
   useEffect(() => {
-    if (!order) {
-      navigate('/');
+    // Core logic: fetch order data from backend if accessed via direct URL
+    if (!orderData && id) {
+      axiosClient.get(`/inquiry/${id}`)
+        .then(res => {
+          setOrderData(res.data);
+          setOrderAmount(res.data.total_price);
+        })
+        .catch(err => {
+          alert('❌ Order not found or expired');
+          navigate('/');
+        });
     }
-  }, [order, navigate]);
+  }, [id, orderData, navigate]);
 
   useEffect(() => {
     if (payData && formRef.current) {
@@ -30,9 +43,10 @@ export default function CheckoutPage() {
     setLoading(true);
     try {
       const response = await axiosClient.post('/payment/create-payment', {
-        orderId: order.id,
-        amount: amount,
-        email: user.email
+        orderId: orderData.id,
+        amount: orderAmount,
+        // Provide default email if external guest accesses via URL without login
+        email: location.state?.user?.email || 'guest@camping-tour.com' 
       });
 
       if (response.data.success) {
@@ -43,47 +57,47 @@ export default function CheckoutPage() {
       }
     } catch (error) {
       console.error('Payment Error:', error);
-      alert('❌ Connection Error.');
+      alert('❌ Connection failed.');
       setLoading(false);
     }
   };
 
-  if (!order) return null;
+  // Show loading state while fetching data
+  if (!orderData) {
+    return <div className="min-h-screen pt-32 text-center text-stone-500">Loading Order Details...</div>;
+  }
 
   return (
-    <div className="pt-24 pb-20 bg-stone-50 min-h-screen flex items-center justify-center">
-      <div className="bg-white p-8 md:p-10 rounded-3xl shadow-xl border border-stone-100 max-w-lg w-full mx-4 relative overflow-hidden">
+    <div className="min-h-screen bg-stone-50 pt-28 pb-20 px-4 flex justify-center">
+      <div className="w-full max-w-lg">
         
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-orange-400 to-orange-600"></div>
-
-        <div className="text-center mb-8 mt-2">
-          <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-600">
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
             <CreditCard size={32} />
           </div>
-          <h2 className="text-2xl font-serif font-bold text-stone-900 mb-2">{t('checkout.title')}</h2>
-          <p className="text-stone-500 text-sm">{t('checkout.subtitle')}</p>
+          <h2 className="text-3xl font-serif font-bold text-stone-900 mb-2">{t('checkout.title', 'Secure Checkout')}</h2>
+          <p className="text-stone-500 uppercase tracking-widest text-xs font-bold">Order #{orderData.id}</p>
         </div>
 
-        <div className="bg-stone-50 p-6 rounded-2xl mb-8 text-stone-700 space-y-4 border border-stone-200">
-          <div className="flex justify-between items-center pb-4 border-b border-stone-200">
-            <span className="text-sm font-bold text-stone-500">{t('checkout.orderId')}</span>
-            <span className="font-bold text-stone-900">#{order.id}</span>
-          </div>
-          <div className="flex justify-between items-center pb-4 border-b border-stone-200">
-            <span className="text-sm font-bold text-stone-500">{t('checkout.guest')}</span>
-            <span className="font-bold text-stone-900">{user.name}</span>
-          </div>
-          <div className="flex justify-between items-center pt-2">
-            <span className="text-sm font-bold text-stone-500">{t('checkout.total')}</span>
-            <span className="font-bold text-orange-600 text-2xl">NT$ {amount.toLocaleString()}</span>
+        <div className="bg-white rounded-3xl p-8 shadow-sm border border-stone-100 mb-6">
+          <p className="text-sm font-bold text-stone-400 mb-2">{t('checkout.amountTitle', 'Total Amount')}</p>
+          <p className="text-5xl font-bold text-orange-600 mb-8">
+            NT$ {Number(orderAmount).toLocaleString()}
+          </p>
+
+          <div className="space-y-4 text-sm text-stone-600 border-t border-stone-100 pt-6">
+             <div className="flex justify-between items-center">
+                <span className="font-bold text-stone-400">{t('checkout.method', 'Payment Method')}</span>
+                <span className="font-bold text-stone-800">Credit Card (NewebPay)</span>
+             </div>
           </div>
         </div>
 
-        <div className="flex items-start gap-3 bg-green-50 text-green-700 p-4 rounded-xl mb-8 border border-green-100">
+        <div className="flex gap-4 bg-green-50 text-green-700 p-4 rounded-xl mb-8 border border-green-100">
           <ShieldCheck size={24} className="shrink-0 mt-0.5" />
           <div className="text-sm">
-            <p className="font-bold mb-1">{t('checkout.secureTitle')}</p>
-            <p className="text-green-600">{t('checkout.secureDesc')}</p>
+            <p className="font-bold mb-1">{t('checkout.secureTitle', '100% Secure Payment')}</p>
+            <p className="text-green-600">{t('checkout.secureDesc', 'Your payment is processed securely by NewebPay. We do not store your card details.')}</p>
           </div>
         </div>
 
@@ -92,7 +106,7 @@ export default function CheckoutPage() {
           disabled={loading}
           className={`w-full py-4 rounded-xl font-bold text-white shadow-lg flex items-center justify-center gap-2 transition-all ${loading ? 'bg-stone-400 cursor-not-allowed' : 'bg-stone-900 hover:bg-orange-600 hover:-translate-y-1 hover:shadow-xl'}`}
         >
-          {loading ? t('checkout.btnConnecting') : <>{t('checkout.btnPay')} <ArrowRight size={20}/></>}
+          {loading ? t('checkout.btnConnecting', 'Connecting...') : <>{t('checkout.btnPay', 'Proceed to Pay')} <ArrowRight size={20}/></>}
         </button>
         
         <p className="text-xs text-stone-400 mt-4 text-center flex items-center justify-center gap-1">
@@ -100,14 +114,13 @@ export default function CheckoutPage() {
         </p>
 
         {payData && (
-          <form ref={formRef} action="https://ccore.newebpay.com/MPG/mpg_gateway" method="POST" className="hidden">
+          <form ref={formRef} action="https://core.newebpay.com/MPG/mpg_gateway" method="POST" className="hidden">
             <input type="hidden" name="MerchantID" value={payData.MerchantID} />
             <input type="hidden" name="TradeInfo" value={payData.TradeInfo} />
             <input type="hidden" name="TradeSha" value={payData.TradeSha} />
             <input type="hidden" name="Version" value={payData.Version} />
           </form>
         )}
-
       </div>
     </div>
   );

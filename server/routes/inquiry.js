@@ -35,25 +35,11 @@ router.get('/blocked-dates', async (req, res) => {
   }
 });
 
-router.get('/my-orders', authMiddleware, async (req, res) => {
-  try {
-    const userId = req.user.id; 
-    const result = await db.query(
-      'SELECT * FROM inquiries WHERE user_id = $1 ORDER BY created_at DESC',
-      [userId]
-    );
-    res.json(result.rows); 
-  } catch (err) {
-    res.status(500).json({ error: 'Server Error' });
-  }
-});
-
-router.post('/', authMiddleware, async (req, res) => {
-  const { startDate, endDate, addons, estimatedPrice, contactInfo } = req.body;
-  const userId = req.user.id; 
+router.post('/create', authMiddleware, async (req, res) => {
+  const { startDate, endDate, estimatedPrice, addons, contactName, contactPhone, contactEmail } = req.body;
+  const userId = req.user.id;
 
   try {
-    // 1. 防撞檢查
     const allOrders = await db.query("SELECT start_date, end_date FROM inquiries WHERE status != 'cancelled'");
     const dateCounts = {};
     allOrders.rows.forEach(order => {
@@ -82,18 +68,46 @@ router.post('/', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: '抱歉，您選擇的區間內有日期已滿檔，請重新選擇！' });
     }
 
-    // 2. 直接寫入資料庫
     const newInquiry = await db.query(
       `INSERT INTO inquiries (user_id, start_date, end_date, total_price, addons, contact_name, contact_phone, contact_email) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-      [userId, startDate, endDate, estimatedPrice, JSON.stringify(addons), contactInfo.name, contactInfo.phone, contactInfo.email]
+      [userId, startDate, endDate, estimatedPrice, JSON.stringify(addons), contactName, contactPhone, contactEmail]
     );
-    
-    // 3. 直接回傳，不再這裡寄信！
+
     res.json({ success: true, inquiry: newInquiry.rows[0] });
 
   } catch (err) {
-    console.error('Inquiry Error:', err);
+    console.error('Create inquiry error:', err.message);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+router.get('/my-orders', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const result = await db.query(
+      'SELECT * FROM inquiries WHERE user_id = $1 ORDER BY created_at DESC',
+      [userId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Fetch my orders error:', err.message);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// ==========================================
+// 🆕 新增：用 ID 單獨獲取一筆訂單資料 (供網址直接進入結帳頁面使用)
+// ==========================================
+router.get('/:id', async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM inquiries WHERE id = $1', [req.params.id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: '找不到該筆訂單' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Fetch single order error:', err);
     res.status(500).json({ error: 'Server Error' });
   }
 });
