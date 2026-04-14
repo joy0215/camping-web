@@ -19,7 +19,7 @@ export default function CheckoutPage() {
   const [orderAmount, setOrderAmount] = useState(location.state?.amount || null);
 
   useEffect(() => {
-    // Core logic: fetch order data from backend if accessed via direct URL
+    // Core logic: fetch order data from backend if accessed via direct URL (no state)
     if (!orderData && id) {
       axiosClient.get(`/inquiry/${id}`)
         .then(res => {
@@ -33,6 +33,7 @@ export default function CheckoutPage() {
     }
   }, [id, orderData, navigate]);
 
+  // Automatically submit the hidden form once payData is received from backend
   useEffect(() => {
     if (payData && formRef.current) {
       formRef.current.submit();
@@ -42,9 +43,12 @@ export default function CheckoutPage() {
   const handlePayment = async () => {
     setLoading(true);
     try {
+      // 🌟 Fix: Force conversion to integer to avoid NewebPay "numeric format only" error
+      const finalAmount = Math.round(Number(orderAmount));
+
       const response = await axiosClient.post('/payment/create-payment', {
         orderId: orderData.id,
-        amount: orderAmount,
+        amount: finalAmount,
         // Provide default email if external guest accesses via URL without login
         email: location.state?.user?.email || 'guest@camping-tour.com' 
       });
@@ -62,7 +66,7 @@ export default function CheckoutPage() {
     }
   };
 
-  // Show loading state while fetching data
+  // Show loading state while fetching order data from database
   if (!orderData) {
     return <div className="min-h-screen pt-32 text-center text-stone-500">Loading Order Details...</div>;
   }
@@ -71,6 +75,7 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-stone-50 pt-28 pb-20 px-4 flex justify-center">
       <div className="w-full max-w-lg">
         
+        {/* Header Section */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
             <CreditCard size={32} />
@@ -79,6 +84,7 @@ export default function CheckoutPage() {
           <p className="text-stone-500 uppercase tracking-widest text-xs font-bold">Order #{orderData.id}</p>
         </div>
 
+        {/* Amount Summary Card */}
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-stone-100 mb-6">
           <p className="text-sm font-bold text-stone-400 mb-2">{t('checkout.amountTitle', 'Total Amount')}</p>
           <p className="text-5xl font-bold text-orange-600 mb-8">
@@ -93,6 +99,7 @@ export default function CheckoutPage() {
           </div>
         </div>
 
+        {/* Security Info */}
         <div className="flex gap-4 bg-green-50 text-green-700 p-4 rounded-xl mb-8 border border-green-100">
           <ShieldCheck size={24} className="shrink-0 mt-0.5" />
           <div className="text-sm">
@@ -101,6 +108,7 @@ export default function CheckoutPage() {
           </div>
         </div>
 
+        {/* Payment Button */}
         <button 
           onClick={handlePayment}
           disabled={loading}
@@ -113,8 +121,10 @@ export default function CheckoutPage() {
           <Lock size={12}/> Secured by NewebPay
         </p>
 
+        {/* Hidden Form for NewebPay MPG Gateway Redirection */}
         {payData && (
           <form ref={formRef} action="https://core.newebpay.com/MPG/mpg_gateway" method="POST" className="hidden">
+            {/* Note: Comment placed inside form to avoid JSX multiple siblings error in conditional block */}
             <input type="hidden" name="MerchantID" value={payData.MerchantID} />
             <input type="hidden" name="TradeInfo" value={payData.TradeInfo} />
             <input type="hidden" name="TradeSha" value={payData.TradeSha} />
