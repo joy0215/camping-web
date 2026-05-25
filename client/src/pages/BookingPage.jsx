@@ -86,7 +86,7 @@ export default function BookingPage() {
         current.setDate(current.getDate() + 1);
       }
       if (isOverlap) {
-        alert("⚠️ 抱歉！您選擇的區間包含了「已滿檔」的日期，無法連續預約。\\n請避開灰色日期重新選擇！");
+        alert("⚠️ 抱歉！您選擇的區間包含了「已滿檔」的日期，無法連續預約。\n請避開灰色日期重新選擇！");
         setDateRange([newStart, null]);
         return; 
       }
@@ -144,7 +144,8 @@ export default function BookingPage() {
     }
 
     try {
-      const response = await axiosClient.post('/inquiry', {
+      // 🌟 已修正：將路徑由 '/inquiry' 改為 '/inquiry/create'，避免對齊後端路由時發生 404 錯誤
+      const response = await axiosClient.post('/inquiry/create', {
         startDate: formatForBackend(startDate),
         endDate: formatForBackend(endDate),
         addons: addons,
