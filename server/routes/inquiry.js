@@ -2,13 +2,14 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 const authMiddleware = require('../middleware/auth'); 
-const { Resend } = require('resend'); // 🌟 改用 Resend
+const { Resend } = require('resend'); // Use Resend for reliable email notifications
 
-const TOTAL_VANS = 3; 
+const TOTAL_VANS = 3; // Maximum number of campervans available in inventory
 
-// 初始化 Resend (會自動讀取 process.env.RESEND_API_KEY)
+// Initialize Resend instance (automatically picks up process.env.RESEND_API_KEY)
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Helper function to format date objects into YYYY-MM-DD strings
 const formatDate = (date) => {
   const d = new Date(date);
   let month = '' + (d.getMonth() + 1);
@@ -19,12 +20,14 @@ const formatDate = (date) => {
   return [year, month, day].join('-');
 };
 
-// 取得已滿檔的日期
+// GET: Fetch all fully booked dates where van capacity is reached
 router.get('/blocked-dates', async (req, res) => {
   try {
+    // Retrieve all active orders that are not cancelled
     const result = await db.query("SELECT start_date, end_date FROM inquiries WHERE status != 'cancelled'");
     const dateCounts = {};
     
+    // Count the number of rented vans for each specific date
     result.rows.forEach(order => {
       let current = new Date(order.start_date);
       const end = new Date(order.end_date);
@@ -35,6 +38,7 @@ router.get('/blocked-dates', async (req, res) => {
       }
     });
     
+    // Filter out dates where the number of rented vans meets or exceeds total inventory
     const blockedDates = Object.keys(dateCounts).filter(date => dateCounts[date] >= TOTAL_VANS);
     res.json(blockedDates);
   } catch (err) {
@@ -43,13 +47,20 @@ router.get('/blocked-dates', async (req, res) => {
   }
 });
 
-// 建立新訂單並觸發 Resend 通知信
+// POST: Create a new booking inquiry and trigger a notification email to the boss
 router.post('/create', authMiddleware, async (req, res) => {
-  const { startDate, endDate, estimatedPrice, addons, contactName, contactPhone, contactEmail } = req.body;
+  // Destructure incoming data from frontend request body
+  // contactInfo contains nested properties: { name, phone, email } sent by BookingPage.jsx
+  const { startDate, endDate, estimatedPrice, addons, contactInfo } = req.body;
   const userId = req.user.id;
 
+  // Safely extract customer details from contactInfo object with fallback defaults
+  const contactName = contactInfo?.name || 'Not Provided';
+  const contactPhone = contactInfo?.phone || 'Not Provided';
+  const contactEmail = contactInfo?.email || 'Not Provided';
+
   try {
-    // 1. 擋期防呆檢查
+    // 1. Double-check availability on server-side to prevent race conditions or double-booking
     const allOrders = await db.query("SELECT start_date, end_date FROM inquiries WHERE status != 'cancelled'");
     const dateCounts = {};
     allOrders.rows.forEach(order => {
@@ -78,7 +89,7 @@ router.post('/create', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Sorry, some dates in your selected range are fully booked. Please choose another date.' });
     }
 
-    // 2. 寫入資料庫
+    // 2. Insert the new pending inquiry record into NeonDB database
     const newInquiry = await db.query(
       `INSERT INTO inquiries (user_id, start_date, end_date, total_price, addons, contact_name, contact_phone, contact_email) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
@@ -87,13 +98,12 @@ router.post('/create', authMiddleware, async (req, res) => {
 
     const order = newInquiry.rows[0];
 
-    // 3. 🌟 使用 Resend 發送通知信
+    // 3. Send out email notification asynchronously via Resend API
     const bossEmail = (process.env.BOSS_EMAIL || '').trim();
 
     if (bossEmail) {
       resend.emails.send({
-        // 💡 注意：如果你有在 Resend 綁定專屬網域，可以改成例如 'system@camping-tour.com'
-        from: 'onboarding@resend.dev', 
+        from: 'onboarding@resend.dev', // Default sender domain provided by Resend for testing
         to: bossEmail,
         subject: `🔔 [New Pending Order] Booking request from ${contactName}!`,
         html: `
@@ -120,7 +130,7 @@ router.post('/create', authMiddleware, async (req, res) => {
       console.log(`⚠️ Email skip: BOSS_EMAIL is missing in Render environment variables.`);
     }
 
-    // 4. 立刻回傳成功給前端
+    // 4. Return success response with order data immediately back to the frontend client
     res.json({ success: true, inquiry: order });
 
   } catch (err) {
@@ -129,7 +139,7 @@ router.post('/create', authMiddleware, async (req, res) => {
   }
 });
 
-// 取得個人訂單
+// GET: Retrieve all booking inquiries belongs to the logged-in member
 router.get('/my-orders', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -144,7 +154,7 @@ router.get('/my-orders', authMiddleware, async (req, res) => {
   }
 });
 
-// 取得單一訂單
+// GET: Fetch details of a single inquiry by its specific ID (used by CheckoutPage)
 router.get('/:id', async (req, res) => {
   try {
     const result = await db.query('SELECT * FROM inquiries WHERE id = $1', [req.params.id]);
