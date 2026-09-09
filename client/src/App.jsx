@@ -20,6 +20,11 @@ import TermsPage from './pages/TermsPage';
 import FeedbackPage from './pages/FeedbackPage';
 import ReviewsPage from './pages/ReviewsPage';
 
+const ADMIN_EMAILS = [
+  'jchenghe06@gmail.com',
+  'cheyang0326@gmail.com'
+];
+
 const CONTACT_INFO = {
   name: "何錦程 Jace He",
   phone: "0963-823-606",
@@ -54,10 +59,8 @@ const Navbar = ({ isScrolled }) => {
   const location = useLocation();
   const [user, setUser] = useState(null);
 
-  // Initialize translation and language state
   const { t, i18n } = useTranslation();
 
-  // Function to toggle between English and Traditional Chinese
   const toggleLanguage = () => {
     const newLang = i18n.language.startsWith('zh') ? 'en' : 'zh';
     i18n.changeLanguage(newLang);
@@ -82,12 +85,10 @@ const Navbar = ({ isScrolled }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
-    // Use translation for logout alert
     alert(t('nav.logout') + ' 👋');
     navigate('/');
   };
 
-  // Base navigation links using i18n keys
   const baseLinks = [
     { id: '/', label: t('nav.home') },
     { id: '/plans', label: t('nav.plans') },
@@ -97,7 +98,6 @@ const Navbar = ({ isScrolled }) => {
     { id: '/terms', label: t('nav.terms') }, 
   ];
 
-  // Add Member Center to links if user is logged in
   const navLinks = user 
     ? [...baseLinks, { id: '/dashboard', label: t('nav.member') }]
     : baseLinks;
@@ -110,6 +110,9 @@ const Navbar = ({ isScrolled }) => {
 
   const isHome = location.pathname === '/';
   const isLightMode = isScrolled || !isHome;
+
+  // 判定是否為管理員或符合主管 Email 白名單
+  const isManager = user && (user.isAdmin || ADMIN_EMAILS.includes(user.email));
 
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${isLightMode ? 'bg-white/95 backdrop-blur-md shadow-sm py-3 text-stone-800' : 'bg-transparent py-6 text-white'}`}>
@@ -143,13 +146,12 @@ const Navbar = ({ isScrolled }) => {
           {user ? (
             <div className={`flex items-center gap-4 ml-4 pl-4 border-l ${isLightMode ? 'border-stone-300' : 'border-white/30'}`}>
               
-              {/* Language Toggle Button (Desktop, Logged In) */}
               <button onClick={toggleLanguage} className="font-bold text-lg hover:scale-110 transition-transform" title="Change Language">
                 {i18n.language.startsWith('zh') ? '🇺🇸 EN' : '🇹🇼 中'}
               </button>
 
-              {/* 🌟 已經將 user.email 判斷修改為 user.isAdmin */}
-              {user.isAdmin && (
+              {/* 🌟 雙主管均可看見老闆後台按鈕 */}
+              {isManager && (
                 <button 
                   onClick={() => handleNavClick('/admin')}
                   className="flex items-center gap-1 bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-700 transition-colors shadow-sm"
@@ -175,7 +177,6 @@ const Navbar = ({ isScrolled }) => {
             </div>
           ) : (
             <div className="flex items-center gap-2 ml-4">
-              {/* Language Toggle Button (Desktop, Logged Out) */}
               <button onClick={toggleLanguage} className="font-bold text-lg mr-2 hover:scale-110 transition-transform" title="Change Language">
                 {i18n.language.startsWith('zh') ? '🇺🇸 EN' : '🇹🇼 中'}
               </button>
@@ -198,7 +199,6 @@ const Navbar = ({ isScrolled }) => {
 
         {/* Mobile Menu Toggle & Language Button */}
         <div className="md:hidden flex items-center gap-4">
-          {/* Language Toggle Button (Mobile) */}
           <button onClick={toggleLanguage} className="font-bold text-xl hover:scale-110 transition-transform">
               {i18n.language.startsWith('zh') ? '🇺🇸' : '🇹🇼'}
           </button>
@@ -228,8 +228,7 @@ const Navbar = ({ isScrolled }) => {
                     <>
                         <div className="text-orange-600 font-bold mb-2 text-lg">Hi, {user.name}</div>
                         
-                        {/* 🌟 已經將 user.email 判斷修改為 user.isAdmin */}
-                        {user.isAdmin && (
+                        {isManager && (
                           <button onClick={() => handleNavClick('/admin')} className="block w-full text-left py-2 font-bold text-red-600 hover:text-red-700">
                             👑 {t('nav.admin')}
                           </button>
@@ -258,12 +257,9 @@ const Navbar = ({ isScrolled }) => {
 
 const Footer = () => {
   const navigate = useNavigate();
-  // 🌟 Initialize translation hook
   const { t, i18n } = useTranslation(); 
   
   const handleLink = (path) => { navigate(path); window.scrollTo(0, 0); };
-
-  // 🌟 Check if current language is Chinese for dynamic info
   const isZh = i18n.language.startsWith('zh');
 
   return (
@@ -282,7 +278,6 @@ const Footer = () => {
               <p className="text-xs uppercase tracking-widest text-orange-500">Free Young Campervan</p>
             </div>
           </div>
-          {/* 🌟 Translate Description */}
           <p className="max-w-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: t('footer.desc') }} />
           <div className="flex gap-4 pt-2">
             <a href={CONTACT_INFO.fbLink} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all"><Facebook size={20} /></a>
@@ -291,7 +286,6 @@ const Footer = () => {
         </div>
         
         <div>
-          {/* 🌟 Translate Quick Links */}
           <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">{t('footer.quickLinks')}</h4>
           <ul className="space-y-3">
             <li><button onClick={() => handleLink('/plans')} className="hover:text-white transition-colors">{t('footer.plans')}</button></li>
@@ -303,7 +297,6 @@ const Footer = () => {
         </div>
         
         <div>
-          {/* 🌟 Translate Contact */}
           <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">{t('footer.contact')}</h4>
           <ul className="space-y-4">
             <li className="flex items-start gap-3"><Phone size={18} className="mt-1 text-orange-500" /> <div><span className="block text-white font-medium">{isZh ? CONTACT_INFO.name : 'Jace He'}</span><span>{CONTACT_INFO.phone}</span></div></li>
@@ -314,7 +307,6 @@ const Footer = () => {
       </div>
 
       <div className="container mx-auto px-6 border-b border-stone-800 pb-8 mb-8">
-        {/* 🌟 Translate Company Info */}
         <h4 className="text-stone-500 font-bold mb-4 uppercase tracking-widest text-xs">{t('footer.companyInfo')}</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-xs text-stone-500">
           <div>

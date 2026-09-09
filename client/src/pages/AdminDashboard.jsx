@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axiosClient from '../api/axiosClient';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, Clock, CheckCircle, XCircle, FileText, Phone, Mail, Calendar, Filter, CreditCard } from 'lucide-react';
+import { ShieldCheck, Clock, CheckCircle, XCircle, Phone, Mail, Calendar, Filter, CreditCard, Ban } from 'lucide-react';
+
+const ADMIN_EMAILS = [
+  'jchenghe06@gmail.com',
+  'cheyang0326@gmail.com'
+];
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -14,10 +19,17 @@ export default function AdminDashboard() {
   const [generatedLink, setGeneratedLink] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
+  // Manual block states
+  const [blockStart, setBlockStart] = useState('');
+  const [blockEnd, setBlockEnd] = useState('');
+  const [blockNote, setBlockNote] = useState('');
+  const [isBlocking, setIsBlocking] = useState(false);
+
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
-    // Check isAdmin flag returned from backend
-    if (!user || !user.isAdmin) {
+    const isAdmin = user && (user.isAdmin || ADMIN_EMAILS.includes(user.email));
+
+    if (!isAdmin) {
       alert('⚠️ Permission denied, returning to home');
       navigate('/');
       return;
@@ -50,7 +62,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Generate quick checkout link
   const handleGenerateQuickLink = async () => {
     if (!quickAmount || quickAmount <= 0) return alert('Please enter an amount greater than 0!');
     setIsGenerating(true);
@@ -65,6 +76,34 @@ export default function AdminDashboard() {
       alert('Failed to generate link');
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleManualBlock = async (e) => {
+    e.preventDefault();
+    if (!blockStart || !blockEnd) return alert('請選擇完整的開始與結束日期');
+    if (new Date(blockStart) > new Date(blockEnd)) return alert('結束日期不可早於開始日期');
+
+    if (!window.confirm(`確定要手動封鎖 ${blockStart} 至 ${blockEnd} 的檔期嗎？這會直接將前台 3 台車全數鎖死。`)) return;
+
+    setIsBlocking(true);
+    try {
+      const res = await axiosClient.post('/admin/block-dates', {
+        startDate: blockStart,
+        endDate: blockEnd,
+        note: blockNote || '其他通路已售出 / 店休'
+      });
+      if (res.data.success) {
+        alert('✅ 成功關閉該區間檔期！前台客人已無法預訂。');
+        setBlockStart('');
+        setBlockEnd('');
+        setBlockNote('');
+        fetchOrders();
+      }
+    } catch (err) {
+      alert('❌ 封鎖日期失敗，請重試');
+    } finally {
+      setIsBlocking(false);
     }
   };
 
@@ -88,13 +127,13 @@ export default function AdminDashboard() {
             </div>
             <div>
               <h1 className="text-3xl font-bold tracking-tight mb-1">老闆戰情室</h1>
-              <p className="text-stone-400 text-sm">訂單審核與客戶管理中心</p>
+              <p className="text-stone-400 text-sm">訂單審核與客戶管理中心 (主管雙權限已啟用)</p>
             </div>
           </div>
         </div>
 
         {/* Quick Checkout Link Generator */}
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100 mb-8">
+        <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100 mb-6">
           <div className="flex items-center gap-3 mb-4">
             <CreditCard className="text-orange-600" />
             <h2 className="text-lg font-bold text-stone-900">建立客製化結帳連結</h2>
@@ -133,16 +172,67 @@ export default function AdminDashboard() {
           )}
         </div>
 
+        {/* Manual Date Blocking Panel */}
+        <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100 mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <Ban className="text-red-600" />
+            <h2 className="text-lg font-bold text-stone-900">手動關閉檔期 / 鎖定日期</h2>
+          </div>
+          <p className="text-sm text-stone-500 mb-4">適用於其他通路接單、保養車輛或店休。鎖定後，前台日曆這段日期會全數變灰，防止客人重複下單。</p>
+          
+          <form onSubmit={handleManualBlock} className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div>
+              <span className="block text-xs font-bold text-stone-500 mb-1">開始日期</span>
+              <input 
+                type="date" 
+                value={blockStart}
+                onChange={(e) => setBlockStart(e.target.value)}
+                required
+                className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 bg-stone-50 text-sm font-medium"
+              />
+            </div>
+            <div>
+              <span className="block text-xs font-bold text-stone-500 mb-1">結束日期</span>
+              <input 
+                type="date" 
+                value={blockEnd}
+                onChange={(e) => setBlockEnd(e.target.value)}
+                required
+                className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 bg-stone-50 text-sm font-medium"
+              />
+            </div>
+            <div>
+              <span className="block text-xs font-bold text-stone-500 mb-1">備註原因 (選填)</span>
+              <input 
+                type="text" 
+                placeholder="例如：私訊包車 / 線下已租出" 
+                value={blockNote}
+                onChange={(e) => setBlockNote(e.target.value)}
+                className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 bg-stone-50 text-sm"
+              />
+            </div>
+            <div className="flex items-end">
+              <button 
+                type="submit"
+                disabled={isBlocking}
+                className="w-full bg-red-600 text-white p-3 rounded-xl font-bold hover:bg-red-700 transition-all shadow-md text-sm"
+              >
+                {isBlocking ? '處理中...' : '🔒 立即鎖死此區間'}
+              </button>
+            </div>
+          </form>
+        </div>
+
         {/* Filter Tabs */}
         <div className="flex flex-wrap gap-2 mb-8 bg-white p-2 rounded-2xl shadow-sm border border-stone-100 w-fit">
           <button onClick={() => setFilterStatus('pending')} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${filterStatus === 'pending' ? 'bg-orange-100 text-orange-700' : 'text-stone-500 hover:bg-stone-50'}`}>
             <Clock size={16}/> 待審核 ({orders.filter(o => o.status === 'pending').length})
           </button>
           <button onClick={() => setFilterStatus('confirmed')} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${filterStatus === 'confirmed' ? 'bg-green-100 text-green-700' : 'text-stone-500 hover:bg-stone-50'}`}>
-            <CheckCircle size={16}/> 已確認出車 ({orders.filter(o => o.status === 'confirmed').length})
+            <CheckCircle size={16}/> 已確認出車 / 線下鎖定 ({orders.filter(o => o.status === 'confirmed').length})
           </button>
           <button onClick={() => setFilterStatus('cancelled')} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${filterStatus === 'cancelled' ? 'bg-red-100 text-red-700' : 'text-stone-500 hover:bg-stone-50'}`}>
-            <XCircle size={16}/> 婉拒 / 取消 ({orders.filter(o => o.status === 'cancelled').length})
+            <XCircle size={16}/> 婉拒 / 取消 / 已解鎖 ({orders.filter(o => o.status === 'cancelled').length})
           </button>
         </div>
 
@@ -152,60 +242,89 @@ export default function AdminDashboard() {
         ) : filteredOrders.length === 0 ? (
            <div className="bg-white py-20 text-center rounded-3xl border border-stone-100 shadow-sm flex flex-col items-center">
              <Filter size={48} className="text-stone-200 mb-4" />
-             <p className="text-stone-400 font-bold">目前沒有 {filterStatus === 'pending' ? '待審核' : filterStatus === 'confirmed' ? '已確認' : '已取消'} 的訂單</p>
+             <p className="text-stone-400 font-bold">目前沒有 {filterStatus === 'pending' ? '待審核' : filterStatus === 'confirmed' ? '已確認' : '已取消'} 的項目</p>
            </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredOrders.map(order => (
-              <div key={order.id} className="bg-white rounded-3xl p-6 shadow-sm border border-stone-100 hover:shadow-md transition-shadow relative overflow-hidden group">
-                 <div className={`absolute top-0 left-0 w-1 h-full ${order.status === 'pending' ? 'bg-orange-500' : order.status === 'confirmed' ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                 
-                 <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <span className="text-[10px] text-stone-400 font-bold tracking-widest uppercase mb-1 block">Order #{order.id}</span>
-                      <h3 className="font-bold text-lg text-stone-900 truncate pr-2" title={order.user_name}>{order.user_name}</h3>
-                    </div>
-                    <div className="text-right">
-                       <span className="text-[10px] text-stone-400 font-bold tracking-widest uppercase mb-1 block">Total</span>
-                       <span className="font-bold text-orange-600 text-lg">NT$ {order.total_price}</span>
-                    </div>
-                 </div>
-
-                 <div className="space-y-3 mb-6 bg-stone-50 p-4 rounded-2xl border border-stone-100">
-                    <div className="flex items-center gap-3 text-sm text-stone-600">
-                      <Calendar size={16} className="text-stone-400 shrink-0"/> 
-                      <span className="font-medium">{new Date(order.start_date).toLocaleDateString()} <span className="text-stone-300 mx-1">→</span> {new Date(order.end_date).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-stone-600">
-                      <Phone size={16} className="text-stone-400 shrink-0"/> <span className="font-medium select-all">{order.user_phone}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-stone-600">
-                      <Mail size={16} className="text-stone-400 shrink-0"/> <span className="font-medium truncate select-all">{order.user_email}</span>
-                    </div>
-                 </div>
-
-                 <div className="border-t border-stone-100 pt-4 mt-auto">
-                    {order.status === 'confirmed' && order.merchant_order_no ? (
-                      <div className="text-center bg-green-50 py-3 rounded-xl border border-green-100">
-                        <div className="text-xs font-bold text-green-600 flex justify-center items-center gap-1 mb-0.5"><CheckCircle size={14}/> 藍新金流已立帳</div>
-                        <span className="text-[10px] text-blue-500 font-normal select-all">{order.merchant_order_no}</span>
+            {filteredOrders.map(order => {
+              const isManualBlock = order.contact_name?.includes('[線下封鎖/店休]');
+              return (
+                <div key={order.id} className="bg-white rounded-3xl p-6 shadow-sm border border-stone-100 hover:shadow-md transition-shadow relative overflow-hidden group">
+                   <div className={`absolute top-0 left-0 w-1 h-full ${isManualBlock ? 'bg-purple-600' : order.status === 'pending' ? 'bg-orange-500' : order.status === 'confirmed' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                   
+                   <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <span className="text-[10px] text-stone-400 font-bold tracking-widest uppercase mb-1 block">
+                          {isManualBlock ? '手動保留檔期' : `Order #${order.id}`}
+                        </span>
+                        <h3 className="font-bold text-lg text-stone-900 truncate pr-2" title={order.user_name}>
+                          {order.user_name}
+                        </h3>
                       </div>
-                    ) : (
-                      order.status !== 'cancelled' && <div className="text-center text-xs font-bold text-red-500 bg-red-50 py-3 rounded-xl border border-red-100">⚠️ 客人尚未進入結帳畫面</div>
-                    )}
-
-                    {order.status === 'pending' && (
-                      <div className="grid grid-cols-2 gap-2 mt-2">
-                        <button onClick={() => handleStatusChange(order.id, 'confirmed')} className="bg-green-600 text-white font-bold py-2 rounded-xl text-sm hover:bg-green-700 shadow-sm transition-all hover:-translate-y-0.5">✅ 確認接單</button>
-                        <button onClick={() => handleStatusChange(order.id, 'cancelled')} className="bg-stone-200 text-stone-600 font-bold py-2 rounded-xl text-sm hover:bg-stone-300 shadow-sm transition-all hover:-translate-y-0.5">❌ 婉拒/滿檔</button>
+                      <div className="text-right">
+                         <span className="text-[10px] text-stone-400 font-bold tracking-widest uppercase mb-1 block">Total</span>
+                         <span className="font-bold text-orange-600 text-lg">NT$ {order.total_price}</span>
                       </div>
-                    )}
-                    {order.status === 'confirmed' && (
-                       <button onClick={() => handleStatusChange(order.id, 'cancelled')} className="w-full text-stone-400 font-bold py-2 rounded-xl text-xs hover:text-red-500 mt-2 transition-colors">撤銷並改為作廢</button>
-                    )}
-                 </div>
-              </div>
-            ))}
+                   </div>
+
+                   <div className="space-y-3 mb-6 bg-stone-50 p-4 rounded-2xl border border-stone-100">
+                      <div className="flex items-center gap-3 text-sm text-stone-600">
+                        <Calendar size={16} className="text-stone-400 shrink-0"/> 
+                        <span className="font-medium">{new Date(order.start_date).toLocaleDateString()} <span className="text-stone-300 mx-1">→</span> {new Date(order.end_date).toLocaleDateString()}</span>
+                      </div>
+                      {!isManualBlock && (
+                        <>
+                          <div className="flex items-center gap-3 text-sm text-stone-600">
+                            <Phone size={16} className="text-stone-400 shrink-0"/> <span className="font-medium select-all">{order.user_phone}</span>
+                          </div>
+                          <div className="flex items-center gap-3 text-sm text-stone-600">
+                            <Mail size={16} className="text-stone-400 shrink-0"/> <span className="font-medium truncate select-all">{order.user_email}</span>
+                          </div>
+                        </>
+                      )}
+                   </div>
+
+                   <div className="border-t border-stone-100 pt-4 mt-auto">
+                      {isManualBlock ? (
+                        <div className="text-center">
+                          <span className="text-xs font-bold text-purple-700 bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-100 block mb-2">
+                            🔒 此項目為人工鎖車
+                          </span>
+                          {order.status === 'confirmed' && (
+                            <button 
+                              onClick={() => handleStatusChange(order.id, 'cancelled')} 
+                              className="w-full bg-stone-100 text-stone-600 font-bold py-2 rounded-xl text-xs hover:bg-stone-200 transition-colors"
+                            >
+                              解除鎖定 (重新開放此車)
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <>
+                          {order.status === 'confirmed' && order.merchant_order_no ? (
+                            <div className="text-center bg-green-50 py-3 rounded-xl border border-green-100">
+                              <div className="text-xs font-bold text-green-600 flex justify-center items-center gap-1 mb-0.5"><CheckCircle size={14}/> 藍新金流已立帳</div>
+                              <span className="text-[10px] text-blue-500 font-normal select-all">{order.merchant_order_no}</span>
+                            </div>
+                          ) : (
+                            order.status !== 'cancelled' && <div className="text-center text-xs font-bold text-red-500 bg-red-50 py-3 rounded-xl border border-red-100">⚠️ 客人尚未進入結帳畫面</div>
+                          )}
+
+                          {order.status === 'pending' && (
+                            <div className="grid grid-cols-2 gap-2 mt-2">
+                              <button onClick={() => handleStatusChange(order.id, 'confirmed')} className="bg-green-600 text-white font-bold py-2 rounded-xl text-sm hover:bg-green-700 shadow-sm transition-all hover:-translate-y-0.5">✅ 確認接單</button>
+                              <button onClick={() => handleStatusChange(order.id, 'cancelled')} className="bg-stone-200 text-stone-600 font-bold py-2 rounded-xl text-sm hover:bg-stone-300 shadow-sm transition-all hover:-translate-y-0.5">❌ 婉拒/滿檔</button>
+                            </div>
+                          )}
+                          {order.status === 'confirmed' && (
+                             <button onClick={() => handleStatusChange(order.id, 'cancelled')} className="w-full text-stone-400 font-bold py-2 rounded-xl text-xs hover:text-red-500 mt-2 transition-colors">撤銷並改為作廢</button>
+                          )}
+                        </>
+                      )}
+                   </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
