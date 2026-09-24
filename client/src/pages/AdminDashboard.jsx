@@ -19,9 +19,10 @@ export default function AdminDashboard() {
   const [generatedLink, setGeneratedLink] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Manual block states
+  // Manual block states (含車輛數量選擇)
   const [blockStart, setBlockStart] = useState('');
   const [blockEnd, setBlockEnd] = useState('');
+  const [vanCount, setVanCount] = useState(1);
   const [blockNote, setBlockNote] = useState('');
   const [isBlocking, setIsBlocking] = useState(false);
 
@@ -84,19 +85,22 @@ export default function AdminDashboard() {
     if (!blockStart || !blockEnd) return alert('請選擇完整的開始與結束日期');
     if (new Date(blockStart) > new Date(blockEnd)) return alert('結束日期不可早於開始日期');
 
-    if (!window.confirm(`確定要手動封鎖 ${blockStart} 至 ${blockEnd} 的檔期嗎？這會直接將前台 3 台車全數鎖死。`)) return;
+    const confirmMsg = `確定要手動封鎖 ${blockStart} 至 ${blockEnd} 的檔期嗎？\n將鎖定 ${vanCount} 台車。${Number(vanCount) >= 3 ? '（前台日曆該區間將全數變灰無法預約）' : '（前台仍會保留其餘可用車輛庫存）'}`;
+    if (!window.confirm(confirmMsg)) return;
 
     setIsBlocking(true);
     try {
       const res = await axiosClient.post('/admin/block-dates', {
         startDate: blockStart,
         endDate: blockEnd,
+        vanCount: Number(vanCount),
         note: blockNote || '其他通路已售出 / 店休'
       });
       if (res.data.success) {
-        alert('✅ 成功關閉該區間檔期！前台客人已無法預訂。');
+        alert(`✅ 成功鎖定 ${vanCount} 台車！`);
         setBlockStart('');
         setBlockEnd('');
+        setVanCount(1);
         setBlockNote('');
         fetchOrders();
       }
@@ -172,16 +176,16 @@ export default function AdminDashboard() {
           )}
         </div>
 
-        {/* Manual Date Blocking Panel */}
+        {/* 🌟 手動關閉檔期面板 (支援選擇 1 ~ 3 台車) */}
         <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100 mb-8">
           <div className="flex items-center gap-3 mb-2">
             <Ban className="text-red-600" />
-            <h2 className="text-lg font-bold text-stone-900">手動關閉檔期 / 鎖定日期</h2>
+            <h2 className="text-lg font-bold text-stone-900">手動關閉檔期 / 鎖定車輛</h2>
           </div>
-          <p className="text-sm text-stone-500 mb-4">適用於其他通路接單、保養車輛或店休。鎖定後，前台日曆這段日期會全數變灰，防止客人重複下單。</p>
+          <p className="text-sm text-stone-500 mb-4">適用於私訊下單、其他通路售出或車輛保養維修。選擇關閉台數後，系統會自動扣減前台可用庫存；若累計滿 3 台前台日曆自動變灰。</p>
           
-          <form onSubmit={handleManualBlock} className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <div>
+          <form onSubmit={handleManualBlock} className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+            <div className="sm:col-span-3">
               <span className="block text-xs font-bold text-stone-500 mb-1">開始日期</span>
               <input 
                 type="date" 
@@ -191,7 +195,7 @@ export default function AdminDashboard() {
                 className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 bg-stone-50 text-sm font-medium"
               />
             </div>
-            <div>
+            <div className="sm:col-span-3">
               <span className="block text-xs font-bold text-stone-500 mb-1">結束日期</span>
               <input 
                 type="date" 
@@ -201,23 +205,38 @@ export default function AdminDashboard() {
                 className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 bg-stone-50 text-sm font-medium"
               />
             </div>
-            <div>
+            
+            <div className="sm:col-span-2">
+              <span className="block text-xs font-bold text-stone-500 mb-1">關閉車輛數</span>
+              <select
+                value={vanCount}
+                onChange={(e) => setVanCount(Number(e.target.value))}
+                className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 bg-stone-50 text-sm font-bold text-stone-800"
+              >
+                <option value={1}>1 台車 (保留部分)</option>
+                <option value={2}>2 台車 (保留多數)</option>
+                <option value={3}>3 台車 (整日全關)</option>
+              </select>
+            </div>
+
+            <div className="sm:col-span-2">
               <span className="block text-xs font-bold text-stone-500 mb-1">備註原因 (選填)</span>
               <input 
                 type="text" 
-                placeholder="例如：私訊包車 / 線下已租出" 
+                placeholder="例如：私訊包車" 
                 value={blockNote}
                 onChange={(e) => setBlockNote(e.target.value)}
                 className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 bg-stone-50 text-sm"
               />
             </div>
-            <div className="flex items-end">
+
+            <div className="sm:col-span-2 flex items-end">
               <button 
                 type="submit"
                 disabled={isBlocking}
                 className="w-full bg-red-600 text-white p-3 rounded-xl font-bold hover:bg-red-700 transition-all shadow-md text-sm"
               >
-                {isBlocking ? '處理中...' : '🔒 立即鎖死此區間'}
+                {isBlocking ? '處理中...' : `🔒 鎖定 ${vanCount} 台`}
               </button>
             </div>
           </form>
@@ -255,7 +274,7 @@ export default function AdminDashboard() {
                    <div className="flex justify-between items-start mb-4">
                       <div>
                         <span className="text-[10px] text-stone-400 font-bold tracking-widest uppercase mb-1 block">
-                          {isManualBlock ? '手動保留檔期' : `Order #${order.id}`}
+                          {isManualBlock ? '手動保留車輛' : `Order #${order.id}`}
                         </span>
                         <h3 className="font-bold text-lg text-stone-900 truncate pr-2" title={order.user_name}>
                           {order.user_name}
@@ -288,14 +307,14 @@ export default function AdminDashboard() {
                       {isManualBlock ? (
                         <div className="text-center">
                           <span className="text-xs font-bold text-purple-700 bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-100 block mb-2">
-                            🔒 此項目為人工鎖車
+                            🔒 此項目為手動佔用 1 台車
                           </span>
                           {order.status === 'confirmed' && (
                             <button 
                               onClick={() => handleStatusChange(order.id, 'cancelled')} 
                               className="w-full bg-stone-100 text-stone-600 font-bold py-2 rounded-xl text-xs hover:bg-stone-200 transition-colors"
                             >
-                              解除鎖定 (重新開放此車)
+                              解除鎖定 (釋放此台庫存)
                             </button>
                           )}
                         </div>

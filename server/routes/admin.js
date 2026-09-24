@@ -82,9 +82,8 @@ router.put('/orders/:id/status', authMiddleware, checkAdmin, async (req, res) =>
 router.post('/quick-order', authMiddleware, checkAdmin, async (req, res) => {
   try {
     const { amount } = req.body;
-    const today = new Date().toISOString().split('T')[0]; // 用今天當作預設日期
+    const today = new Date().toISOString().split('T')[0];
     
-    // 建立一筆快速訂單，把 contact_name 標記為「專屬快速結帳」方便老闆辨識
     const result = await db.query(
       `INSERT INTO inquiries (user_id, start_date, end_date, total_price, addons, contact_name, contact_phone, contact_email, status) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pending') RETURNING id`,
@@ -99,16 +98,15 @@ router.post('/quick-order', authMiddleware, checkAdmin, async (req, res) => {
 });
 
 // ==========================================
-// 4. 手動封鎖/關閉特定日期區間 (產生線下鎖定單)
+// 4. 手動封鎖/關閉特定日期區間 (支援選擇台數 1 ~ 3 台)
 // ==========================================
 router.post('/block-dates', authMiddleware, checkAdmin, async (req, res) => {
-  const { startDate, endDate, note, vanCount = 3 } = req.body;
+  const { startDate, endDate, note, vanCount = 1 } = req.body;
   if (!startDate || !endDate) {
     return res.status(400).json({ error: '請提供起始與結束日期' });
   }
 
   try {
-    // 預設鎖定 3 台（庫存全滿），直接連動前台行事曆轉灰無法點選
     const insertPromises = [];
     const count = Math.min(Math.max(Number(vanCount), 1), 3);
 
@@ -123,7 +121,7 @@ router.post('/block-dates', authMiddleware, checkAdmin, async (req, res) => {
     }
 
     await Promise.all(insertPromises);
-    res.json({ success: true, message: `已成功封鎖 ${startDate} ~ ${endDate}` });
+    res.json({ success: true, message: `已成功封鎖 ${startDate} ~ ${endDate} 共 ${count} 台車` });
   } catch (err) {
     console.error('Block Dates Error:', err);
     res.status(500).json({ error: 'Server Error' });
