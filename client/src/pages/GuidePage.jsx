@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Download, ExternalLink, Smartphone, Tent, Info, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Download, ExternalLink, Smartphone, Tent, Info, ChevronDown, Instagram } from 'lucide-react';
 import { useTranslation } from 'react-i18next'; // 🌟 Import translation hook
 
 // FAQ Accordion Component
@@ -23,8 +23,25 @@ export default function GuidePage() {
   const [openAccordion, setOpenAccordion] = useState(0);
   const { t } = useTranslation(); // 🌟 Initialize translation
 
+  // 🌟 動態載入 Instagram 官方嵌入腳本並解析 Reels
+  useEffect(() => {
+    if (window.instgrm) {
+      window.instgrm.Embeds.process();
+    } else {
+      const script = document.createElement('script');
+      script.async = true;
+      script.defer = true;
+      script.src = '//www.instagram.com/embed.js';
+      script.onload = () => {
+        if (window.instgrm) {
+          window.instgrm.Embeds.process();
+        }
+      };
+      document.body.appendChild(script);
+    }
+  }, []);
+
   const LINKS = {
-    appStore: "https://apps.apple.com/app/id1668213216", 
     googlePlay: "https://play.google.com/store/apps/details?id=cmsp.bedincar&pcampaignid=web_share"
   };
 
@@ -83,7 +100,52 @@ export default function GuidePage() {
           </div>
         </div>
 
-        {/* 2. Campervan Guidelines (Accordion Section) */}
+        {/* 2. 🌟 Instagram 精選貼文與 Reels 測試專區 */}
+        <div className="mb-16 bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm border border-stone-100">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
+              <Instagram size={14} /> Instagram Reels
+            </div>
+            <h3 className="text-3xl font-serif font-bold text-stone-900 mb-2">車友露營日常與短影音</h3>
+            <p className="text-stone-500 text-sm">追蹤官方 Instagram，看看車友們的真實出遊畫面與裝備教學</p>
+          </div>
+
+          <div className="flex justify-center items-center">
+            {/* 嵌入的 Instagram Reels */}
+            <div className="w-full max-w-[540px]">
+              <blockquote
+                className="instagram-media"
+                data-instgrm-captioned
+                data-instgrm-permalink="https://www.instagram.com/reel/DZPt-KgpYvz/?utm_source=ig_embed&amp;utm_campaign=loading"
+                data-instgrm-version="14"
+                style={{
+                  background: '#FFF',
+                  border: 0,
+                  borderRadius: '16px',
+                  boxShadow: '0 0 1px 0 rgba(0,0,0,0.5), 0 1px 10px 0 rgba(0,0,0,0.15)',
+                  margin: '1px auto',
+                  maxWidth: '540px',
+                  minWidth: '326px',
+                  padding: 0,
+                  width: 'calc(100% - 2px)'
+                }}
+              >
+                <div style={{ padding: '16px' }}>
+                  <a
+                    href="https://www.instagram.com/reel/DZPt-KgpYvz/?utm_source=ig_embed&amp;utm_campaign=loading"
+                    style={{ background: '#FFFFFF', lineHeight: 0, padding: '0 0', textAlign: 'center', textDecoration: 'none', width: '100%' }}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    在 Instagram 查看這則短片
+                  </a>
+                </div>
+              </blockquote>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Campervan Guidelines (Accordion Section) */}
         <div className="mb-16">
           <div className="text-center mb-10">
               <h3 className="text-3xl font-serif font-bold text-stone-900 mb-3 flex items-center justify-center gap-3"><Info className="text-orange-500"/> {t('guide.guideTitle')}</h3>
