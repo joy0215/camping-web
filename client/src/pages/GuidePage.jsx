@@ -42,6 +42,7 @@ export default function GuidePage() {
   }, []);
 
   const LINKS = {
+    appStore: "https://apps.apple.com/app/id1668213216", 
     googlePlay: "https://play.google.com/store/apps/details?id=cmsp.bedincar&pcampaignid=web_share"
   };
 
@@ -100,18 +101,17 @@ export default function GuidePage() {
           </div>
         </div>
 
-        {/* 2. 🌟 Instagram 精選貼文與 Reels 測試專區 */}
+        {/* 2. 🌟 Instagram 精選貼文與 Reels (已支援 i18n 雙語切換) */}
         <div className="mb-16 bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm border border-stone-100">
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
-              <Instagram size={14} /> Instagram Reels
+              <Instagram size={14} /> {t('guide.reelsBadge')}
             </div>
-            <h3 className="text-3xl font-serif font-bold text-stone-900 mb-2">車友露營日常與短影音</h3>
-            <p className="text-stone-500 text-sm">追蹤官方 Instagram，看看車友們的真實出遊畫面與裝備教學</p>
+            <h3 className="text-3xl font-serif font-bold text-stone-900 mb-2">{t('guide.reelsTitle')}</h3>
+            <p className="text-stone-500 text-sm">{t('guide.reelsSub')}</p>
           </div>
 
           <div className="flex justify-center items-center">
-            {/* 嵌入的 Instagram Reels */}
             <div className="w-full max-w-[540px]">
               <blockquote
                 className="instagram-media"
@@ -137,7 +137,7 @@ export default function GuidePage() {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    在 Instagram 查看這則短片
+                    {t('guide.reelsLinkText')}
                   </a>
                 </div>
               </blockquote>
@@ -153,22 +153,13 @@ export default function GuidePage() {
           </div>
 
           <div className="max-w-4xl mx-auto">
-            
             {/* Pick-up & Drop-off */}
             <AccordionItem title={t('guide.acc1Title')} isOpen={openAccordion === 0} onClick={() => setOpenAccordion(openAccordion === 0 ? -1 : 0)}>
               <ul className="space-y-4">
-                <li>
-                  <span className="font-bold text-stone-800">{t('guide.acc1q1')}</span> {t('guide.acc1a1')}
-                </li>
-                <li>
-                  <span className="font-bold text-stone-800">{t('guide.acc1q2')}</span> {t('guide.acc1a2')}
-                </li>
-                <li>
-                  <span className="font-bold text-stone-800">{t('guide.acc1q3')}</span> {t('guide.acc1a3')}
-                </li>
-                <li>
-                  <span className="font-bold text-stone-800">{t('guide.acc1q4')}</span> {t('guide.acc1a4')}
-                </li>
+                <li><span className="font-bold text-stone-800">{t('guide.acc1q1')}</span> {t('guide.acc1a1')}</li>
+                <li><span className="font-bold text-stone-800">{t('guide.acc1q2')}</span> {t('guide.acc1a2')}</li>
+                <li><span className="font-bold text-stone-800">{t('guide.acc1q3')}</span> {t('guide.acc1a3')}</li>
+                <li><span className="font-bold text-stone-800">{t('guide.acc1q4')}</span> {t('guide.acc1a4')}</li>
               </ul>
             </AccordionItem>
 
@@ -178,47 +169,28 @@ export default function GuidePage() {
                 <span className="font-bold text-orange-800 block">{t('guide.acc2Warning')}</span>
               </div>
               <ul className="space-y-4">
-                <li>
-                  <span className="font-bold text-stone-800">{t('guide.acc2q1')}</span> {t('guide.acc2a1')}
-                </li>
-                <li>
-                  <span className="font-bold text-stone-800">{t('guide.acc2q2')}</span> {t('guide.acc2a2')}
-                </li>
-                <li>
-                  <span className="font-bold text-stone-800">{t('guide.acc2q3')}</span> {t('guide.acc2a3')}
-                </li>
+                <li><span className="font-bold text-stone-800">{t('guide.acc2q1')}</span> {t('guide.acc2a1')}</li>
+                <li><span className="font-bold text-stone-800">{t('guide.acc2q2')}</span> {t('guide.acc2a2')}</li>
+                <li><span className="font-bold text-stone-800">{t('guide.acc2q3')}</span> {t('guide.acc2a3')}</li>
               </ul>
             </AccordionItem>
 
             {/* Mileage & Vehicle Specs */}
             <AccordionItem title={t('guide.acc3Title')} isOpen={openAccordion === 2} onClick={() => setOpenAccordion(openAccordion === 2 ? -1 : 2)}>
               <ul className="space-y-4">
-                <li>
-                  <span className="font-bold text-stone-800">{t('guide.acc3q1')}</span> {t('guide.acc3a1')}
-                </li>
-                <li>
-                  <span className="font-bold text-stone-800">{t('guide.acc3q2')}</span> {t('guide.acc3a2')}
-                </li>
-                <li>
-                  <span className="font-bold text-stone-800">{t('guide.acc3q3')}</span> {t('guide.acc3a3')}
-                </li>
+                <li><span className="font-bold text-stone-800">{t('guide.acc3q1')}</span> {t('guide.acc3a1')}</li>
+                <li><span className="font-bold text-stone-800">{t('guide.acc3q2')}</span> {t('guide.acc3a2')}</li>
+                <li><span className="font-bold text-stone-800">{t('guide.acc3q3')}</span> {t('guide.acc3a3')}</li>
               </ul>
             </AccordionItem>
 
             {/* Experience & Equipment */}
             <AccordionItem title={t('guide.acc4Title')} isOpen={openAccordion === 3} onClick={() => setOpenAccordion(openAccordion === 3 ? -1 : 3)}>
               <div className="space-y-4 text-stone-600">
-                <p>
-                  <span className="font-bold text-stone-800 block">{t('guide.acc4q1')}</span>
-                  {t('guide.acc4a1')}
-                </p>
-                <p>
-                  <span className="font-bold text-stone-800 block">{t('guide.acc4q2')}</span>
-                  {t('guide.acc4a2')}
-                </p>
+                <p><span className="font-bold text-stone-800 block">{t('guide.acc4q1')}</span>{t('guide.acc4a1')}</p>
+                <p><span className="font-bold text-stone-800 block">{t('guide.acc4q2')}</span>{t('guide.acc4a2')}</p>
               </div>
             </AccordionItem>
-
           </div>
         </div>
 
