@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Menu, X, Instagram, Facebook, MapPin, Phone, Mail 
+  Menu, X, Instagram, Facebook, MapPin, Phone, Mail, Globe, ChevronDown, Check 
 } from 'lucide-react';
 
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
@@ -53,18 +53,77 @@ const IMAGES = {
   logoStack: "/images/logo-stack.jpg"
 };
 
+const LANGUAGES = [
+  { code: 'en', short: 'EN', label: 'English' },
+  { code: 'zh', short: '中文', label: '繁體中文' },
+  { code: 'de', short: 'DE', label: 'Deutsch' },
+  { code: 'he', short: 'עב', label: 'עברית' },
+];
+
+const LanguageMenu = ({ align = 'end' }) => {
+  const { i18n } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const current = LANGUAGES.find((l) => (i18n.language || 'en').startsWith(l.code)) || LANGUAGES[0];
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', close);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label="Language"
+        className="flex items-center gap-1.5 px-2 py-2 text-sm font-medium text-stone-700 hover:text-stone-900"
+      >
+        <Globe size={16} strokeWidth={1.75} />
+        <span>{current.short}</span>
+        <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <ul
+          role="listbox"
+          className={`absolute top-full mt-1 w-40 bg-white border border-stone-200 rounded-md shadow-lg py-1 z-50 ${align === 'end' ? 'end-0' : 'start-0'}`}
+        >
+          {LANGUAGES.map((l) => (
+            <li key={l.code}>
+              <button
+                type="button"
+                role="option"
+                aria-selected={l.code === current.code}
+                onClick={() => { i18n.changeLanguage(l.code); setOpen(false); }}
+                className={`w-full flex items-center justify-between px-3 py-2 text-sm text-start hover:bg-stone-50 ${l.code === current.code ? 'text-stone-900 font-semibold' : 'text-stone-600'}`}
+              >
+                <span lang={l.code}>{l.label}</span>
+                {l.code === current.code && <Check size={14} />}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
 const Navbar = ({ isScrolled }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [user, setUser] = useState(null);
 
-  const { t, i18n } = useTranslation();
-
-  const toggleLanguage = () => {
-    const newLang = i18n.language.startsWith('zh') ? 'en' : 'zh';
-    i18n.changeLanguage(newLang);
-  };
+  const { t } = useTranslation();
 
   useEffect(() => {
     const checkUser = () => {
@@ -85,7 +144,7 @@ const Navbar = ({ isScrolled }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
-    alert(t('nav.logout') + ' 👋');
+    alert(t('nav.logout'));
     navigate('/');
   };
 
@@ -108,147 +167,132 @@ const Navbar = ({ isScrolled }) => {
     window.scrollTo(0, 0);
   };
 
-  const isHome = location.pathname === '/';
-  const isLightMode = isScrolled || !isHome;
-
   // 判定是否為管理員或符合主管 Email 白名單
   const isManager = user && (user.isAdmin || ADMIN_EMAILS.includes(user.email));
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${isLightMode ? 'bg-white/95 backdrop-blur-md shadow-sm py-3 text-stone-800' : 'bg-transparent py-6 text-white'}`}>
-      <div className="container mx-auto px-6 flex justify-between items-center">
+    <nav className={`fixed top-0 inset-x-0 z-50 bg-stone-50 border-b transition-colors ${isScrolled || isMobileMenuOpen ? 'border-stone-200' : 'border-transparent'}`}>
+      <div className="max-w-6xl mx-auto px-5 md:px-8 h-16 flex justify-between items-center gap-6">
         
-        {/* Brand Logo Section */}
-        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => handleNavClick('/')}>
-          <img src={IMAGES.logo} alt="CampingTour Campervan Rental Taiwan Logo" className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white/50 shadow-sm object-cover" onError={(e) => e.target.style.display='none'} />
-          <div className="flex flex-col">
-            <span className="text-lg font-serif font-bold tracking-wider leading-none">CampingTour</span>
-            <span className={`text-[10px] tracking-widest uppercase opacity-80 ${isLightMode ? 'text-orange-600' : 'text-orange-300'}`}>Taiwan Vanlife</span>
-          </div>
-        </div>
+        {/* Brand */}
+        <button type="button" className="flex items-center gap-2.5 shrink-0" onClick={() => handleNavClick('/')}>
+          <img src={IMAGES.logo} alt="CampingTour Campervan Rental Taiwan Logo" className="w-9 h-9 rounded-full object-cover" onError={(e) => e.target.style.display='none'} />
+          <span className="text-lg font-serif font-semibold text-stone-900 leading-none">CampingTour</span>
+        </button>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-8 font-medium text-sm tracking-wide">
-          {navLinks.map((link) => (
-              <button 
-                key={link.id} 
-                onClick={() => handleNavClick(link.id)} 
-                className={`transition-colors relative pb-1 ${
-                  location.pathname === link.id 
-                    ? 'text-orange-600 font-bold after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-orange-600' 
-                    : 'hover:text-orange-500'
-                }`}
-              >
-                {link.label}
-              </button>
-          ))}
-
-          {user ? (
-            <div className={`flex items-center gap-4 ml-4 pl-4 border-l ${isLightMode ? 'border-stone-300' : 'border-white/30'}`}>
-              
-              <button onClick={toggleLanguage} className="font-bold text-lg hover:scale-110 transition-transform" title="Change Language">
-                {i18n.language.startsWith('zh') ? '🇺🇸 EN' : '🇹🇼 中'}
-              </button>
-
-              {/* 🌟 雙主管均可看見老闆後台按鈕 */}
-              {isManager && (
-                <button 
-                  onClick={() => handleNavClick('/admin')}
-                  className="flex items-center gap-1 bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-700 transition-colors shadow-sm"
-                >
-                  👑 {t('nav.admin')}
-                </button>
-              )}
-
-              <button 
-                onClick={() => handleNavClick('/dashboard')}
-                className={`font-bold hover:underline cursor-pointer flex items-center gap-1 ${isLightMode ? 'text-orange-600' : 'text-orange-300'}`}
-                title="Member Center"
-              >
-                Hi, {user.name}
-              </button>
-              
-              <button 
-                onClick={handleLogout} 
-                className={`px-4 py-2 rounded-full border transition-all text-xs ${isLightMode ? 'border-stone-300 hover:bg-stone-100 text-stone-600' : 'border-white/50 hover:bg-white/20 text-white'}`}
-              >
-                {t('nav.logout')}
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 ml-4">
-              <button onClick={toggleLanguage} className="font-bold text-lg mr-2 hover:scale-110 transition-transform" title="Change Language">
-                {i18n.language.startsWith('zh') ? '🇺🇸 EN' : '🇹🇼 中'}
-              </button>
-
-              <button 
-                onClick={() => handleNavClick('/login')} 
-                className={`px-4 py-2 rounded-full transition-all ${isLightMode ? 'text-stone-800 hover:text-orange-600' : 'text-white hover:text-orange-300'}`}
-              >
-                {t('nav.login')}
-              </button>
-              <button 
-                onClick={() => handleNavClick('/register')} 
-                className="px-4 py-2 rounded-full bg-orange-600 text-white hover:bg-orange-700 shadow-md transition-all"
-              >
-                {t('nav.signup')}
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Mobile Menu Toggle & Language Button */}
-        <div className="md:hidden flex items-center gap-4">
-          <button onClick={toggleLanguage} className="font-bold text-xl hover:scale-110 transition-transform">
-              {i18n.language.startsWith('zh') ? '🇺🇸' : '🇹🇼'}
-          </button>
-          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            {isMobileMenuOpen ? <X className="text-stone-800" /> : <Menu />}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Dropdown Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-lg py-6 px-6 flex flex-col space-y-4 border-t border-stone-100 text-stone-800 h-screen">
+        <div className="hidden lg:flex items-center gap-6 text-sm min-w-0">
           {navLinks.map((link) => (
             <button 
               key={link.id} 
               onClick={() => handleNavClick(link.id)} 
-              className={`text-left text-lg font-medium py-2 ${
-                location.pathname === link.id ? 'text-orange-600' : 'text-stone-600'
+              aria-current={location.pathname === link.id ? 'page' : undefined}
+              className={`whitespace-nowrap py-1 border-b transition-colors ${
+                location.pathname === link.id 
+                  ? 'text-stone-900 font-semibold border-orange-600' 
+                  : 'text-stone-600 border-transparent hover:text-stone-900'
               }`}
             >
               {link.label}
             </button>
           ))}
-           
-           <div className="border-t pt-4 mt-2">
-                {user ? (
-                    <>
-                        <div className="text-orange-600 font-bold mb-2 text-lg">Hi, {user.name}</div>
-                        
-                        {isManager && (
-                          <button onClick={() => handleNavClick('/admin')} className="block w-full text-left py-2 font-bold text-red-600 hover:text-red-700">
-                            👑 {t('nav.admin')}
-                          </button>
-                        )}
+        </div>
 
-                        <button onClick={handleLogout} className="text-stone-500 w-full text-left py-2 hover:text-stone-800">
-                          {t('nav.logout')}
-                        </button>
-                    </>
-                ) : (
-                    <>
-                        <button onClick={() => handleNavClick('/login')} className="block w-full text-left mb-4 py-2 font-medium hover:text-orange-600">
-                          {t('nav.login')}
-                        </button>
-                        <button onClick={() => handleNavClick('/register')} className="block w-full text-left text-orange-600 font-bold py-2 hover:text-orange-700">
-                          {t('nav.signup')}
-                        </button>
-                    </>
+        <div className="hidden lg:flex items-center gap-3 text-sm shrink-0">
+          <LanguageMenu />
+
+          {user ? (
+            <>
+              {/* 雙主管均可看見老闆後台按鈕 */}
+              {isManager && (
+                <button 
+                  onClick={() => handleNavClick('/admin')}
+                  className="px-3 py-1.5 rounded-md border border-stone-300 text-stone-800 font-medium hover:border-stone-900 whitespace-nowrap"
+                >
+                  {t('nav.admin')}
+                </button>
+              )}
+
+              <button 
+                onClick={() => handleNavClick('/dashboard')}
+                className="font-medium text-stone-900 hover:underline underline-offset-4 max-w-[10rem] truncate"
+                title="Member Center"
+              >
+                {user.name}
+              </button>
+              
+              <button onClick={handleLogout} className="text-stone-500 hover:text-stone-900 whitespace-nowrap">
+                {t('nav.logout')}
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => handleNavClick('/login')} className="px-2 py-2 font-medium text-stone-700 hover:text-stone-900 whitespace-nowrap">
+                {t('nav.login')}
+              </button>
+              <button onClick={() => handleNavClick('/register')} className="btn btn-primary !py-2 !px-4 !text-sm whitespace-nowrap">
+                {t('nav.signup')}
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Mobile: language + menu toggle */}
+        <div className="lg:hidden flex items-center gap-1">
+          <LanguageMenu />
+          <button
+            type="button"
+            aria-label="Menu"
+            aria-expanded={isMobileMenuOpen}
+            className="p-2 text-stone-900"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X /> : <Menu />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden absolute top-full inset-x-0 bg-stone-50 border-t border-stone-200 px-5 pb-10 h-[calc(100vh-4rem)] overflow-y-auto">
+          <div className="flex flex-col divide-y divide-stone-200">
+            {navLinks.map((link) => (
+              <button 
+                key={link.id} 
+                onClick={() => handleNavClick(link.id)} 
+                className={`text-start text-lg font-serif py-4 ${
+                  location.pathname === link.id ? 'text-orange-600' : 'text-stone-900'
+                }`}
+              >
+                {link.label}
+              </button>
+            ))}
+          </div>
+           
+          <div className="mt-8 flex flex-col gap-3">
+            {user ? (
+              <>
+                <p className="text-sm text-stone-500">{user.name}</p>
+                {isManager && (
+                  <button onClick={() => handleNavClick('/admin')} className="btn btn-ghost w-full">
+                    {t('nav.admin')}
+                  </button>
                 )}
-             </div>
+                <button onClick={handleLogout} className="btn btn-ghost w-full">
+                  {t('nav.logout')}
+                </button>
+              </>
+            ) : (
+              <>
+                <button onClick={() => handleNavClick('/register')} className="btn btn-primary w-full">
+                  {t('nav.signup')}
+                </button>
+                <button onClick={() => handleNavClick('/login')} className="btn btn-ghost w-full">
+                  {t('nav.login')}
+                </button>
+              </>
+            )}
+          </div>
         </div>
       )}
     </nav>
@@ -263,76 +307,70 @@ const Footer = () => {
   const isZh = i18n.language.startsWith('zh');
 
   return (
-    <footer className="bg-stone-900 text-stone-400 py-16 text-sm border-t border-stone-800">
-      <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 border-b border-stone-800 pb-12">
-        <div className="col-span-1 md:col-span-2 space-y-6">
-          <div className="flex items-center gap-4">
-              <img 
-                src={IMAGES.logoStack} 
-                alt="CampingTour Taiwan Campervan Rental Official Logo" 
-                className="w-28 h-28 rounded-3xl shadow-2xl invert opacity-90 border border-white/20 backdrop-blur-sm"
-                onError={(e) => e.target.style.display='none'}
-              />
-              <div>
-              <h3 className="text-white text-2xl font-serif font-bold">CampingTour</h3>
-              <p className="text-xs uppercase tracking-widest text-orange-500">Free Young Campervan</p>
+    <footer className="bg-stone-900 text-stone-300 text-sm">
+      <div className="max-w-6xl mx-auto px-5 md:px-8 pt-16 pb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
+          <div className="sm:col-span-2 lg:col-span-5">
+            <img 
+              src={IMAGES.logoStack} 
+              alt="CampingTour Taiwan Campervan Rental Official Logo" 
+              className="w-24 h-24 object-contain invert mix-blend-screen -ms-2"
+              onError={(e) => e.target.style.display='none'}
+            />
+            <p className="mt-4 max-w-sm leading-relaxed text-stone-400" dangerouslySetInnerHTML={{ __html: t('footer.desc') }} />
+            <div className="flex gap-5 mt-6">
+              <a href={CONTACT_INFO.fbLink} target="_blank" rel="noreferrer" aria-label="Facebook" className="text-stone-400 hover:text-white transition-colors"><Facebook size={20} strokeWidth={1.75} /></a>
+              <a href={CONTACT_INFO.igLink} target="_blank" rel="noreferrer" aria-label="Instagram" className="text-stone-400 hover:text-white transition-colors"><Instagram size={20} strokeWidth={1.75} /></a>
             </div>
           </div>
-          <p className="max-w-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: t('footer.desc') }} />
-          <div className="flex gap-4 pt-2">
-            <a href={CONTACT_INFO.fbLink} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all"><Facebook size={20} /></a>
-            <a href={CONTACT_INFO.igLink} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all"><Instagram size={20} /></a>
+          
+          <div className="lg:col-span-3">
+            <h4 className="text-white font-semibold mb-4">{t('footer.quickLinks')}</h4>
+            <ul className="space-y-2.5">
+              <li><button onClick={() => handleLink('/plans')} className="hover:text-white transition-colors">{t('footer.plans')}</button></li>
+              <li><button onClick={() => handleLink('/booking')} className="hover:text-white transition-colors">{t('footer.booking')}</button></li>
+              <li><button onClick={() => handleLink('/guide')} className="hover:text-white transition-colors">{t('footer.guide')}</button></li>
+              <li><button onClick={() => handleLink('/terms')} className="hover:text-white transition-colors">{t('footer.terms')}</button></li>
+              <li><button onClick={() => handleLink('/register')} className="hover:text-white transition-colors">{t('footer.signup')}</button></li>
+            </ul>
+          </div>
+          
+          <div className="lg:col-span-4">
+            <h4 className="text-white font-semibold mb-4">{t('footer.contact')}</h4>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3"><Phone size={16} strokeWidth={1.75} className="mt-0.5 shrink-0 text-stone-500" /> <span>{isZh ? CONTACT_INFO.name : 'Jace He'} · <span dir="ltr">{CONTACT_INFO.phone}</span></span></li>
+              <li className="flex items-start gap-3"><Mail size={16} strokeWidth={1.75} className="mt-0.5 shrink-0 text-stone-500" /> <span className="break-all">{CONTACT_INFO.email}</span></li>
+              <li className="flex items-start gap-3"><MapPin size={16} strokeWidth={1.75} className="mt-0.5 shrink-0 text-stone-500" /> <span>{isZh ? CONTACT_INFO.address : CONTACT_INFO.addressEn}</span></li>
+            </ul>
           </div>
         </div>
-        
-        <div>
-          <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">{t('footer.quickLinks')}</h4>
-          <ul className="space-y-3">
-            <li><button onClick={() => handleLink('/plans')} className="hover:text-white transition-colors">{t('footer.plans')}</button></li>
-            <li><button onClick={() => handleLink('/booking')} className="hover:text-white transition-colors">{t('footer.booking')}</button></li>
-            <li><button onClick={() => handleLink('/guide')} className="hover:text-white transition-colors">{t('footer.guide')}</button></li>
-            <li><button onClick={() => handleLink('/terms')} className="hover:text-white transition-colors">{t('footer.terms')}</button></li>
-            <li><button onClick={() => handleLink('/register')} className="hover:text-white transition-colors text-orange-500">{t('footer.signup')}</button></li>
-          </ul>
-        </div>
-        
-        <div>
-          <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">{t('footer.contact')}</h4>
-          <ul className="space-y-4">
-            <li className="flex items-start gap-3"><Phone size={18} className="mt-1 text-orange-500" /> <div><span className="block text-white font-medium">{isZh ? CONTACT_INFO.name : 'Jace He'}</span><span>{CONTACT_INFO.phone}</span></div></li>
-            <li className="flex items-start gap-3"><Mail size={18} className="mt-1 text-orange-500" /> <span>{CONTACT_INFO.email}</span></li>
-            <li className="flex items-start gap-3"><MapPin size={18} className="mt-1 text-orange-500" /> <span>{isZh ? CONTACT_INFO.address : CONTACT_INFO.addressEn}</span></li>
-          </ul>
-        </div>
-      </div>
 
-      <div className="container mx-auto px-6 border-b border-stone-800 pb-8 mb-8">
-        <h4 className="text-stone-500 font-bold mb-4 uppercase tracking-widest text-xs">{t('footer.companyInfo')}</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-xs text-stone-500">
-          <div>
-            <span className="block text-stone-400 font-bold">{isZh ? CONTACT_INFO.company.name : CONTACT_INFO.company.nameEn}</span>
-            <span className="block text-stone-500 mb-1">{isZh ? CONTACT_INFO.company.nameEn : ''}</span>
-            <span className="block text-orange-600 font-bold">{CONTACT_INFO.company.license}</span>
-          </div>
-          <div>
-            <span className="block text-stone-400 font-bold">{t('footer.address')}</span>
-            <span>{CONTACT_INFO.company.address}</span>
-          </div>
-          <div>
-            <span className="block text-stone-400 font-bold">{t('footer.details')}</span>
-            <span>{t('footer.taxId')}: {CONTACT_INFO.company.taxId}</span><br/>
-            <span>{t('footer.rep')}: {CONTACT_INFO.company.rep}</span>
-          </div>
-          <div>
-            <span className="block text-stone-400 font-bold">{t('footer.contact')}</span>
-            <span>{t('footer.tel')}: {CONTACT_INFO.company.phone}</span><br/>
-            <span>{t('footer.fax')}: {CONTACT_INFO.company.fax}</span>
+        <div className="mt-12 pt-8 border-t border-stone-800 text-xs text-stone-400">
+          <h4 className="text-stone-300 font-semibold mb-4">{t('footer.companyInfo')}</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 leading-relaxed">
+            <div>
+              <span className="block text-stone-200">{isZh ? CONTACT_INFO.company.name : CONTACT_INFO.company.nameEn}</span>
+              {isZh && <span className="block">{CONTACT_INFO.company.nameEn}</span>}
+              <span className="block mt-1">{CONTACT_INFO.company.license}</span>
+            </div>
+            <div>
+              <span className="block text-stone-200">{t('footer.address')}</span>
+              <span>{CONTACT_INFO.company.address}</span>
+            </div>
+            <div>
+              <span className="block text-stone-200">{t('footer.details')}</span>
+              <span>{t('footer.taxId')}: {CONTACT_INFO.company.taxId}</span><br/>
+              <span>{t('footer.rep')}: {CONTACT_INFO.company.rep}</span>
+            </div>
+            <div>
+              <span className="block text-stone-200">{t('footer.contact')}</span>
+              <span>{t('footer.tel')}: <span dir="ltr">{CONTACT_INFO.company.phone}</span></span><br/>
+              <span>{t('footer.fax')}: <span dir="ltr">{CONTACT_INFO.company.fax}</span></span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="container mx-auto px-6 text-center text-xs text-stone-600">
-        <p>{t('footer.rights')}</p>
+        <p className="mt-10 text-xs text-stone-500">{t('footer.rights')}</p>
       </div>
     </footer>
   );
@@ -354,7 +392,7 @@ const App = () => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => { 
-    const handleScroll = () => { setIsScrolled(window.scrollY > 50); }; 
+    const handleScroll = () => { setIsScrolled(window.scrollY > 8); }; 
     window.addEventListener('scroll', handleScroll); 
     return () => window.removeEventListener('scroll', handleScroll); 
   }, []);

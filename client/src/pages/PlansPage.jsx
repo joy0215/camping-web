@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Zap, Users, Info, ChevronLeft, ChevronRight, Car, Tent, Wind, ShieldCheck } from 'lucide-react';
-import { useTranslation } from 'react-i18next'; // 🌟 Import translation hook
+import { Check, Zap, Users, Info, ChevronLeft, ChevronRight, Car, Tent, Wind, ShieldCheck } from 'lucide-react';
+import { useTranslation } from 'react-i18next'; // Import translation hook
 
 export default function PlansPage() {
   const navigate = useNavigate();
-  const { t } = useTranslation(); // 🌟 Initialize translation
+  const { t } = useTranslation(); // Initialize translation
   
   const vehicleImages = [
     "/images/exterior-side.jpg",       
@@ -39,7 +39,7 @@ export default function PlansPage() {
     setCurrentImageIndex((prev) => (prev - 1 + vehicleImages.length) % vehicleImages.length);
   };
 
-  // 🌟 Translated Specs
+  // Translated Specs
   const specs = [
     { icon: ShieldCheck, label: t('plans.spec1') }, 
     { icon: Car, label: t('plans.spec2') },             
@@ -49,127 +49,127 @@ export default function PlansPage() {
     { icon: Zap, label: t('plans.spec6') },
   ];
 
-  // 🌟 Translated Equipment List
+  // Translated Equipment List
   const equipmentList = [
     t('plans.equip1'), t('plans.equip2'), t('plans.equip3'), t('plans.equip4'),
     t('plans.equip5'), t('plans.equip6'), t('plans.equip7'), t('plans.equip8')
   ];
 
   return (
-    <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
-      <div className="container mx-auto px-6">
+    <div className="pt-24 md:pt-28 pb-20 bg-stone-50 min-h-screen">
+      <div className="max-w-6xl mx-auto px-5 md:px-8">
         
-        {/* Header Section */}
-        <div className="text-center max-w-2xl mx-auto mb-16 animate-fade-in">
-          <span className="text-orange-600 font-bold tracking-widest uppercase text-xs border border-orange-200 bg-orange-50 px-3 py-1 rounded-full mb-4 inline-block">{t('plans.badge')}</span>
-          <h2 className="text-4xl md:text-5xl font-serif font-bold text-stone-900 mt-2 mb-6">{t('plans.title')}</h2>
-        </div>
+        <header className="max-w-2xl mb-10 md:mb-14">
+          <p className="eyebrow">{t('plans.badge')}</p>
+          <h1 className="mt-3 font-serif font-medium text-4xl md:text-5xl text-stone-900 tracking-tight">{t('plans.title')}</h1>
+        </header>
 
-        {/* Main Content Card */}
-        <div className="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl max-w-6xl mx-auto border border-stone-100 mb-20 animate-fade-in delay-100">
-          <div className="grid grid-cols-1 lg:grid-cols-2">
-            
-            {/* Left: Image Carousel */}
-            <div className="relative h-[450px] lg:h-auto group bg-stone-900 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
+          
+          {/* Gallery */}
+          <div className="lg:col-span-6">
+            <div className="relative aspect-[4/5] max-h-[640px] w-full rounded-md overflow-hidden bg-stone-200 group">
               {vehicleImages.map((img, idx) => (
-              <img 
-                key={idx}
-                src={img} 
-                alt={`CampingTour A180 Campervan view ${idx + 1}`} 
-                className={`absolute inset-0 w-full h-full object-cover transition-all duration-[2000ms] ease-out ${
-                  idx === currentImageIndex ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
-                }`}
-                onError={(e) => e.target.src='/images/vibe-drive.jpg'} 
-              />
+                <img 
+                  key={idx}
+                  src={img} 
+                  alt={`CampingTour A180 Campervan view ${idx + 1}`} 
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+                    idx === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  onError={(e) => e.target.src='/images/vibe-drive.jpg'} 
+                />
               ))}
-              
-              <div className="absolute top-6 left-6 bg-black/50 backdrop-blur-md text-white px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest z-10 border border-white/20 shadow-lg">
-                Compliant & Safe
-              </div>
 
               <button 
                 onClick={prevImage}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 transform hover:scale-110 z-20 border border-white/30"
+                aria-label="Previous photo"
+                className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-stone-900 p-2 rounded-full z-20 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
               >
-                <ChevronLeft size={24}/>
+                <ChevronLeft size={20}/>
               </button>
               <button 
                 onClick={nextImage}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 transform hover:scale-110 z-20 border border-white/30"
+                aria-label="Next photo"
+                className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-stone-900 p-2 rounded-full z-20 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
               >
-                <ChevronRight size={24}/>
+                <ChevronRight size={20}/>
               </button>
 
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-10 bg-black/30 backdrop-blur-md px-4 py-2 rounded-full">
-                {vehicleImages.map((_, idx) => (
-                  <div 
-                    key={idx} 
-                    onClick={() => setCurrentImageIndex(idx)}
-                    className={`w-2 h-2 rounded-full cursor-pointer transition-all duration-500 ${idx === currentImageIndex ? 'bg-white w-8 shadow-[0_0_10px_white]' : 'bg-white/40 hover:bg-white/80'}`} 
-                  />
-                ))}
-              </div>
+              <span className="absolute bottom-3 end-3 z-10 bg-stone-900/70 text-white text-xs px-2 py-1 rounded" dir="ltr">
+                {currentImageIndex + 1} / {vehicleImages.length}
+              </span>
             </div>
+
+            <div className="mt-2 grid grid-cols-9 gap-1.5" dir="ltr">
+              {vehicleImages.map((img, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCurrentImageIndex(idx)}
+                  aria-label={`Photo ${idx + 1}`}
+                  className={`aspect-square rounded overflow-hidden bg-stone-200 transition-opacity ${idx === currentImageIndex ? 'ring-2 ring-stone-900 ring-offset-2 ring-offset-stone-50' : 'opacity-60 hover:opacity-100'}`}
+                >
+                  <img src={img} alt="" loading="lazy" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          {/* Details */}
+          <div className="lg:col-span-6">
+            <h2 className="font-serif text-3xl md:text-4xl text-stone-900">{t('plans.model')}</h2>
+            <p className="mt-2 text-sm font-semibold text-orange-600">{t('plans.legal')}</p>
             
-            {/* Right: Vehicle Details */}
-            <div className="p-8 lg:p-14 flex flex-col justify-center bg-white">
-              <h3 className="text-4xl font-bold text-stone-900 mb-2">{t('plans.model')}</h3>
-              <p className="text-xl text-orange-600 font-bold tracking-widest mb-8 uppercase text-sm">{t('plans.legal')}</p>
-              
-              <div className="space-y-4 text-stone-600 leading-relaxed mb-10 text-lg font-medium border-l-4 border-orange-100 pl-6">
-                <p dangerouslySetInnerHTML={{ __html: t('plans.desc') }} />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 mb-10">
-                {specs.map((spec, i) => (
-                  <div key={i} className="flex items-center gap-3 text-stone-700 bg-stone-50 p-4 rounded-xl border border-stone-100 hover:border-orange-200 hover:bg-orange-50 transition-colors group">
-                    <spec.icon size={20} className="text-orange-500 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                    <span className="font-bold text-sm">{spec.label}</span>
-                  </div>
-                ))}
-              </div>
+            <p className="mt-6 text-lg text-stone-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: t('plans.desc') }} />
+            
+            <ul className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-x-8 border-t border-stone-200">
+              {specs.map((spec, i) => (
+                <li key={i} className="flex items-center gap-3 py-3.5 border-b border-stone-200 text-stone-800">
+                  <spec.icon size={18} strokeWidth={1.5} className="text-stone-500 shrink-0" />
+                  <span className="text-sm font-medium">{spec.label}</span>
+                </li>
+              ))}
+            </ul>
 
-              <div className="bg-stone-900 rounded-2xl p-6 mb-8 text-white shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500 rounded-full blur-[60px] opacity-20 -mr-10 -mt-10"></div>
-                <div className="relative z-10 flex justify-between items-center mb-4 border-b border-stone-700 pb-4">
-                  <span className="text-stone-400 font-medium">{t('plans.weekday')}</span>
-                  <span className="font-bold text-2xl">NT$ 3,700<span className="text-sm font-normal text-stone-400">/Day</span></span>
-                </div>
-                <div className="relative z-10 flex justify-between items-center">
-                  <span className="text-stone-400 font-medium">{t('plans.weekend')}</span>
-                  <span className="font-bold text-2xl text-orange-400">NT$ 4,700<span className="text-sm font-normal text-stone-500">/Day</span></span>
-                </div>
+            <dl className="mt-8 bg-white border border-stone-200 rounded-md divide-y divide-stone-200">
+              <div className="flex justify-between items-baseline gap-4 px-5 py-4">
+                <dt className="text-stone-600">{t('plans.weekday')}</dt>
+                <dd className="font-serif text-2xl text-stone-900 whitespace-nowrap"><span dir="ltr">NT$ 3,700</span> <span className="font-sans text-sm text-stone-500">{t('plans.perDay', '/ day')}</span></dd>
               </div>
-              
-              <button 
-                onClick={() => navigate('/booking')}
-                className="w-full bg-orange-600 text-white py-4.5 rounded-xl font-bold hover:bg-orange-700 transition-all shadow-[0_4px_14px_0_rgba(234,88,12,0.39)] hover:shadow-[0_6px_20px_rgba(234,88,12,0.23)] hover:-translate-y-1 text-lg flex items-center justify-center gap-2"
-              >
-                {t('plans.btnCheck')}
-              </button>
-            </div>
+              <div className="flex justify-between items-baseline gap-4 px-5 py-4">
+                <dt className="text-stone-600">{t('plans.weekend')}</dt>
+                <dd className="font-serif text-2xl text-stone-900 whitespace-nowrap"><span dir="ltr">NT$ 4,700</span> <span className="font-sans text-sm text-stone-500">{t('plans.perDay', '/ day')}</span></dd>
+              </div>
+            </dl>
+            
+            <button onClick={() => navigate('/booking')} className="btn btn-accent w-full mt-6 !py-4 !text-base">
+              {t('plans.btnCheck')}
+            </button>
           </div>
         </div>
 
-        {/* Included Equipment Section */}
-        <div className="mb-20 animate-fade-in delay-200">
-          <div className="text-center mb-10">
-            <h3 className="text-3xl font-serif font-bold text-stone-900">{t('plans.equipTitle')}</h3>
-            <p className="text-stone-500 mt-2">{t('plans.equipSub')}</p>
+        {/* Included Equipment */}
+        <section className="mt-20 md:mt-28 grid lg:grid-cols-12 gap-8 lg:gap-14">
+          <div className="lg:col-span-4">
+            <h2 className="font-serif text-3xl text-stone-900">{t('plans.equipTitle')}</h2>
+            <p className="mt-3 text-stone-600 leading-relaxed">{t('plans.equipSub')}</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
-            {equipmentList.map((item, i) => (
-              <div key={i} className="flex flex-col items-center gap-3 bg-white p-6 rounded-2xl shadow-sm border border-stone-100 text-center hover:shadow-xl hover:-translate-y-1 transition-all group min-h-[140px] justify-center">
-                <CheckCircle size={28} className="text-stone-300 group-hover:text-green-500 transition-colors mb-2 flex-shrink-0"/>
-                <span className="font-bold text-stone-800 text-sm leading-dashed">{item}</span>
-              </div>
-            ))}
+          <div className="lg:col-span-8">
+            <ul className="grid sm:grid-cols-2 gap-x-10 border-t border-stone-200">
+              {equipmentList.map((item, i) => (
+                <li key={i} className="flex items-start gap-3 py-3.5 border-b border-stone-200 text-stone-800">
+                  <Check size={18} className="mt-0.5 text-orange-600 shrink-0"/>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-6 flex items-start gap-2.5 text-sm text-stone-600 leading-relaxed">
+              <Info size={16} className="mt-0.5 shrink-0 text-stone-400"/> 
+              <span><strong className="text-stone-800">{t('plans.noticeTitle')}</strong> — {t('plans.noticeDesc')}</span>
+            </p>
           </div>
-          <div className="text-center mt-8 text-sm text-stone-600 bg-stone-100 py-4 rounded-xl max-w-2xl mx-auto font-medium">
-            <Info size={18} className="inline mr-2 text-stone-400 mb-0.5"/> 
-            {t('plans.noticeTitle')}：{t('plans.noticeDesc')}
-          </div>
-        </div>
+        </section>
 
       </div>
     </div>

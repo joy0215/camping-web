@@ -31,7 +31,7 @@ export default function AdminDashboard() {
     const isAdmin = user && (user.isAdmin || ADMIN_EMAILS.includes(user.email));
 
     if (!isAdmin) {
-      alert('⚠️ Permission denied, returning to home');
+      alert('Permission denied, returning to home');
       navigate('/');
       return;
     }
@@ -51,7 +51,7 @@ export default function AdminDashboard() {
   };
 
   const handleStatusChange = async (orderId, newStatus) => {
-    const actionName = newStatus === 'confirmed' ? '✅ Confirm Order' : '❌ Cancel Order';
+    const actionName = newStatus === 'confirmed' ? 'Confirm Order' : 'Cancel Order';
     if (!window.confirm(`Are you sure you want to ${actionName}?`)) return;
 
     try {
@@ -97,7 +97,7 @@ export default function AdminDashboard() {
         note: blockNote || '其他通路已售出 / 店休'
       });
       if (res.data.success) {
-        alert(`✅ 成功鎖定 ${vanCount} 台車！`);
+        alert(`成功鎖定 ${vanCount} 台車！`);
         setBlockStart('');
         setBlockEnd('');
         setVanCount(1);
@@ -105,7 +105,7 @@ export default function AdminDashboard() {
         fetchOrders();
       }
     } catch (err) {
-      alert('❌ 封鎖日期失敗，請重試');
+      alert('封鎖日期失敗，請重試');
     } finally {
       setIsBlocking(false);
     }
@@ -113,34 +113,34 @@ export default function AdminDashboard() {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedLink);
-    alert('✅ Checkout link copied! You can send it to the customer now.');
+    alert('Checkout link copied! You can send it to the customer now.');
   };
 
   const filteredOrders = orders.filter(o => o.status === filterStatus);
 
   return (
     <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
-      <div className="container mx-auto px-4 md:px-6 max-w-6xl">
+      <div className="max-w-6xl mx-auto px-5 md:px-8 md:px-6 max-w-6xl">
         
         {/* Dashboard Header */}
-        <div className="bg-stone-900 text-white p-8 md:p-10 rounded-[2rem] shadow-xl mb-8 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
+        <div className="bg-stone-900 text-white p-8 md:p-10 rounded-md mb-8 flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
           <div className="relative z-10 flex items-center gap-4">
-            <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-lg border-4 border-red-500/30">
+            <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center border-4 border-red-500/30">
               <ShieldCheck size={32} className="text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight mb-1">老闆戰情室</h1>
+              <h1 className="text-3xl font-semibold tracking-tight mb-1">老闆戰情室</h1>
               <p className="text-stone-400 text-sm">訂單審核與客戶管理中心 (主管雙權限已啟用)</p>
             </div>
           </div>
         </div>
 
         {/* Quick Checkout Link Generator */}
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100 mb-6">
+        <div className="bg-white p-6 rounded-md shadow-sm border border-stone-200 mb-6">
           <div className="flex items-center gap-3 mb-4">
             <CreditCard className="text-orange-600" />
-            <h2 className="text-lg font-bold text-stone-900">建立客製化結帳連結</h2>
+            <h2 className="text-lg font-semibold text-stone-900">建立客製化結帳連結</h2>
           </div>
           <p className="text-sm text-stone-500 mb-4">輸入金額即可產生一組專屬結帳網址。你可以直接把網址丟到 LINE 或 WhatsApp 讓客人付款。</p>
           
@@ -150,68 +150,68 @@ export default function AdminDashboard() {
               placeholder="輸入結帳金額 (例如: 1000)" 
               value={quickAmount}
               onChange={(e) => setQuickAmount(e.target.value)}
-              className="flex-grow p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-stone-50 font-bold"
+              className="flex-grow p-3 border border-stone-200 rounded-md outline-none focus:border-stone-900 bg-stone-50 font-semibold"
             />
             <button 
               onClick={handleGenerateQuickLink}
               disabled={isGenerating}
-              className="bg-stone-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-orange-600 transition-all shadow-md shrink-0"
+              className="bg-stone-900 text-white px-6 py-3 rounded-md font-semibold hover:bg-orange-600 transition-all shrink-0"
             >
-              {isGenerating ? 'Generating...' : '⚡ 產生網址'}
+              {isGenerating ? 'Generating...' : '產生網址'}
             </button>
           </div>
 
           {generatedLink && (
-            <div className="mt-4 p-4 bg-orange-50 border border-orange-100 rounded-xl flex items-center justify-between gap-4 animate-fade-in">
+            <div className="mt-4 p-4 bg-orange-50 border border-orange-100 rounded-md flex items-center justify-between gap-4 animate-fade-in">
               <div className="overflow-hidden">
-                <p className="text-xs font-bold text-orange-600 uppercase mb-1">專屬付款網址</p>
+                <p className="text-xs font-semibold text-orange-600 mb-1">專屬付款網址</p>
                 <a href={generatedLink} target="_blank" rel="noreferrer" className="text-sm text-stone-800 hover:underline truncate block">
                   {generatedLink}
                 </a>
               </div>
-              <button onClick={copyToClipboard} className="bg-white text-orange-600 border border-orange-200 px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-orange-600 hover:text-white transition-colors shrink-0">
+              <button onClick={copyToClipboard} className="bg-white text-orange-600 border border-orange-200 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm hover:bg-orange-600 hover:text-white transition-colors shrink-0">
                 複製網址
               </button>
             </div>
           )}
         </div>
 
-        {/* 🌟 手動關閉檔期面板 (支援選擇 1 ~ 3 台車) */}
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100 mb-8">
+        {/* 手動關閉檔期面板 (支援選擇 1 ~ 3 台車) */}
+        <div className="bg-white p-6 rounded-md shadow-sm border border-stone-200 mb-8">
           <div className="flex items-center gap-3 mb-2">
             <Ban className="text-red-600" />
-            <h2 className="text-lg font-bold text-stone-900">手動關閉檔期 / 鎖定車輛</h2>
+            <h2 className="text-lg font-semibold text-stone-900">手動關閉檔期 / 鎖定車輛</h2>
           </div>
           <p className="text-sm text-stone-500 mb-4">適用於私訊下單、其他通路售出或車輛保養維修。選擇關閉台數後，系統會自動扣減前台可用庫存；若累計滿 3 台前台日曆自動變灰。</p>
           
           <form onSubmit={handleManualBlock} className="grid grid-cols-1 sm:grid-cols-12 gap-4">
             <div className="sm:col-span-3">
-              <span className="block text-xs font-bold text-stone-500 mb-1">開始日期</span>
+              <span className="block text-xs font-semibold text-stone-500 mb-1">開始日期</span>
               <input 
                 type="date" 
                 value={blockStart}
                 onChange={(e) => setBlockStart(e.target.value)}
                 required
-                className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 bg-stone-50 text-sm font-medium"
+                className="w-full p-3 border border-stone-200 rounded-md outline-none focus:ring-2 focus:ring-red-500 bg-stone-50 text-sm font-medium"
               />
             </div>
             <div className="sm:col-span-3">
-              <span className="block text-xs font-bold text-stone-500 mb-1">結束日期</span>
+              <span className="block text-xs font-semibold text-stone-500 mb-1">結束日期</span>
               <input 
                 type="date" 
                 value={blockEnd}
                 onChange={(e) => setBlockEnd(e.target.value)}
                 required
-                className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 bg-stone-50 text-sm font-medium"
+                className="w-full p-3 border border-stone-200 rounded-md outline-none focus:ring-2 focus:ring-red-500 bg-stone-50 text-sm font-medium"
               />
             </div>
             
             <div className="sm:col-span-2">
-              <span className="block text-xs font-bold text-stone-500 mb-1">關閉車輛數</span>
+              <span className="block text-xs font-semibold text-stone-500 mb-1">關閉車輛數</span>
               <select
                 value={vanCount}
                 onChange={(e) => setVanCount(Number(e.target.value))}
-                className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 bg-stone-50 text-sm font-bold text-stone-800"
+                className="w-full p-3 border border-stone-200 rounded-md outline-none focus:ring-2 focus:ring-red-500 bg-stone-50 text-sm font-semibold text-stone-800"
               >
                 <option value={1}>1 台車 (保留部分)</option>
                 <option value={2}>2 台車 (保留多數)</option>
@@ -220,13 +220,13 @@ export default function AdminDashboard() {
             </div>
 
             <div className="sm:col-span-2">
-              <span className="block text-xs font-bold text-stone-500 mb-1">備註原因 (選填)</span>
+              <span className="block text-xs font-semibold text-stone-500 mb-1">備註原因 (選填)</span>
               <input 
                 type="text" 
                 placeholder="例如：私訊包車" 
                 value={blockNote}
                 onChange={(e) => setBlockNote(e.target.value)}
-                className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 bg-stone-50 text-sm"
+                className="w-full p-3 border border-stone-200 rounded-md outline-none focus:ring-2 focus:ring-red-500 bg-stone-50 text-sm"
               />
             </div>
 
@@ -234,59 +234,59 @@ export default function AdminDashboard() {
               <button 
                 type="submit"
                 disabled={isBlocking}
-                className="w-full bg-red-600 text-white p-3 rounded-xl font-bold hover:bg-red-700 transition-all shadow-md text-sm"
+                className="w-full bg-red-600 text-white p-3 rounded-md font-semibold hover:bg-red-700 transition-all text-sm"
               >
-                {isBlocking ? '處理中...' : `🔒 鎖定 ${vanCount} 台`}
+                {isBlocking ? '處理中...' : `鎖定 ${vanCount} 台`}
               </button>
             </div>
           </form>
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex flex-wrap gap-2 mb-8 bg-white p-2 rounded-2xl shadow-sm border border-stone-100 w-fit">
-          <button onClick={() => setFilterStatus('pending')} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${filterStatus === 'pending' ? 'bg-orange-100 text-orange-700' : 'text-stone-500 hover:bg-stone-50'}`}>
+        <div className="flex flex-wrap gap-2 mb-8 bg-white p-2 rounded-md shadow-sm border border-stone-200 w-fit">
+          <button onClick={() => setFilterStatus('pending')} className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-semibold transition-all ${filterStatus === 'pending' ? 'bg-orange-100 text-orange-700' : 'text-stone-500 hover:bg-stone-50'}`}>
             <Clock size={16}/> 待審核 ({orders.filter(o => o.status === 'pending').length})
           </button>
-          <button onClick={() => setFilterStatus('confirmed')} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${filterStatus === 'confirmed' ? 'bg-green-100 text-green-700' : 'text-stone-500 hover:bg-stone-50'}`}>
+          <button onClick={() => setFilterStatus('confirmed')} className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-semibold transition-all ${filterStatus === 'confirmed' ? 'bg-green-100 text-green-700' : 'text-stone-500 hover:bg-stone-50'}`}>
             <CheckCircle size={16}/> 已確認出車 / 線下鎖定 ({orders.filter(o => o.status === 'confirmed').length})
           </button>
-          <button onClick={() => setFilterStatus('cancelled')} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${filterStatus === 'cancelled' ? 'bg-red-100 text-red-700' : 'text-stone-500 hover:bg-stone-50'}`}>
+          <button onClick={() => setFilterStatus('cancelled')} className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-semibold transition-all ${filterStatus === 'cancelled' ? 'bg-red-100 text-red-700' : 'text-stone-500 hover:bg-stone-50'}`}>
             <XCircle size={16}/> 婉拒 / 取消 / 已解鎖 ({orders.filter(o => o.status === 'cancelled').length})
           </button>
         </div>
 
         {/* Order List */}
         {isLoading ? (
-           <div className="text-center py-20 text-stone-400 font-bold animate-pulse">Loading data...</div>
+           <div className="text-center py-20 text-stone-400 font-semibold animate-pulse">Loading data...</div>
         ) : filteredOrders.length === 0 ? (
-           <div className="bg-white py-20 text-center rounded-3xl border border-stone-100 shadow-sm flex flex-col items-center">
+           <div className="bg-white py-20 text-center rounded-md border border-stone-200 shadow-sm flex flex-col items-center">
              <Filter size={48} className="text-stone-200 mb-4" />
-             <p className="text-stone-400 font-bold">目前沒有 {filterStatus === 'pending' ? '待審核' : filterStatus === 'confirmed' ? '已確認' : '已取消'} 的項目</p>
+             <p className="text-stone-400 font-semibold">目前沒有 {filterStatus === 'pending' ? '待審核' : filterStatus === 'confirmed' ? '已確認' : '已取消'} 的項目</p>
            </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredOrders.map(order => {
               const isManualBlock = order.contact_name?.includes('[線下封鎖/店休]');
               return (
-                <div key={order.id} className="bg-white rounded-3xl p-6 shadow-sm border border-stone-100 hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div key={order.id} className="bg-white rounded-md p-6 shadow-sm border border-stone-200 transition-shadow relative overflow-hidden group">
                    <div className={`absolute top-0 left-0 w-1 h-full ${isManualBlock ? 'bg-purple-600' : order.status === 'pending' ? 'bg-orange-500' : order.status === 'confirmed' ? 'bg-green-500' : 'bg-red-500'}`}></div>
                    
                    <div className="flex justify-between items-start mb-4">
                       <div>
-                        <span className="text-[10px] text-stone-400 font-bold tracking-widest uppercase mb-1 block">
+                        <span className="text-[10px] text-stone-400 font-semibold mb-1 block">
                           {isManualBlock ? '手動保留車輛' : `Order #${order.id}`}
                         </span>
-                        <h3 className="font-bold text-lg text-stone-900 truncate pr-2" title={order.user_name}>
+                        <h3 className="font-semibold text-lg text-stone-900 truncate pr-2" title={order.user_name}>
                           {order.user_name}
                         </h3>
                       </div>
                       <div className="text-right">
-                         <span className="text-[10px] text-stone-400 font-bold tracking-widest uppercase mb-1 block">Total</span>
-                         <span className="font-bold text-orange-600 text-lg">NT$ {order.total_price}</span>
+                         <span className="text-[10px] text-stone-400 font-semibold mb-1 block">Total</span>
+                         <span className="font-semibold text-orange-600 text-lg">NT$ {order.total_price}</span>
                       </div>
                    </div>
 
-                   <div className="space-y-3 mb-6 bg-stone-50 p-4 rounded-2xl border border-stone-100">
+                   <div className="space-y-3 mb-6 bg-stone-50 p-4 rounded-md border border-stone-200">
                       <div className="flex items-center gap-3 text-sm text-stone-600">
                         <Calendar size={16} className="text-stone-400 shrink-0"/> 
                         <span className="font-medium">{new Date(order.start_date).toLocaleDateString()} <span className="text-stone-300 mx-1">→</span> {new Date(order.end_date).toLocaleDateString()}</span>
@@ -303,16 +303,16 @@ export default function AdminDashboard() {
                       )}
                    </div>
 
-                   <div className="border-t border-stone-100 pt-4 mt-auto">
+                   <div className="border-t border-stone-200 pt-4 mt-auto">
                       {isManualBlock ? (
                         <div className="text-center">
-                          <span className="text-xs font-bold text-purple-700 bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-100 block mb-2">
-                            🔒 此項目為手動佔用 1 台車
+                          <span className="text-xs font-semibold text-purple-700 bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-100 block mb-2">
+                            此項目為手動佔用 1 台車
                           </span>
                           {order.status === 'confirmed' && (
                             <button 
                               onClick={() => handleStatusChange(order.id, 'cancelled')} 
-                              className="w-full bg-stone-100 text-stone-600 font-bold py-2 rounded-xl text-xs hover:bg-stone-200 transition-colors"
+                              className="w-full bg-stone-100 text-stone-600 font-semibold py-2 rounded-md text-xs hover:bg-stone-200 transition-colors"
                             >
                               解除鎖定 (釋放此台庫存)
                             </button>
@@ -321,22 +321,22 @@ export default function AdminDashboard() {
                       ) : (
                         <>
                           {order.status === 'confirmed' && order.merchant_order_no ? (
-                            <div className="text-center bg-green-50 py-3 rounded-xl border border-green-100">
-                              <div className="text-xs font-bold text-green-600 flex justify-center items-center gap-1 mb-0.5"><CheckCircle size={14}/> 藍新金流已立帳</div>
+                            <div className="text-center bg-green-50 py-3 rounded-md border border-green-100">
+                              <div className="text-xs font-semibold text-green-600 flex justify-center items-center gap-1 mb-0.5"><CheckCircle size={14}/> 藍新金流已立帳</div>
                               <span className="text-[10px] text-blue-500 font-normal select-all">{order.merchant_order_no}</span>
                             </div>
                           ) : (
-                            order.status !== 'cancelled' && <div className="text-center text-xs font-bold text-red-500 bg-red-50 py-3 rounded-xl border border-red-100">⚠️ 客人尚未進入結帳畫面</div>
+                            order.status !== 'cancelled' && <div className="text-center text-xs font-semibold text-red-500 bg-red-50 py-3 rounded-md border border-red-100">客人尚未進入結帳畫面</div>
                           )}
 
                           {order.status === 'pending' && (
                             <div className="grid grid-cols-2 gap-2 mt-2">
-                              <button onClick={() => handleStatusChange(order.id, 'confirmed')} className="bg-green-600 text-white font-bold py-2 rounded-xl text-sm hover:bg-green-700 shadow-sm transition-all hover:-translate-y-0.5">✅ 確認接單</button>
-                              <button onClick={() => handleStatusChange(order.id, 'cancelled')} className="bg-stone-200 text-stone-600 font-bold py-2 rounded-xl text-sm hover:bg-stone-300 shadow-sm transition-all hover:-translate-y-0.5">❌ 婉拒/滿檔</button>
+                              <button onClick={() => handleStatusChange(order.id, 'confirmed')} className="bg-green-600 text-white font-semibold py-2 rounded-md text-sm hover:bg-green-700 shadow-sm transition-all">確認接單</button>
+                              <button onClick={() => handleStatusChange(order.id, 'cancelled')} className="bg-stone-200 text-stone-600 font-semibold py-2 rounded-md text-sm hover:bg-stone-300 shadow-sm transition-all">婉拒/滿檔</button>
                             </div>
                           )}
                           {order.status === 'confirmed' && (
-                             <button onClick={() => handleStatusChange(order.id, 'cancelled')} className="w-full text-stone-400 font-bold py-2 rounded-xl text-xs hover:text-red-500 mt-2 transition-colors">撤銷並改為作廢</button>
+                             <button onClick={() => handleStatusChange(order.id, 'cancelled')} className="w-full text-stone-400 font-semibold py-2 rounded-md text-xs hover:text-red-500 mt-2 transition-colors">撤銷並改為作廢</button>
                           )}
                         </>
                       )}

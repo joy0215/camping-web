@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, ArrowRight, Loader2 } from 'lucide-react';
+import { Star, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
@@ -8,7 +8,7 @@ export default function ReviewsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  // 🌟 真實資料 State
+  // 真實資料 State
   const [allReviews, setAllReviews] = useState([]);
   const [visibleCount, setVisibleCount] = useState(6);
   const [isLoading, setIsLoading] = useState(true);
@@ -48,58 +48,56 @@ export default function ReviewsPage() {
   const hasMore = visibleCount < allReviews.length;
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center bg-stone-50"><Loader2 className="animate-spin text-orange-500 w-12 h-12" /></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-stone-50"><Loader2 className="animate-spin text-stone-400 w-8 h-8" /></div>;
   }
 
   return (
-    <div className="pt-28 pb-20 bg-stone-50 min-h-screen">
-      <div className="container mx-auto px-6 text-center mb-16">
-        <h1 className="text-4xl md:text-5xl font-serif font-bold text-stone-900 mb-4">{t('reviews.title', 'Traveler Stories')}</h1>
-        <p className="text-stone-500 font-bold tracking-widest uppercase text-sm">{t('reviews.subtitle', 'Real experiences from our global vanlifers')}</p>
-      </div>
+    <div className="pt-24 md:pt-28 pb-20 bg-stone-50 min-h-screen">
+      <div className="max-w-6xl mx-auto px-5 md:px-8">
+        <header className="max-w-2xl mb-10 md:mb-14">
+          <h1 className="font-serif font-medium text-4xl md:text-5xl text-stone-900 tracking-tight">{t('reviews.title', 'Traveler Stories')}</h1>
+          <p className="mt-3 text-lg text-stone-600">{t('reviews.subtitle', 'Real experiences from our global vanlifers')}</p>
+        </header>
 
-      <div className="container mx-auto px-6 max-w-7xl">
         {allReviews.length === 0 ? (
-          <div className="text-center py-20 text-stone-500">No reviews yet. Be the first to share your experience!</div>
+          <div className="py-16 border-t border-stone-200 text-stone-500">No reviews yet. Be the first to share your experience!</div>
         ) : (
           <>
-            <div className="columns-1 md:columns-2 lg:columns-3 gap-8">
+            <div className="columns-1 md:columns-2 lg:columns-3 gap-6">
               {visibleReviews.map((review) => (
-                <div key={review.id} className="break-inside-avoid mb-8 bg-white p-8 rounded-[2rem] border border-stone-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <figure key={review.id} className="break-inside-avoid mb-6 bg-white p-6 rounded-md border border-stone-200">
                   {review.image && (
-                    <div className="w-full h-48 bg-stone-100 rounded-2xl mb-6 overflow-hidden">
-                      <img src={review.image} alt="Trip" className="w-full h-full object-cover" />
-                    </div>
+                    <img src={review.image} alt="Trip" className="w-full h-48 object-cover rounded mb-5 bg-stone-100" />
                   )}
-                  <div className="flex gap-1 text-orange-500 mb-4">
+                  <div className="flex gap-0.5 text-orange-500 mb-4">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} fill={i < review.stars ? "currentColor" : "none"} className={i >= review.stars ? "text-stone-300" : ""} size={18} />
+                      <Star key={i} fill={i < review.stars ? "currentColor" : "none"} className={i >= review.stars ? "text-stone-300" : ""} size={16} />
                     ))}
                   </div>
-                  <p className="text-stone-600 leading-relaxed mb-8 text-lg">"{review.text}"</p>
-                  <div className="flex items-center gap-4 mt-auto pt-6 border-t border-stone-100">
-                    <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold text-xl shrink-0">
+                  <blockquote className="font-serif text-lg text-stone-800 leading-relaxed">{review.text}</blockquote>
+                  <figcaption className="flex items-center gap-3 mt-6 pt-5 border-t border-stone-200">
+                    <div className="w-10 h-10 bg-stone-100 text-stone-700 rounded-full flex items-center justify-center font-medium shrink-0">
                       {review.avatar}
                     </div>
                     <div>
-                      <p className="font-bold text-stone-900 leading-tight">{review.name}</p>
-                      <p className="text-xs text-stone-400 mt-1">{review.country}</p>
+                      <p className="font-medium text-stone-900 leading-tight">{review.name}</p>
+                      <p className="text-sm text-stone-500 mt-0.5">{review.country}</p>
                     </div>
-                  </div>
-                </div>
+                  </figcaption>
+                </figure>
               ))}
             </div>
 
-            <div className="mt-12 text-center">
+            <div className="mt-10">
               {hasMore ? (
-                <button onClick={handleLoadMore} disabled={isPaginating} className="bg-stone-900 hover:bg-orange-600 text-white px-8 py-4 rounded-full font-bold transition-all shadow-lg flex items-center gap-2 mx-auto hover:-translate-y-1 disabled:opacity-70">
-                  {isPaginating ? <Loader2 size={20} className="animate-spin" /> : <ArrowRight size={20} />}
+                <button onClick={handleLoadMore} disabled={isPaginating} className="btn btn-ghost">
+                  {isPaginating && <Loader2 size={18} className="animate-spin" />}
                   {isPaginating ? 'Loading...' : t('reviews.btnLoadMore', 'Load More Reviews')}
                 </button>
               ) : (
-                <div className="inline-block bg-stone-200 text-stone-500 px-8 py-4 rounded-full font-bold text-sm">
+                <p className="text-stone-500">
                   {t('reviews.noMore', "You've reached the end! Time to make your own story.")}
-                </div>
+                </p>
               )}
             </div>
           </>

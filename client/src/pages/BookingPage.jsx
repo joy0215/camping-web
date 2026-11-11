@@ -4,11 +4,11 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Calendar, CheckCircle, MapPin, Zap, Info, MessageCircle, Phone, User } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useTranslation } from 'react-i18next'; // 🌟 Import translation hook
+import { useTranslation } from 'react-i18next'; // Import translation hook
 
 export default function BookingPage() {
   const navigate = useNavigate();
-  const { t, i18n} = useTranslation(); // 🌟 Initialize translation
+  const { t, i18n} = useTranslation(); // Initialize translation
   const [user, setUser] = useState(null);
   
   const [blockedDates, setBlockedDates] = useState([]);
@@ -86,7 +86,7 @@ export default function BookingPage() {
         current.setDate(current.getDate() + 1);
       }
       if (isOverlap) {
-        alert("⚠️ 抱歉！您選擇的區間包含了「已滿檔」的日期，無法連續預約。\n請避開灰色日期重新選擇！");
+        alert("抱歉！您選擇的區間包含了「已滿檔」的日期，無法連續預約。\n請避開灰色日期重新選擇！");
         setDateRange([newStart, null]);
         return; 
       }
@@ -123,28 +123,28 @@ export default function BookingPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) {
-      alert('🔒 請先登入會員才能預約喔！ Login required.');
+      alert('請先登入會員才能預約喔！ Login required.');
       navigate('/login');
       return;
     }
 
     if (!startDate || !endDate || estimatedTotal === 0) {
-      alert('❌ 請在日曆上選擇完整的「取車」與「還車」日期區間！ Dates required.');
+      alert('請在日曆上選擇完整的「取車」與「還車」日期區間！ Dates required.');
       return;
     }
 
     if (!contactInfo.name || !contactInfo.phone || !contactInfo.email) {
-      alert('❌ 請填寫完整的「承租人資訊」！ Contact info required.');
+      alert('請填寫完整的「承租人資訊」！ Contact info required.');
       return;
     }
 
     if (!isAgreed) {
-      alert('⚠️ 請先勾選同意條款！ Please agree to the terms.');
+      alert('請先勾選同意條款！ Please agree to the terms.');
       return;
     }
 
     try {
-      // 🌟 已修正：將路徑由 '/inquiry' 改為 '/inquiry/create'，避免對齊後端路由時發生 404 錯誤
+      // 已修正：將路徑由 '/inquiry' 改為 '/inquiry/create'，避免對齊後端路由時發生 404 錯誤
       const response = await axiosClient.post('/inquiry/create', {
         startDate: formatForBackend(startDate),
         endDate: formatForBackend(endDate),
@@ -154,7 +154,7 @@ export default function BookingPage() {
       });
       
       const orderData = response.data.inquiry;
-      alert('✅ 訂單已建立！即將前往付款。 Redirecting to checkout...');
+      alert('訂單已建立！即將前往付款。 Redirecting to checkout...');
       
       navigate(`/checkout/${orderData.id}`, { 
         state: { order: orderData, user: contactInfo, amount: estimatedTotal } 
@@ -165,190 +165,188 @@ export default function BookingPage() {
         alert(error.response.data.error);
         setDateRange([null, null]);
       } else {
-        alert('❌ 送出失敗，請稍後再試。 Failed to submit.');
+        alert('送出失敗，請稍後再試。 Failed to submit.');
       }
     }
   };
   
   return (
-    <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-serif font-bold text-stone-900 mb-4">{t('booking.title')}</h2>
-          <p className="text-stone-600">{t('booking.subtitle')}</p>
-        </div>
+    <div className="pt-24 md:pt-28 pb-20 bg-stone-50 min-h-screen">
+      <div className="max-w-6xl mx-auto px-5 md:px-8">
+        <header className="max-w-2xl mb-10 md:mb-12">
+          <h1 className="font-serif font-medium text-4xl md:text-5xl text-stone-900 tracking-tight">{t('booking.title')}</h1>
+          <p className="mt-3 text-lg text-stone-600">{t('booking.subtitle')}</p>
+        </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-6xl mx-auto items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
           
-          <div className="lg:col-span-8 bg-white p-8 md:p-10 rounded-3xl shadow-xl border border-stone-100">
-            <h3 className="text-xl font-bold mb-6 flex items-center gap-2 border-b pb-4">
-              <Calendar className="text-orange-600" /> {t('booking.step1')}
-            </h3>
-            
-            <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="lg:col-span-8">
+            <form onSubmit={handleSubmit} className="space-y-10">
               
-              <div className="flex flex-col items-center bg-stone-50 p-6 rounded-2xl border border-stone-200">
-                <p className="text-sm font-bold text-stone-700 mb-4 self-start">{t('booking.calendarHint')}</p>
-                <div className="w-full overflow-x-auto flex justify-center pb-2 custom-datepicker-wrapper">
-                  <DatePicker
-                    selectsRange={true}
-                    startDate={startDate}
-                    endDate={endDate}
-                    onChange={handleDateChange}
-                    minDate={new Date()} 
-                    excludeDates={blockedDates} 
-                    monthsShown={window.innerWidth > 768 ? 2 : 1} 
-                    inline 
-                    dateFormat="yyyy/MM/dd"
-                  />
-                </div>
-                
-                <div className="w-full mt-4 flex justify-between items-center bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
-                  <div className="text-center flex-1 border-r border-stone-100">
-                    <span className="block text-xs text-stone-400 font-bold uppercase tracking-wider mb-1">{t('booking.start')}</span>
-                    <span className="font-bold text-stone-800">{startDate ? formatForBackend(startDate) : t('booking.unselected')}</span>
-                  </div>
-                  <div className="text-center flex-1">
-                    <span className="block text-xs text-stone-400 font-bold uppercase tracking-wider mb-1">{t('booking.end')}</span>
-                    <span className="font-bold text-orange-600">{endDate ? formatForBackend(endDate) : t('booking.unselected')}</span>
-                  </div>
-                </div>
-              </div>
+              <section>
+                <h2 className="font-serif text-2xl text-stone-900 flex items-center gap-2.5">
+                  <Calendar size={20} strokeWidth={1.5} className="text-orange-600" /> {t('booking.step1')}
+                </h2>
+                <p className="mt-2 text-sm text-stone-600">{t('booking.calendarHint')}</p>
 
-              <div>
-                <label className="block text-sm font-bold text-stone-700 mb-4">{t('booking.addonsTitle')}</label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <label className={`flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all ${addons.mattress ? 'border-orange-500 bg-orange-50' : 'border-stone-200 hover:bg-stone-50'}`}>
-                    <input type="checkbox" name="mattress" checked={addons.mattress} onChange={handleAddonChange} className="w-5 h-5 accent-orange-600" />
-                    <div className="flex flex-col">
-                        <span className="font-bold text-stone-800">{t('booking.addon1')}</span>
-                        <span className="text-xs text-orange-600 font-bold">+ NT$ 500</span>
+                <div className="mt-4 bg-white border border-stone-200 rounded-md">
+                  <div className="w-full overflow-x-auto flex justify-center p-3 md:p-5 custom-datepicker-wrapper" dir="ltr">
+                    <DatePicker
+                      selectsRange={true}
+                      startDate={startDate}
+                      endDate={endDate}
+                      onChange={handleDateChange}
+                      minDate={new Date()} 
+                      excludeDates={blockedDates} 
+                      monthsShown={window.innerWidth > 768 ? 2 : 1} 
+                      inline 
+                      dateFormat="yyyy/MM/dd"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 divide-x rtl:divide-x-reverse divide-stone-200 border-t border-stone-200">
+                    <div className="px-5 py-4">
+                      <span className="block text-sm text-stone-500">{t('booking.start')}</span>
+                      <span className="block mt-0.5 font-semibold text-stone-900">{startDate ? formatForBackend(startDate) : t('booking.unselected')}</span>
                     </div>
+                    <div className="px-5 py-4">
+                      <span className="block text-sm text-stone-500">{t('booking.end')}</span>
+                      <span className="block mt-0.5 font-semibold text-stone-900">{endDate ? formatForBackend(endDate) : t('booking.unselected')}</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section>
+                <h2 className="font-serif text-2xl text-stone-900">{t('booking.addonsTitle')}</h2>
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <label className={`flex items-center gap-3 p-4 border rounded-md cursor-pointer transition-colors ${addons.mattress ? 'border-stone-900 bg-white' : 'border-stone-200 bg-white hover:border-stone-400'}`}>
+                    <input type="checkbox" name="mattress" checked={addons.mattress} onChange={handleAddonChange} className="w-4 h-4 accent-stone-900 shrink-0" />
+                    <span className="flex-1 font-medium text-stone-900">{t('booking.addon1')}</span>
+                    <span className="text-sm text-stone-500 whitespace-nowrap" dir="ltr">+ NT$ 500</span>
                   </label>
-                  <label className={`flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all ${addons.blanket ? 'border-orange-500 bg-orange-50' : 'border-stone-200 hover:bg-stone-50'}`}>
-                    <input type="checkbox" name="blanket" checked={addons.blanket} onChange={handleAddonChange} className="w-5 h-5 accent-orange-600" />
-                    <div className="flex flex-col">
-                        <span className="font-bold text-stone-800">{t('booking.addon2')}</span>
-                        <span className="text-xs text-orange-600 font-bold">+ NT$ 200</span>
-                    </div>
+                  <label className={`flex items-center gap-3 p-4 border rounded-md cursor-pointer transition-colors ${addons.blanket ? 'border-stone-900 bg-white' : 'border-stone-200 bg-white hover:border-stone-400'}`}>
+                    <input type="checkbox" name="blanket" checked={addons.blanket} onChange={handleAddonChange} className="w-4 h-4 accent-stone-900 shrink-0" />
+                    <span className="flex-1 font-medium text-stone-900">{t('booking.addon2')}</span>
+                    <span className="text-sm text-stone-500 whitespace-nowrap" dir="ltr">+ NT$ 200</span>
                   </label>
-                  <label className={`flex items-center gap-3 p-4 border rounded-xl cursor-pointer transition-all ${addons.cookware ? 'border-orange-500 bg-orange-50' : 'border-stone-200 hover:bg-stone-50'}`}>
-                    <input type="checkbox" name="cookware" checked={addons.cookware} onChange={handleAddonChange} className="w-5 h-5 accent-orange-600" />
-                    <div className="flex flex-col">
-                        <span className="font-bold text-stone-800">{t('booking.addon3')}</span>
-                        <span className="text-xs text-orange-600 font-bold">+ NT$ 200</span>
-                    </div>
+                  <label className={`flex items-center gap-3 p-4 border rounded-md cursor-pointer transition-colors ${addons.cookware ? 'border-stone-900 bg-white' : 'border-stone-200 bg-white hover:border-stone-400'}`}>
+                    <input type="checkbox" name="cookware" checked={addons.cookware} onChange={handleAddonChange} className="w-4 h-4 accent-stone-900 shrink-0" />
+                    <span className="flex-1 font-medium text-stone-900">{t('booking.addon3')}</span>
+                    <span className="text-sm text-stone-500 whitespace-nowrap" dir="ltr">+ NT$ 200</span>
                   </label>
                 </div>
-              </div>
+              </section>
 
               {/* Renter Info Section */}
-              <div className="bg-stone-50 p-6 rounded-2xl border border-stone-200 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
-                <h4 className="flex items-center gap-2 font-bold text-stone-800 mb-4">
-                  <User size={18} className="text-orange-600" /> {t('booking.renterTitle')}
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <span className="block text-xs text-stone-500 font-bold mb-1">{t('booking.name')}</span>
-                    <input type="text" name="name" value={contactInfo.name} onChange={handleContactChange} required className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white" placeholder={t('booking.namePh')} />
-                  </div>
-                  <div>
-                    <span className="block text-xs text-stone-500 font-bold mb-1">{t('booking.phone')}</span>
-                    <input type="tel" name="phone" value={contactInfo.phone} onChange={handleContactChange} required className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white" placeholder={t('booking.phonePh')} />
-                  </div>
-                  <div>
-                    <span className="block text-xs text-stone-500 font-bold mb-1">{t('booking.email')}</span>
-                    <input type="email" name="email" value={contactInfo.email} onChange={handleContactChange} required className="w-full p-3 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-white" placeholder={t('booking.emailPh')} />
-                  </div>
+              <section>
+                <h2 className="font-serif text-2xl text-stone-900 flex items-center gap-2.5">
+                  <User size={20} strokeWidth={1.5} className="text-orange-600" /> {t('booking.renterTitle')}
+                </h2>
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <label className="block">
+                    <span className="block text-sm text-stone-600 mb-1.5">{t('booking.name')}</span>
+                    <input type="text" name="name" value={contactInfo.name} onChange={handleContactChange} required className="field" placeholder={t('booking.namePh')} />
+                  </label>
+                  <label className="block">
+                    <span className="block text-sm text-stone-600 mb-1.5">{t('booking.phone')}</span>
+                    <input type="tel" name="phone" value={contactInfo.phone} onChange={handleContactChange} required className="field" placeholder={t('booking.phonePh')} />
+                  </label>
+                  <label className="block">
+                    <span className="block text-sm text-stone-600 mb-1.5">{t('booking.email')}</span>
+                    <input type="email" name="email" value={contactInfo.email} onChange={handleContactChange} required className="field" placeholder={t('booking.emailPh')} />
+                  </label>
                 </div>
-                <p className="text-xs text-stone-400 mt-3 flex items-center gap-1">
-                  <Info size={14}/> {t('booking.infoHint')}
+                <p className="text-sm text-stone-500 mt-3 flex items-start gap-1.5">
+                  <Info size={14} className="mt-1 shrink-0"/> {t('booking.infoHint')}
                 </p>
-              </div>
+              </section>
 
-              <div className="bg-stone-900 p-6 rounded-2xl text-white flex flex-col md:flex-row justify-between items-center shadow-lg">
-                <div className="mb-2 md:mb-0">
-                    <span className="block text-stone-400 text-sm mb-1">{t('booking.estimateTitle')} ({totalDays} Days)</span>
-                    <span className="text-xs text-stone-500">{t('booking.estimateSub')}</span>
+              <section className="border-t border-stone-200 pt-8 space-y-5">
+                <div className="flex flex-wrap justify-between items-end gap-4">
+                  <div>
+                    <span className="block text-stone-900 font-medium">{t('booking.estimateTitle')} ({totalDays} Days)</span>
+                    <span className="block mt-1 text-sm text-stone-500">{t('booking.estimateSub')}</span>
+                  </div>
+                  <span className="font-serif text-4xl text-stone-900" dir="ltr">NT$ {estimatedTotal.toLocaleString()}</span>
                 </div>
-                <span className="text-3xl font-bold text-orange-500">NT$ {estimatedTotal.toLocaleString()}</span>
-              </div>
 
-              <div className="bg-orange-50 p-4 rounded-xl border border-orange-100 flex items-start gap-3">
-                <input 
-                  type="checkbox" 
-                  id="agreeTerms" 
-                  checked={isAgreed} 
-                  onChange={(e) => setIsAgreed(e.target.checked)} 
-                  className="mt-1 w-5 h-5 accent-orange-600 cursor-pointer shrink-0"
-                />
-                <label htmlFor="agreeTerms" className="text-sm text-stone-700 cursor-pointer leading-relaxed">
-                  {t('booking.agreeText')}
-                  <Link to="/terms" target="_blank" className="text-orange-600 font-bold hover:underline mx-1">{t('booking.termsLink1')}</Link>
-                  {t('booking.and')}
-                  <Link to="/guide" target="_blank" className="text-orange-600 font-bold hover:underline mx-1">{t('booking.termsLink2')}</Link>.
-                </label>
-              </div>
+                <div className="flex items-start gap-3">
+                  <input 
+                    type="checkbox" 
+                    id="agreeTerms" 
+                    checked={isAgreed} 
+                    onChange={(e) => setIsAgreed(e.target.checked)} 
+                    className="mt-1 w-4 h-4 accent-stone-900 cursor-pointer shrink-0"
+                  />
+                  <label htmlFor="agreeTerms" className="text-sm text-stone-700 cursor-pointer leading-relaxed">
+                    {t('booking.agreeText')}
+                    <Link to="/terms" target="_blank" className="text-stone-900 font-semibold underline underline-offset-4 decoration-orange-600 mx-1">{t('booking.termsLink1')}</Link>
+                    {t('booking.and')}
+                    <Link to="/guide" target="_blank" className="text-stone-900 font-semibold underline underline-offset-4 decoration-orange-600 mx-1">{t('booking.termsLink2')}</Link>.
+                  </label>
+                </div>
 
-              <button 
-                type="submit" 
-                className={`w-full py-4 rounded-xl font-bold text-lg transition-colors shadow-lg flex items-center justify-center gap-2 ${isAgreed ? 'bg-orange-600 text-white hover:bg-orange-700' : 'bg-stone-300 text-stone-500 cursor-not-allowed'}`}
-              >
-                {user ? t('booking.btnSubmit') : t('booking.btnLoginFirst')}
-              </button>
+                <button 
+                  type="submit" 
+                  className={`btn w-full !py-4 !text-base ${isAgreed ? 'btn-accent' : 'bg-stone-200 text-stone-500 cursor-not-allowed'}`}
+                >
+                  {user ? t('booking.btnSubmit') : t('booking.btnLoginFirst')}
+                </button>
+              </section>
             </form>
           </div>
 
-          <div className="lg:col-span-4 space-y-6">
-            <div className="bg-white p-6 rounded-3xl shadow-xl border-t-4 border-green-500">
-              <h3 className="text-xl font-bold text-stone-900 mb-6 text-center">{t('booking.contactTitle')}</h3>
-              <div className="space-y-6">
-                <div className="text-center p-4 bg-stone-50 rounded-2xl border border-stone-100">
-                  <div className="flex items-center justify-center gap-2 font-bold text-[#06C755] mb-2"><MessageCircle size={20}/> Line@ Official</div>
-                  <img src={QR_IMAGES.line} alt="CampingTour Line Official Account Contact QR Code" className="w-32 h-32 mx-auto mix-blend-multiply mb-3"/>
-                  <a href="https://line.me/ti/p/@626twiqy" target="_blank" rel="noreferrer" className="flex justify-center transition-transform hover:-translate-y-1">
+          <aside className="lg:col-span-4 space-y-8 lg:sticky lg:top-24">
+            <div className="bg-white border border-stone-200 rounded-md p-6">
+              <h3 className="font-serif text-xl text-stone-900">{t('booking.contactTitle')}</h3>
+              <div className="mt-5 grid grid-cols-2 lg:grid-cols-1 gap-6 lg:divide-y lg:divide-stone-200">
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-2 font-semibold text-stone-900 mb-3"><MessageCircle size={18} className="text-[#06C755]"/> LINE</div>
+                  <img src={QR_IMAGES.line} alt="CampingTour Line Official Account Contact QR Code" className="w-28 h-28 mx-auto mb-3"/>
+                  <a href="https://line.me/ti/p/@626twiqy" target="_blank" rel="noreferrer" className="flex justify-center">
                     <img 
                       src={`https://scdn.line-apps.com/n/line_add_friends/btn/${i18n.language.startsWith('zh') ? 'zh-Hant' : 'en'}.png`} 
                       alt="Add Line Friend" 
-                      className="h-10 drop-shadow-sm rounded-md" 
+                      className="h-9 rounded" 
                     />
-                  </a>                </div>
-                <div className="text-center p-4 bg-stone-50 rounded-2xl border border-stone-100">
-                  <div className="flex items-center justify-center gap-2 font-bold text-[#25D366] mb-2"><Phone size={20}/> WhatsApp</div>
-                  <img src={QR_IMAGES.whatsapp} alt="CampingTour WhatsApp Customer Service QR Code" className="w-32 h-32 mx-auto mix-blend-multiply mb-3"/>
-                  <a href="https://wa.me/886965720586" target="_blank" rel="noreferrer" className="block w-full bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-bold py-2 rounded-lg transition-colors shadow-md">Open WhatsApp</a>
+                  </a>
+                </div>
+                <div className="text-center lg:pt-6">
+                  <div className="flex items-center justify-center gap-2 font-semibold text-stone-900 mb-3"><Phone size={18} className="text-[#25D366]"/> WhatsApp</div>
+                  <img src={QR_IMAGES.whatsapp} alt="CampingTour WhatsApp Customer Service QR Code" className="w-28 h-28 mx-auto mb-3"/>
+                  <a href="https://wa.me/886965720586" target="_blank" rel="noreferrer" className="btn btn-ghost !py-2 !text-sm">Open WhatsApp</a>
                 </div>
               </div>
             </div>
 
-            <div className="bg-stone-100 text-stone-600 p-6 rounded-2xl border border-stone-200">
-              <h4 className="font-bold text-stone-800 text-lg mb-4 flex items-center gap-2"><Info size={20} className="text-stone-500"/> {t('booking.noteTitle')}</h4>
-              <ul className="space-y-3 text-sm">
-                <li className="flex gap-3"><CheckCircle size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>{t('booking.note1')}</span></li>
-                <li className="flex gap-3"><CheckCircle size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>{t('booking.note2')}</span></li>
-                <li className="flex gap-3"><Zap size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>{t('booking.note3')}</span></li>
-                <li className="flex gap-3"><MapPin size={16} className="text-orange-500 shrink-0 mt-0.5" /> <span>{t('booking.note4')}</span></li>
+            <div>
+              <h3 className="font-serif text-xl text-stone-900">{t('booking.noteTitle')}</h3>
+              <ul className="mt-4 space-y-3 text-sm text-stone-600 leading-relaxed">
+                <li className="flex gap-3"><CheckCircle size={16} strokeWidth={1.5} className="text-orange-600 shrink-0 mt-0.5" /> <span>{t('booking.note1')}</span></li>
+                <li className="flex gap-3"><CheckCircle size={16} strokeWidth={1.5} className="text-orange-600 shrink-0 mt-0.5" /> <span>{t('booking.note2')}</span></li>
+                <li className="flex gap-3"><Zap size={16} strokeWidth={1.5} className="text-orange-600 shrink-0 mt-0.5" /> <span>{t('booking.note3')}</span></li>
+                <li className="flex gap-3"><MapPin size={16} strokeWidth={1.5} className="text-orange-600 shrink-0 mt-0.5" /> <span>{t('booking.note4')}</span></li>
               </ul>
             </div>
-          </div>
+          </aside>
 
         </div>
       </div>
 
       <style dangerouslySetInnerHTML={{__html: `
         .custom-datepicker-wrapper .react-datepicker { font-family: inherit; border: none; background-color: transparent; }
-        .react-datepicker__header { background-color: transparent; border-bottom: 1px solid #e7e5e4; padding-top: 1rem; }
-        .react-datepicker__current-month { font-weight: 700; color: #1c1917; margin-bottom: 0.5rem; }
-        .react-datepicker__day-name { color: #a8a29e; font-weight: bold; }
-        .react-datepicker__day { border-radius: 9999px; transition: all 0.2s; color: #44403c; outline: none; }
-        .react-datepicker__day:hover:not(.react-datepicker__day--disabled) { background-color: #ffedd5; color: #ea580c; }
-        .react-datepicker__day--selected, .react-datepicker__day--in-selecting-range, .react-datepicker__day--in-range { background-color: #ea580c !important; color: white !important; font-weight: bold; }
+        .react-datepicker__header { background-color: transparent; border-bottom: 1px solid #dfd7ca; padding-top: 0.75rem; }
+        .react-datepicker__current-month { font-weight: 600; color: #1b2739; margin-bottom: 0.5rem; }
+        .react-datepicker__day-name { color: #99948a; font-weight: 500; }
+        .react-datepicker__day { border-radius: 9999px; transition: background-color 0.15s; color: #273549; outline: none; }
+        .react-datepicker__day:hover:not(.react-datepicker__day--disabled) { background-color: #f0dfd1; color: #7f452c; }
+        .react-datepicker__day--selected, .react-datepicker__day--in-selecting-range, .react-datepicker__day--in-range { background-color: #1b2739 !important; color: white !important; font-weight: 600; }
         .react-datepicker__day--keyboard-selected { background-color: transparent; }
-        .react-datepicker__day--disabled { color: #d6d3d1; background-image: linear-gradient(45deg, transparent 45%, #e7e5e4 45%, #e7e5e4 55%, transparent 55%); cursor: not-allowed; }
+        .react-datepicker__day--disabled { color: #c6bdae; background-image: linear-gradient(45deg, transparent 45%, #dfd7ca 45%, #dfd7ca 55%, transparent 55%); cursor: not-allowed; }
         .react-datepicker__month-container { margin: 0 10px; }
-        .react-datepicker__navigation-icon::before { border-color: #a8a29e; }
-        .react-datepicker__navigation:hover *::before { border-color: #ea580c; }
+        .react-datepicker__navigation-icon::before { border-color: #99948a; }
+        .react-datepicker__navigation:hover *::before { border-color: #1b2739; }
       `}} />
     </div>
   );

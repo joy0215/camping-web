@@ -1,101 +1,90 @@
 import React from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
-import { useTranslation } from 'react-i18next'; // 🌟 Import translation hook
+import { useTranslation } from 'react-i18next';
 
 export default function AboutPage() {
-  const { t } = useTranslation(); // 🌟 Initialize translation
+  const { t, i18n } = useTranslation();
+  const isZh = i18n.language.startsWith('zh');
 
   return (
-    <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
-      
-      {/* Page Content Container */}
-      <div className="container mx-auto px-6 max-w-6xl">
+    <div className="pt-24 md:pt-28 pb-20 bg-stone-50 min-h-screen">
+      <div className="max-w-6xl mx-auto px-5 md:px-8">
         
-        {/* Story Section */}
-        <div className="bg-white p-10 md:p-16 rounded-[2rem] shadow-sm mb-12 border border-stone-100 relative overflow-hidden">
-          
-          <div 
-            className="absolute inset-0 z-0 bg-center bg-no-repeat grayscale pointer-events-none opacity-[0.08]"
-            style={{ 
-              backgroundImage: 'url(/images/logo.jpg)',
-              backgroundSize: 'auto 350px' 
-            }} 
-          />
+        {/* Story */}
+        <div className="grid lg:grid-cols-12 gap-10 lg:gap-16">
+          <div className="lg:col-span-7">
+            <p className="eyebrow">{t('about.subtitle')}</p>
+            <h1 className="mt-3 font-serif font-medium text-4xl md:text-5xl text-stone-900 tracking-tight">{t('about.title')}</h1>
 
-          <div className="relative z-10">
-            <div className="text-center mb-16">
-              <h1 className="text-3xl md:text-4xl font-serif font-bold text-stone-900 mb-3 tracking-tight">{t('about.title')}</h1>
-              <p className="text-orange-500 tracking-[0.3em] uppercase text-xs font-bold">{t('about.subtitle')}</p>
-            </div>
-
-            {/* 🌟 Single Column Clean Layout for i18n */}
-            <div className="max-w-4xl mx-auto space-y-8 text-stone-700 leading-loose text-lg text-justify font-medium">
+            <div className="mt-8 space-y-6 text-lg text-stone-700 leading-relaxed max-w-2xl">
               <p>{t('about.p1')}</p>
               <p>{t('about.p2')}</p>
               <p>{t('about.p3')}</p>
             </div>
           </div>
+
+          <div className="lg:col-span-5">
+            <img
+              src="/images/vibe-stand.jpg"
+              alt="CampingTour campervan parked in nature"
+              className="w-full aspect-[4/5] object-cover rounded-md bg-stone-200"
+            />
+          </div>
         </div>
 
-        {/* Contact and Company Info Section */}
-        <div className="grid md:grid-cols-2 gap-8">
+        {/* Contact and Company Info */}
+        <div className="mt-16 md:mt-24 pt-12 border-t border-stone-200 grid md:grid-cols-2 gap-12 md:gap-16">
           
-          {/* Contact Details */}
-          <div className="bg-stone-900 text-white p-10 rounded-3xl shadow-sm flex flex-col justify-center border border-stone-800 space-y-7">
-            <h3 className="text-xl font-bold mb-6 tracking-wide">{t('about.contact')}</h3>
-            
-            <div className="flex items-center gap-4 border-b border-white/10 pb-5">
-               <Phone size={20} className="text-orange-400 shrink-0"/>
-               <div>
-                  <span className="block text-[10px] text-stone-400 uppercase tracking-widest mb-1">{t('about.phone')}</span>
-                  <span className="font-medium tracking-wide">0963-823-606</span>
-               </div>
-            </div>
-            
-            <div className="flex items-center gap-4 border-b border-white/10 pb-5">
-               <Mail size={20} className="text-orange-400 shrink-0"/>
-               <div>
-                  <span className="block text-[10px] text-stone-400 uppercase tracking-widest mb-1">{t('about.email')}</span>
-                  <span className="font-medium tracking-wide">jchenghe06@gmail.com</span>
-               </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-               <MapPin size={20} className="text-orange-400 shrink-0"/>
-               <div>
-                  <span className="block text-[10px] text-stone-400 uppercase tracking-widest mb-1">{t('about.location')}</span>
-                  <span className="font-medium leading-relaxed">北投奇岩捷運站 2 號出口 (抵達後將安排接駁車至車輛所在地)</span>
-               </div>
-            </div>
-          </div>
+          <section>
+            <h2 className="font-serif text-2xl text-stone-900">{t('about.contact')}</h2>
+            <ul className="mt-6 space-y-5">
+              <li className="flex items-start gap-4">
+                <Phone size={18} strokeWidth={1.5} className="mt-1 text-orange-600 shrink-0"/>
+                <div>
+                  <span className="block text-sm text-stone-500">{t('about.phone')}</span>
+                  <a href="tel:+886963823606" className="text-stone-900 hover:underline underline-offset-4" dir="ltr">0963-823-606</a>
+                </div>
+              </li>
+              <li className="flex items-start gap-4">
+                <Mail size={18} strokeWidth={1.5} className="mt-1 text-orange-600 shrink-0"/>
+                <div>
+                  <span className="block text-sm text-stone-500">{t('about.email')}</span>
+                  <a href="mailto:jchenghe06@gmail.com" className="text-stone-900 hover:underline underline-offset-4 break-all">jchenghe06@gmail.com</a>
+                </div>
+              </li>
+              <li className="flex items-start gap-4">
+                <MapPin size={18} strokeWidth={1.5} className="mt-1 text-orange-600 shrink-0"/>
+                <div>
+                  <span className="block text-sm text-stone-500">{t('about.location')}</span>
+                  <span className="text-stone-900 leading-relaxed">{t('about.locationValue', '北投奇岩捷運站 2 號出口 (抵達後將安排接駁車至車輛所在地)')}</span>
+                </div>
+              </li>
+            </ul>
+          </section>
 
-          {/* Company Information */}
-          <div className="bg-white p-10 rounded-3xl shadow-sm border border-stone-100 flex flex-col justify-between h-full">
-             <div className="space-y-6 mb-10">
-               <h3 className="text-xl font-bold text-stone-900 tracking-wide">{t('about.info')}</h3>
-               <ul className="space-y-4 text-stone-700 text-sm">
-                  <li className="flex justify-between border-b border-stone-100 pb-3">
-                    <strong className="text-stone-950">{t('about.company')}</strong> 悠遊旅行社股份有限公司
-                  </li>
-                  <li className="flex justify-between border-b border-stone-100 pb-3">
-                    <strong className="text-stone-950">{t('about.taxId')}</strong> 84293135
-                  </li>
-                  <li className="flex justify-between border-b border-stone-100 pb-3">
-                    <strong className="text-stone-950">{t('about.rep')}</strong> 林繼城
-                  </li>
-                  <li className="flex justify-between pb-1">
-                    <strong className="text-stone-950">{t('about.license')}</strong> 交觀甲字 5307 號
-                  </li>
-               </ul>
-             </div>
-             
-             <div className="pt-6 text-center text-[11px] text-stone-400 border-t border-stone-100">
-               {t('about.rights')}
-             </div>
-          </div>
+          <section>
+            <h2 className="font-serif text-2xl text-stone-900">{t('about.info')}</h2>
+            <dl className="mt-6 border-t border-stone-200 text-sm">
+              <div className="flex justify-between gap-6 py-3.5 border-b border-stone-200">
+                <dt className="text-stone-500">{t('about.company')}</dt>
+                <dd className="text-stone-900 text-end">{isZh ? '悠遊旅行社股份有限公司' : 'Yoyo Travel Service Co., Ltd.'}</dd>
+              </div>
+              <div className="flex justify-between gap-6 py-3.5 border-b border-stone-200">
+                <dt className="text-stone-500">{t('about.taxId')}</dt>
+                <dd className="text-stone-900 text-end">84293135</dd>
+              </div>
+              <div className="flex justify-between gap-6 py-3.5 border-b border-stone-200">
+                <dt className="text-stone-500">{t('about.rep')}</dt>
+                <dd className="text-stone-900 text-end">林繼城</dd>
+              </div>
+              <div className="flex justify-between gap-6 py-3.5 border-b border-stone-200">
+                <dt className="text-stone-500">{t('about.license')}</dt>
+                <dd className="text-stone-900 text-end">交觀甲字 5307 號</dd>
+              </div>
+            </dl>
+          </section>
 
         </div>
-
       </div>
     </div>
   );

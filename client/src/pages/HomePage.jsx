@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, MapPin, Car, Zap, ChevronDown, Star, Edit3, ArrowUpRight } from 'lucide-react';
+import { ArrowRight, MapPin, Car, Zap, Star, Edit3, ArrowUpRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import axiosClient from '../api/axiosClient'; // Import your API client
 
@@ -115,172 +115,164 @@ export default function HomePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const features = [
+    { icon: Car, title: t('home.feat1Title'), sub: t('home.feat1Sub'), d1: t('home.feat1Desc1'), d2: t('home.feat1Desc2') },
+    { icon: MapPin, title: t('home.feat2Title'), sub: t('home.feat2Sub'), d1: t('home.feat2Desc1'), d2: t('home.feat2Desc2') },
+    { icon: Zap, title: t('home.feat3Title'), sub: t('home.feat3Sub'), d1: t('home.feat3Desc1'), d2: t('home.feat3Desc2') },
+  ];
+
+  const gallery = [
+    "/images/hero-roof.jpg",
+    "/images/vibe-mountain.jpg",
+    "/images/feature-window.jpg",
+    "/images/vibe-stand.jpg",
+  ];
+
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        <div 
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat bg-fixed transform scale-105 transition-transform duration-[10000ms] ease-out hover:scale-110"
-          style={{ backgroundImage: `url(${IMAGES.hero})` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-stone-900/60 via-stone-900/40 to-stone-900/80"></div>
-        </div>
-        
-        <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto mt-10">
-          <div className="mb-8 flex justify-center">
-            <img 
-              src={IMAGES.logoStack} 
-              alt="Logo" 
-              className="w-28 h-28 rounded-3xl shadow-2xl invert opacity-90 border border-white/20 backdrop-blur-sm"
-              onError={(e) => e.target.style.display='none'}
+      {/* Hero */}
+      <section className="pt-24 md:pt-32 pb-16 md:pb-24">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+          <div className="lg:col-span-6">
+            <p className="eyebrow">{t('home.subtitle')}</p>
+            <h1 className="mt-4 font-serif font-medium text-5xl md:text-6xl lg:text-7xl text-stone-900 leading-[1.05] tracking-tight">
+              {t('home.title')}
+              <span className="block mt-3 text-2xl md:text-3xl italic font-normal text-stone-500 tracking-normal">{t('home.titleEn')}</span>
+            </h1>
+            <p className="mt-6 text-lg text-stone-600 leading-relaxed max-w-md">{t('home.lede')}</p>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              <button onClick={() => navigate('/booking')} className="btn btn-accent">
+                {t('home.btnBooking')} <ArrowRight size={18} className="rtl:rotate-180" />
+              </button>
+              <button onClick={() => navigate('/plans')} className="btn btn-ghost">
+                {t('home.btnVehicles')}
+              </button>
+            </div>
+
+            <dl className="mt-10 pt-6 border-t border-stone-200 flex flex-wrap gap-x-12 gap-y-4">
+              <div>
+                <dt className="text-sm text-stone-500">{t('plans.weekday')}</dt>
+                <dd className="mt-1 font-serif text-2xl text-stone-900" dir="ltr">NT$ 3,700</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-stone-500">{t('plans.weekend')}</dt>
+                <dd className="mt-1 font-serif text-2xl text-stone-900" dir="ltr">NT$ 4,700</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div className="lg:col-span-6 relative">
+            <img
+              src={IMAGES.hero}
+              alt="CampingTour A180 campervan on a palm-lined road in Taiwan"
+              className="w-full aspect-[4/5] object-cover rounded-md bg-stone-200"
+            />
+            <img
+              src="/images/interior-bed.jpg"
+              alt=""
+              className="hidden md:block absolute -bottom-8 -start-8 w-52 aspect-[3/2] object-cover rounded-md border-4 border-stone-50 bg-stone-200"
             />
           </div>
-          <p className="text-orange-400 font-bold tracking-[0.4em] mb-4 uppercase animate-fade-in text-sm drop-shadow-md">
-            {t('home.subtitle')}
-          </p>
-          <h1 className="text-5xl md:text-7xl font-serif font-bold mb-10 leading-tight drop-shadow-2xl animate-fade-in delay-100">
-            {t('home.title')}<br />
-            <span className="text-3xl md:text-5xl font-light mt-4 block opacity-90">{t('home.titleEn')}</span>
-          </h1>
-          
-          <div className="flex flex-col md:flex-row gap-5 justify-center animate-fade-in delay-200">
-            <button 
-              onClick={() => navigate('/booking')} 
-              className="bg-orange-600 hover:bg-orange-500 text-white px-10 py-4 rounded-full font-bold transition-all duration-300 shadow-[0_0_20px_rgba(234,88,12,0.4)] hover:shadow-[0_0_30px_rgba(234,88,12,0.6)] flex items-center justify-center gap-2 hover:-translate-y-1.5"
-            >
-              {t('home.btnBooking')} <ArrowRight size={20} />
-            </button>
-            <button 
-              onClick={() => navigate('/plans')} 
-              className="bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/30 text-white px-10 py-4 rounded-full font-bold transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg"
-            >
-              {t('home.btnVehicles')}
-            </button>
-          </div>
-        </div>
-        
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce text-white/70 hover:text-white transition-colors cursor-pointer">
-          <ChevronDown size={36} />
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-24 bg-stone-50">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-            <div className="p-10 group bg-white rounded-[2.5rem] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 border border-stone-100">
-              <div className="w-20 h-20 mx-auto bg-orange-50 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-orange-600 transition-colors duration-500">
-                <Car size={36} className="text-orange-600 group-hover:text-white transition-colors duration-500" />
-              </div>
-              <h3 className="text-2xl font-bold mb-2 text-stone-800">{t('home.feat1Title')}</h3>
-              <p className="text-xs font-bold text-stone-400 mb-6 uppercase tracking-widest">{t('home.feat1Sub')}</p>
-              <p className="text-stone-600 leading-relaxed font-medium">
-                {t('home.feat1Desc1')}<br/>{t('home.feat1Desc2')}
-              </p>
+      {/* Features */}
+      <section className="border-t border-stone-200">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 py-16 md:py-20 grid md:grid-cols-3 gap-10 md:gap-12">
+          {features.map((f) => (
+            <div key={f.title}>
+              <f.icon size={24} strokeWidth={1.5} className="text-orange-600" />
+              <h3 className="mt-4 font-serif text-2xl text-stone-900">{f.title}</h3>
+              <p className="mt-1 text-sm text-stone-500">{f.sub}</p>
+              <p className="mt-4 text-stone-600 leading-relaxed">{f.d1} {f.d2}</p>
             </div>
-
-            <div className="p-10 group bg-white rounded-[2.5rem] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 border border-stone-100">
-              <div className="w-20 h-20 mx-auto bg-orange-50 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-orange-600 transition-colors duration-500">
-                <MapPin size={36} className="text-orange-600 group-hover:text-white transition-colors duration-500" />
-              </div>
-              <h3 className="text-2xl font-bold mb-2 text-stone-800">{t('home.feat2Title')}</h3>
-              <p className="text-xs font-bold text-stone-400 mb-6 uppercase tracking-widest">{t('home.feat2Sub')}</p>
-              <p className="text-stone-600 leading-relaxed font-medium">
-                {t('home.feat2Desc1')}<br/>{t('home.feat2Desc2')}
-              </p>
-            </div>
-
-            <div className="p-10 group bg-white rounded-[2.5rem] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 border border-stone-100">
-              <div className="w-20 h-20 mx-auto bg-orange-50 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-orange-600 transition-colors duration-500">
-                <Zap size={36} className="text-orange-600 group-hover:text-white transition-colors duration-500" />
-              </div>
-              <h3 className="text-2xl font-bold mb-2 text-stone-800">{t('home.feat3Title')}</h3>
-              <p className="text-xs font-bold text-stone-400 mb-6 uppercase tracking-widest">{t('home.feat3Sub')}</p>
-              <p className="text-stone-600 leading-relaxed font-medium">
-                {t('home.feat3Desc1')}<br/>{t('home.feat3Desc2')}
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
-      {/* Traveler Reviews Slider Section */}
-      <section className="py-24 bg-stone-900 text-white overflow-hidden relative">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-600 to-orange-400"></div>
-        
-        <div className="container mx-auto px-6 relative z-10">
+      {/* Photos */}
+      <section className="max-w-6xl mx-auto px-5 md:px-8 pb-16 md:pb-24">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {gallery.map((src, i) => (
+            <img
+              key={src}
+              src={src}
+              alt=""
+              loading="lazy"
+              className={`w-full aspect-[3/4] object-cover rounded-md bg-stone-200 ${i % 2 === 1 ? 'md:mt-8' : ''}`}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Traveler Reviews */}
+      <section className="bg-stone-900 text-white overflow-hidden">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 py-16 md:py-24">
           
-          {/* Header and buttons */}
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-            <div className="text-center md:text-left">
-              <h2 className="text-4xl font-serif font-bold mb-3">{t('homeReviewsTitle', 'Traveler Stories')}</h2>
-              <p className="text-stone-400 tracking-widest uppercase text-sm font-bold">{t('homeReviewsSub', 'Hear from our global vanlifers')}</p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div>
+              <h2 className="font-serif text-4xl">{t('home.homeReviewsTitle', 'Traveler Stories')}</h2>
+              <p className="mt-2 text-stone-400">{t('home.homeReviewsSub', 'Hear from our global vanlifers')}</p>
             </div>
             
-            <div className="flex flex-wrap gap-4 justify-center md:justify-end">
-              {/* View all button */}
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
               <button 
                 onClick={() => navigate('/reviews')} 
-                className="text-stone-300 hover:text-orange-500 px-4 py-3.5 font-bold transition-colors flex items-center gap-1"
+                className="text-stone-300 hover:text-white font-medium flex items-center gap-1 underline underline-offset-4 decoration-stone-600 hover:decoration-white"
               >
-                {t('homeViewAll', 'View All Reviews')} <ArrowUpRight size={18} />
+                {t('home.homeViewAll', 'View All Reviews')} <ArrowUpRight size={16} className="rtl:-scale-x-100" />
               </button>
-              
-              {/* Write review button */}
               <button 
                 onClick={handleWriteReview} 
-                className="bg-stone-800 hover:bg-orange-600 border border-stone-700 hover:border-orange-500 text-white px-6 py-3.5 rounded-full font-bold transition-all duration-300 flex items-center gap-2 shadow-lg hover:-translate-y-1"
+                className="btn border border-stone-600 text-white hover:border-white"
               >
-                <Edit3 size={18} /> {t('feedback.title', 'Share Your Experience')}
+                <Edit3 size={16} /> {t('feedback.title', 'Share Your Experience')}
               </button>
             </div>
           </div>
 
-          {/* Swiper Main Component */}
           <Swiper
+            key={i18n.dir()}
+            dir={i18n.dir()}
             modules={[Pagination, Autoplay]}
-            spaceBetween={32}
+            spaceBetween={24}
             slidesPerView={1}
             breakpoints={{
-              768: { slidesPerView: 2 }, // Display 2 items on tablets
-              1024: { slidesPerView: 3 }, // Display 3 items on desktop
+              768: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 },
             }}
             pagination={{ clickable: true, dynamicBullets: true }}
             autoplay={{ delay: 5000, disableOnInteraction: false }}
-            className="pb-16" // Leave space for bottom pagination bullets
+            className="pb-14"
           >
-            {/* Map over the fetched reviews state */}
             {reviews.map((review) => (
-              <SwiperSlide key={review.id} className="h-auto">
-                <div className="bg-stone-800 p-8 rounded-3xl border border-stone-700 h-full flex flex-col hover:-translate-y-2 transition-transform duration-300">
-                  
-                  {/* Optional: Photo Preview */}
+              <SwiperSlide key={review.id} className="!h-auto">
+                <figure className="h-full flex flex-col border border-stone-700 rounded-md p-6">
                   {review.image && (
-                    <div className="w-full h-40 bg-stone-700 rounded-2xl mb-6 overflow-hidden shrink-0">
-                      <img src={review.image} alt="User trip" className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity" />
-                    </div>
+                    <img src={review.image} alt="User trip" className="w-full h-40 object-cover rounded mb-5 bg-stone-800" />
                   )}
 
-                  <div className="flex gap-1 text-orange-500 mb-4">
+                  <div className="flex gap-0.5 text-orange-300 mb-4">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} fill={i < review.stars ? "currentColor" : "none"} className={i >= review.stars ? "text-stone-600" : ""} size={20}/>
+                      <Star key={i} fill={i < review.stars ? "currentColor" : "none"} className={i >= review.stars ? "text-stone-600" : ""} size={16}/>
                     ))}
                   </div>
                   
-                  <p className="text-stone-300 italic mb-8 leading-relaxed flex-grow">
-                    "{review.text}"
-                  </p>
+                  <blockquote className="font-serif text-lg text-stone-100 leading-relaxed flex-grow">
+                    {review.text}
+                  </blockquote>
                   
-                  <div className="flex items-center gap-4 mt-auto">
-                    <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold text-xl shrink-0">
+                  <figcaption className="flex items-center gap-3 mt-6 pt-5 border-t border-stone-800">
+                    <div className="w-10 h-10 bg-stone-800 text-stone-200 rounded-full flex items-center justify-center font-medium shrink-0">
                       {review.avatar}
                     </div>
                     <div>
-                      <p className="font-bold text-white leading-tight">{review.name}</p>
-                      <p className="text-xs text-stone-400 mt-1">{review.country}</p>
+                      <p className="font-medium text-white leading-tight">{review.name}</p>
+                      <p className="text-sm text-stone-400 mt-0.5">{review.country}</p>
                     </div>
-                  </div>
-                </div>
+                  </figcaption>
+                </figure>
               </SwiperSlide>
             ))}
           </Swiper>

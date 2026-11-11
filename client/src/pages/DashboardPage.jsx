@@ -14,7 +14,7 @@ export default function DashboardPage() {
   const { t, i18n } = useTranslation();
   const isZh = i18n.language.startsWith('zh');
   
-  // 🌟 將 activeTab 預設狀態擴充，現在有 'orders', 'profile', 'reviews' 三種
+  // 將 activeTab 預設狀態擴充，現在有 'orders', 'profile', 'reviews' 三種
   const [activeTab, setActiveTab] = useState('orders');
   const [user, setUser] = useState(null);
 
@@ -79,11 +79,11 @@ export default function DashboardPage() {
         const updatedUser = { ...user, ...response.data.user };
         setUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));
-        alert('✅ Profile updated successfully!');
+        alert('Profile updated successfully!');
       }
     } catch (error) {
       console.error('Update profile error:', error);
-      alert('❌ Failed to update profile');
+      alert('Failed to update profile');
     } finally {
       setIsSavingProfile(false);
     }
@@ -119,7 +119,7 @@ export default function DashboardPage() {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       if (response.data.success) {
-        alert('🎉 Thank you for your review!');
+        alert('Thank you for your review!');
         // 成功後清空表單狀態
         setIsReviewModalOpen(false);
         setReviewOrderId(null);
@@ -132,7 +132,7 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error('Review error:', error);
-      alert('❌ Failed to submit review');
+      alert('Failed to submit review');
     } finally {
       setIsSubmittingReview(false);
     }
@@ -167,32 +167,32 @@ export default function DashboardPage() {
 
   return (
     <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
-      <div className="container mx-auto px-6 max-w-6xl">
+      <div className="max-w-6xl mx-auto px-5 md:px-8 max-w-6xl">
         
         {/* Header Section */}
-        <div className="bg-white p-8 rounded-[2rem] shadow-sm mb-8 flex flex-col md:flex-row justify-between items-center gap-6 border border-stone-100">
+        <div className="bg-white p-8 rounded-md shadow-sm mb-8 flex flex-col md:flex-row justify-between items-center gap-6 border border-stone-200">
           <div className="flex items-center gap-6">
-            <div className="w-20 h-20 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-3xl font-bold border-4 border-orange-50 shadow-inner">
+            <div className="w-20 h-20 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-3xl font-semibold border-4 border-orange-50">
               {user.name.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-stone-900 leading-tight">{t('dashboard.welcome', 'Welcome')}, {user.name}</h1>
+              <h1 className="text-2xl font-semibold text-stone-900 leading-tight">{t('dashboard.welcome', 'Welcome')}, {user.name}</h1>
               <p className="text-stone-400 text-sm flex items-center gap-1 mt-1"><Mail size={14}/> {user.email}</p>
             </div>
           </div>
-          <button onClick={handleLogout} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-stone-100 text-stone-600 hover:bg-red-50 hover:text-red-600 transition-all font-bold text-sm">
+          <button onClick={handleLogout} className="flex items-center gap-2 px-6 py-3 rounded-md bg-stone-100 text-stone-600 hover:bg-red-50 hover:text-red-600 transition-all font-semibold text-sm">
             <LogOut size={18} /> {t('dashboard.btnLogout', 'Logout')}
           </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
-          {/* 🌟 側邊欄：現在有三個按鈕可以選擇 */}
+          {/* 側邊欄：現在有三個按鈕可以選擇 */}
           <div className="lg:col-span-1 space-y-2">
-            <button onClick={() => setActiveTab('orders')} className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${activeTab === 'orders' ? 'bg-stone-900 text-white shadow-lg' : 'bg-white text-stone-500 hover:bg-stone-100'}`}>
+            <button onClick={() => setActiveTab('orders')} className={`w-full flex items-center gap-3 px-6 py-4 rounded-md font-semibold transition-all ${activeTab === 'orders' ? 'bg-stone-900 text-white' : 'bg-white text-stone-500 hover:bg-stone-100'}`}>
               <ShoppingBag size={20} /> {t('dashboard.tabOrders', 'My Orders')}
             </button>
-            <button onClick={() => setActiveTab('profile')} className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${activeTab === 'profile' ? 'bg-stone-900 text-white shadow-lg' : 'bg-white text-stone-500 hover:bg-stone-100'}`}>
+            <button onClick={() => setActiveTab('profile')} className={`w-full flex items-center gap-3 px-6 py-4 rounded-md font-semibold transition-all ${activeTab === 'profile' ? 'bg-stone-900 text-white' : 'bg-white text-stone-500 hover:bg-stone-100'}`}>
               <User size={20} /> {t('dashboard.tabProfile', 'Profile')}
             </button>
             <button 
@@ -200,7 +200,7 @@ export default function DashboardPage() {
                 setActiveTab('reviews');
                 setReviewOrderId(null); // 切換到獨立評價頁籤時，不綁定特定訂單
               }} 
-              className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${activeTab === 'reviews' ? 'bg-stone-900 text-white shadow-lg' : 'bg-white text-stone-500 hover:bg-stone-100'}`}
+              className={`w-full flex items-center gap-3 px-6 py-4 rounded-md font-semibold transition-all ${activeTab === 'reviews' ? 'bg-stone-900 text-white' : 'bg-white text-stone-500 hover:bg-stone-100'}`}
             >
               <MessageSquare size={20} /> {isZh ? '撰寫評價' : 'Write Review'}
             </button>
@@ -213,23 +213,23 @@ export default function DashboardPage() {
             {activeTab === 'orders' && (
               <div className="space-y-4">
                 {isLoadingOrders ? (
-                  <div className="bg-white p-12 rounded-3xl text-center text-stone-400 border border-stone-100">Loading orders...</div>
+                  <div className="bg-white p-12 rounded-md text-center text-stone-400 border border-stone-200">Loading orders...</div>
                 ) : orders.length === 0 ? (
-                  <div className="bg-white p-12 rounded-3xl text-center text-stone-400 border border-stone-100 flex flex-col items-center">
+                  <div className="bg-white p-12 rounded-md text-center text-stone-400 border border-stone-200 flex flex-col items-center">
                     <ShoppingBag size={48} className="text-stone-200 mb-4" />
                     <p>{t('dashboard.noOrders', 'You have no orders yet.')}</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {orders.map(order => (
-                      <div key={order.id} className="bg-white rounded-3xl shadow-sm border border-stone-100 overflow-hidden hover:shadow-md transition-shadow">
+                      <div key={order.id} className="bg-white rounded-md shadow-sm border border-stone-200 overflow-hidden transition-shadow">
                         <div className="p-6 md:p-8">
                           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                             <div>
-                              <span className="text-[10px] uppercase tracking-widest text-stone-400 font-bold block mb-1">Order ID: #{order.id}</span>
-                              <h3 className="text-xl font-bold text-stone-900">Nomad A180</h3>
+                              <span className="text-[10px] text-stone-400 font-semibold block mb-1">Order ID: #{order.id}</span>
+                              <h3 className="text-xl font-semibold text-stone-900">Nomad A180</h3>
                             </div>
-                            <div className={`px-4 py-1.5 rounded-full text-xs font-bold ${
+                            <div className={`px-4 py-1.5 rounded-full text-xs font-semibold ${
                               order.status === 'confirmed' ? 'bg-green-100 text-green-700' : 
                               order.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'
                             }`}>
@@ -238,31 +238,31 @@ export default function DashboardPage() {
                           </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                            <div className="flex items-center gap-3 text-stone-600 bg-stone-50 p-4 rounded-2xl">
-                              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-orange-500 shadow-sm"><CalendarIcon size={20}/></div>
+                            <div className="flex items-center gap-3 text-stone-600 bg-stone-50 p-4 rounded-md">
+                              <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center text-orange-500 shadow-sm"><CalendarIcon size={20}/></div>
                               <div>
-                                <p className="text-[10px] uppercase font-bold text-stone-400">{t('dashboard.startDate')}</p>
-                                <p className="font-bold text-stone-800">{new Date(order.start_date).toLocaleDateString()}</p>
+                                <p className="text-[10px] font-semibold text-stone-400">{t('dashboard.startDate')}</p>
+                                <p className="font-semibold text-stone-800">{new Date(order.start_date).toLocaleDateString()}</p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-3 text-stone-600 bg-stone-50 p-4 rounded-2xl">
-                              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-orange-500 shadow-sm"><CalendarIcon size={20}/></div>
+                            <div className="flex items-center gap-3 text-stone-600 bg-stone-50 p-4 rounded-md">
+                              <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center text-orange-500 shadow-sm"><CalendarIcon size={20}/></div>
                               <div>
-                                <p className="text-[10px] uppercase font-bold text-stone-400">{t('dashboard.endDate')}</p>
-                                <p className="font-bold text-stone-800">{new Date(order.end_date).toLocaleDateString()}</p>
+                                <p className="text-[10px] font-semibold text-stone-400">{t('dashboard.endDate')}</p>
+                                <p className="font-semibold text-stone-800">{new Date(order.end_date).toLocaleDateString()}</p>
                               </div>
                             </div>
                           </div>
 
-                          <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-stone-100">
+                          <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-stone-200">
                             <div className="flex items-center gap-2">
-                               <button onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)} className="flex items-center gap-1 text-sm font-bold text-stone-400 hover:text-stone-900 transition-colors">
+                               <button onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)} className="flex items-center gap-1 text-sm font-semibold text-stone-400 hover:text-stone-900 transition-colors">
                                  {expandedOrder === order.id ? <><ChevronUp size={16}/> {t('dashboard.btnHide', 'Hide Details')}</> : <><ChevronDown size={16}/> {t('dashboard.btnShow', 'View Details')}</>}
                                </button>
                             </div>
                             <div className="flex items-center gap-3">
                               {order.status === 'pending' && (
-                                 <button onClick={() => navigate(`/checkout/${order.id}`, { state: { order, user, amount: order.total_price } })} className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all">
+                                 <button onClick={() => navigate(`/checkout/${order.id}`, { state: { order, user, amount: order.total_price } })} className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-md font-semibold text-sm transition-all">
                                    {t('dashboard.btnPay', 'Pay Now')}
                                  </button>
                               )}
@@ -273,7 +273,7 @@ export default function DashboardPage() {
                                      setReviewOrderId(order.id); 
                                      setIsReviewModalOpen(true); 
                                    }} 
-                                   className="flex items-center gap-1 bg-stone-900 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all"
+                                   className="flex items-center gap-1 bg-stone-900 hover:bg-stone-700 text-white px-6 py-2.5 rounded-md font-semibold text-sm transition-all"
                                  >
                                    <Edit3 size={16}/> {t('dashboard.btnReview', 'Review')}
                                  </button>
@@ -304,8 +304,8 @@ export default function DashboardPage() {
 
             {/* 頁籤 2：個人資料 */}
             {activeTab === 'profile' && (
-              <div className="bg-white p-8 md:p-12 rounded-[2rem] shadow-sm border border-stone-100 animate-fade-in">
-                <h2 className="text-2xl font-bold text-stone-900 mb-8 flex items-center gap-3">
+              <div className="bg-white p-8 md:p-12 rounded-md shadow-sm border border-stone-200 animate-fade-in">
+                <h2 className="text-2xl font-semibold text-stone-900 mb-8 flex items-center gap-3">
                    <User className="text-orange-600" /> {t('dashboard.profileTitle', 'Profile Details')}
                 </h2>
                 
@@ -313,13 +313,13 @@ export default function DashboardPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-bold text-stone-700 mb-2">{t('dashboard.name', 'Name')}</label>
-                        <input type="text" value={profileForm.name} onChange={e => setProfileForm({...profileForm, name: e.target.value})} className="w-full p-4 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-stone-50" required />
+                        <label className="block text-sm font-semibold text-stone-700 mb-2">{t('dashboard.name', 'Name')}</label>
+                        <input type="text" value={profileForm.name} onChange={e => setProfileForm({...profileForm, name: e.target.value})} className="w-full p-4 border border-stone-200 rounded-md outline-none focus:border-stone-900 bg-stone-50" required />
                       </div>
                       <div>
-                        <label className="block text-sm font-bold text-stone-700 mb-2">Address</label>
+                        <label className="block text-sm font-semibold text-stone-700 mb-2">Address</label>
                         <div className="relative">
-                          <input type="text" value={profileForm.address} onChange={e => setProfileForm({...profileForm, address: e.target.value})} className="w-full pl-12 pr-4 py-4 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-stone-50" />
+                          <input type="text" value={profileForm.address} onChange={e => setProfileForm({...profileForm, address: e.target.value})} className="w-full pl-12 pr-4 py-4 border border-stone-200 rounded-md outline-none focus:border-stone-900 bg-stone-50" />
                           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-stone-400">
                             <MapPin size={18} />
                           </div>
@@ -329,9 +329,9 @@ export default function DashboardPage() {
 
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-bold text-stone-700 mb-2">Country / Region</label>
+                        <label className="block text-sm font-semibold text-stone-700 mb-2">Country / Region</label>
                         <div className="relative">
-                          <select className="w-full pl-12 pr-4 py-4 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-stone-50 appearance-none">
+                          <select className="w-full pl-12 pr-4 py-4 border border-stone-200 rounded-md outline-none focus:border-stone-900 bg-stone-50 appearance-none">
                             <option value="TW">Taiwan 🇹🇼</option>
                             {countriesData.map(c => <option key={c.code} value={c.code}>{isZh ? c.zh : c.en} {c.flag}</option>)}
                           </select>
@@ -345,27 +345,27 @@ export default function DashboardPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-bold text-stone-700 mb-2">Phone</label>
-                      <input type="tel" value={profileForm.phone} onChange={e => setProfileForm({...profileForm, phone: e.target.value})} className="w-full p-4 border border-stone-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 bg-stone-50" required />
+                      <label className="block text-sm font-semibold text-stone-700 mb-2">Phone</label>
+                      <input type="tel" value={profileForm.phone} onChange={e => setProfileForm({...profileForm, phone: e.target.value})} className="w-full p-4 border border-stone-200 rounded-md outline-none focus:border-stone-900 bg-stone-50" required />
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-stone-700 mb-2">Email (Read Only)</label>
-                      <input type="email" value={user.email} disabled className="w-full p-4 border border-stone-200 rounded-xl outline-none bg-stone-100 text-stone-500 cursor-not-allowed" />
+                      <label className="block text-sm font-semibold text-stone-700 mb-2">Email (Read Only)</label>
+                      <input type="email" value={user.email} disabled className="w-full p-4 border border-stone-200 rounded-md outline-none bg-stone-100 text-stone-500 cursor-not-allowed" />
                     </div>
                   </div>
 
-                  <button type="submit" disabled={isSavingProfile} className={`px-10 py-4 rounded-xl font-bold text-white transition-all shadow-lg hover:-translate-y-1 ${isSavingProfile ? 'bg-stone-400' : 'bg-stone-900 hover:bg-orange-600'}`}>
+                  <button type="submit" disabled={isSavingProfile} className={`px-10 py-4 rounded-md font-semibold text-white transition-all ${isSavingProfile ? 'bg-stone-400' : 'bg-stone-900 hover:bg-stone-700'}`}>
                     {isSavingProfile ? 'Saving...' : 'Save Changes'}
                   </button>
                 </form>
               </div>
             )}
 
-            {/* 🌟 頁籤 3：撰寫評價 (獨立區塊，不綁定訂單) */}
+            {/* 頁籤 3：撰寫評價 (獨立區塊，不綁定訂單) */}
             {activeTab === 'reviews' && (
-              <div className="bg-white p-8 md:p-12 rounded-[2rem] shadow-sm border border-stone-100 animate-fade-in">
+              <div className="bg-white p-8 md:p-12 rounded-md shadow-sm border border-stone-200 animate-fade-in">
                 <div className="mb-8">
-                  <h2 className="text-2xl font-bold text-stone-900 flex items-center gap-3">
+                  <h2 className="text-2xl font-semibold text-stone-900 flex items-center gap-3">
                     <MessageSquare className="text-orange-600" /> {isZh ? '分享您的體驗' : 'Share Your Experience'}
                   </h2>
                   <p className="text-stone-500 mt-2">
@@ -375,30 +375,30 @@ export default function DashboardPage() {
 
                 <form onSubmit={handleReviewSubmit} className="space-y-8">
                   <div>
-                    <label className="block text-sm font-bold text-stone-700 mb-3">Rating</label>
+                    <label className="block text-sm font-semibold text-stone-700 mb-3">Rating</label>
                     <div className="flex gap-2">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <button key={star} type="button" onClick={() => setRating(star)} onMouseEnter={() => setHover(star)} onMouseLeave={() => setHover(0)} className="hover:scale-110 transition-transform">
-                          <Star size={36} fill={(hover || rating) >= star ? "#ea580c" : "none"} className={(hover || rating) >= star ? "text-orange-600" : "text-stone-300"} />
+                        <button key={star} type="button" onClick={() => setRating(star)} onMouseEnter={() => setHover(star)} onMouseLeave={() => setHover(0)} className="transition-transform">
+                          <Star size={36} fill={(hover || rating) >= star ? "#9b5636" : "none"} className={(hover || rating) >= star ? "text-orange-600" : "text-stone-300"} />
                         </button>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-stone-700 mb-3">Comment</label>
-                    <textarea value={comment} onChange={e => setComment(e.target.value)} className="w-full p-5 border border-stone-200 rounded-2xl outline-none focus:ring-2 focus:ring-orange-500 min-h-[150px] bg-stone-50" placeholder="Tell us about your trip..." required />
+                    <label className="block text-sm font-semibold text-stone-700 mb-3">Comment</label>
+                    <textarea value={comment} onChange={e => setComment(e.target.value)} className="w-full p-5 border border-stone-200 rounded-md outline-none focus:border-stone-900 min-h-[150px] bg-stone-50" placeholder="Tell us about your trip..." required />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-stone-700 mb-3">Photo</label>
+                    <label className="block text-sm font-semibold text-stone-700 mb-3">Photo</label>
                     <div className="flex items-center gap-6">
-                      <label className="cursor-pointer flex items-center gap-2 bg-stone-100 px-6 py-3 rounded-xl text-stone-600 hover:bg-stone-200 font-bold transition-all text-sm shadow-sm">
+                      <label className="cursor-pointer flex items-center gap-2 bg-stone-100 px-6 py-3 rounded-md text-stone-600 hover:bg-stone-200 font-semibold transition-all text-sm shadow-sm">
                         <Camera size={18}/> {photo ? 'Change Photo' : 'Upload Photo'}
                         <input type="file" className="hidden" accept="image/*" onChange={handlePhotoChange} />
                       </label>
-                      {photoPreview && <img src={photoPreview} alt="Preview" className="w-20 h-20 object-cover rounded-2xl border-2 border-orange-100 shadow-sm"/>}
+                      {photoPreview && <img src={photoPreview} alt="Preview" className="w-20 h-20 object-cover rounded-md border-2 border-orange-100 shadow-sm"/>}
                     </div>
                   </div>
-                  <button type="submit" disabled={isSubmittingReview} className={`px-10 py-4 rounded-xl font-bold text-white transition-all shadow-lg hover:-translate-y-1 ${isSubmittingReview ? 'bg-stone-400' : 'bg-stone-900 hover:bg-orange-600'}`}>
+                  <button type="submit" disabled={isSubmittingReview} className={`px-10 py-4 rounded-md font-semibold text-white transition-all ${isSubmittingReview ? 'bg-stone-400' : 'bg-stone-900 hover:bg-stone-700'}`}>
                     {isSubmittingReview ? 'Uploading...' : 'Submit Review'}
                   </button>
                 </form>
@@ -410,38 +410,38 @@ export default function DashboardPage() {
 
       {/* 特定訂單專屬的評價彈窗 (當在「我的訂單」列表中點擊 Review 時出現) */}
       {isReviewModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-xl rounded-[2rem] shadow-2xl overflow-hidden p-8 animate-fade-in">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-stone-900/60 ">
+          <div className="bg-white w-full max-w-xl rounded-md overflow-hidden p-8 animate-fade-in">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-stone-900">Share Your Experience</h2>
+              <h2 className="text-2xl font-semibold text-stone-900">Share Your Experience</h2>
               <button onClick={() => setIsReviewModalOpen(false)} className="p-2 hover:bg-stone-100 rounded-full transition-colors"><X/></button>
             </div>
             <form onSubmit={handleReviewSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-bold text-stone-700 mb-2">Rating</label>
+                <label className="block text-sm font-semibold text-stone-700 mb-2">Rating</label>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button key={star} type="button" onClick={() => setRating(star)} onMouseEnter={() => setHover(star)} onMouseLeave={() => setHover(0)}>
-                      <Star size={32} fill={(hover || rating) >= star ? "#ea580c" : "none"} className={(hover || rating) >= star ? "text-orange-600" : "text-stone-300"} />
+                      <Star size={32} fill={(hover || rating) >= star ? "#9b5636" : "none"} className={(hover || rating) >= star ? "text-orange-600" : "text-stone-300"} />
                     </button>
                   ))}
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-bold text-stone-700 mb-2">Comment</label>
-                <textarea value={comment} onChange={e => setComment(e.target.value)} className="w-full p-4 border border-stone-200 rounded-2xl outline-none focus:ring-2 focus:ring-orange-500 min-h-[120px]" placeholder="Tell us about your trip..." required />
+                <label className="block text-sm font-semibold text-stone-700 mb-2">Comment</label>
+                <textarea value={comment} onChange={e => setComment(e.target.value)} className="w-full p-4 border border-stone-200 rounded-md outline-none focus:border-stone-900 min-h-[120px]" placeholder="Tell us about your trip..." required />
               </div>
               <div>
-                <label className="block text-sm font-bold text-stone-700 mb-2">Photo</label>
+                <label className="block text-sm font-semibold text-stone-700 mb-2">Photo</label>
                 <div className="flex items-center gap-4">
-                  <label className="cursor-pointer flex items-center gap-2 bg-stone-100 px-4 py-2 rounded-xl text-stone-600 hover:bg-stone-200 font-bold transition-all text-sm">
+                  <label className="cursor-pointer flex items-center gap-2 bg-stone-100 px-4 py-2 rounded-md text-stone-600 hover:bg-stone-200 font-semibold transition-all text-sm">
                     <Camera size={18}/> {photo ? 'Change Photo' : 'Upload Photo'}
                     <input type="file" className="hidden" accept="image/*" onChange={handlePhotoChange} />
                   </label>
-                  {photoPreview && <img src={photoPreview} alt="Preview" className="w-16 h-16 object-cover rounded-xl border-2 border-orange-100"/>}
+                  {photoPreview && <img src={photoPreview} alt="Preview" className="w-16 h-16 object-cover rounded-md border-2 border-orange-100"/>}
                 </div>
               </div>
-              <button type="submit" disabled={isSubmittingReview} className={`w-full py-4 rounded-xl font-bold text-white transition-all shadow-lg ${isSubmittingReview ? 'bg-stone-400' : 'bg-stone-900 hover:bg-orange-600'}`}>
+              <button type="submit" disabled={isSubmittingReview} className={`w-full py-4 rounded-md font-semibold text-white transition-all ${isSubmittingReview ? 'bg-stone-400' : 'bg-stone-900 hover:bg-stone-700'}`}>
                 {isSubmittingReview ? 'Uploading...' : 'Submit Review'}
               </button>
             </form>

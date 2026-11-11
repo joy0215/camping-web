@@ -1,6 +1,8 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import de from './locales/de';
+import he from './locales/he';
 
 const resources = {
   en: {
@@ -37,7 +39,7 @@ const resources = {
         "rights": "© 2026 CampingTour Taiwan. All Rights Reserved."
       },
       "home": {
-        "subtitle": "EXPLORE TAIWAN YOUR WAY",
+        "subtitle": "Explore Taiwan your way",
         "title": "CampingTour",
         "titleEn": "Taiwan Vanlife",
         "btnBooking": "Book Now",
@@ -57,6 +59,7 @@ const resources = {
         "homeReviewsTitle": "Traveler Stories",
         "homeReviewsSub": "Hear from our global vanlifers",
         "homeViewAll": "View All Reviews",
+  "lede": "Rent a fully equipped A180 campervan in Taipei and take Taiwan's coast and mountains at your own pace.",
       },
       "plans": {
         "badge": "Our Vehicles",
@@ -84,7 +87,8 @@ const resources = {
         "equip7": "Lights (Camp Lights x2, String Lights)",
         "equip8": "Grill Pan",
         "noticeTitle": "Notice",
-        "noticeDesc": "Please bring your own personal toiletries (towels, toothbrushes) for hygiene reasons."
+        "noticeDesc": "Please bring your own personal toiletries (towels, toothbrushes) for hygiene reasons.",
+  "perDay": "/ day",
       },
       "about": {
         "title": "About CampingTour",
@@ -100,7 +104,8 @@ const resources = {
         "company": "Company",
         "taxId": "Business ID",
         "rep": "Representative",
-        "license": "License"
+        "license": "License",
+  "locationValue": "Exit 2, Qiyan MRT Station, Beitou (a shuttle to the vehicle is arranged on arrival)",
       },
 
       "booking": {
@@ -151,7 +156,7 @@ const resources = {
         "guideSub": "Please read before your trip",
         "guideTitle": "Campervan Guidelines",
         "guideSub": "Please read before your trip",
-        "acc1Title": "📍 Pick-up & Drop-off",
+        "acc1Title": "Pick-up & Drop-off",
         "acc1q1": "Time:",
         "acc1a1": "09:00-10:00 AM / 17:30-19:00 PM (Instruction session takes 30-60 mins)",
         "acc1q2": "Location:",
@@ -160,22 +165,22 @@ const resources = {
         "acc1a3": "Notify us 12 hours in advance if late. Otherwise, a fee of NT$200 per 30 mins applies after a 30-min grace period (max NT$1,500).",
         "acc1q4": "Overtime Return:",
         "acc1a4": "NT$300 per hour for late returns. Over 6 hours incurs a full day's charge. Notify 12 hours prior to extend.",
-        "acc2Title": "⚡ Power & A/C Usage Tips",
-        "acc2Warning": "🔋 Keep the external battery ON at all times to charge while driving.",
+        "acc2Title": "Power & A/C Usage Tips",
+        "acc2Warning": "Keep the external battery ON at all times to charge while driving.",
         "acc2q1": "A/C & Battery:",
         "acc2a1": "Fully charged, A/C at 27–28°C with a fan lasts ~8 hours.",
         "acc2q2": "Driving Charge:",
         "acc2a2": "Recovers ~4% per hour driving (adds ~30 mins A/C). Driving alone won't sustain A/C all night.",
         "acc2q3": "Campsite Charging:",
         "acc2a3": "Plan to recharge at powered campsites every 2-3 days if using A/C nightly.",
-        "acc3Title": "🚐 Mileage & Vehicle Specs",
+        "acc3Title": "Mileage & Vehicle Specs",
         "acc3q1": "Vehicle Height:",
         "acc3a1": "210 cm (includes awning). Watch for low underpasses and parking structures.",
         "acc3q2": "Interior Height:",
         "acc3a2": "Guests over 190 cm (6'3\") may find the driver’s seat and cabin tight.",
         "acc3q3": "Daily Mileage Limit:",
         "acc3a3": "Limit: 300 km/day. Excess mileage is charged at NT$8/km.",
-        "acc4Title": "🛏️ Experience & Equipment",
+        "acc4Title": "Experience & Equipment",
         "acc4q1": "Authentic Nature Experience:",
         "acc4a1": "Standard bedding/equipment provided. Bring personal items if needed.",
         "acc4q2": "Interior & Equipment:",
@@ -387,6 +392,7 @@ const resources = {
         "homeReviewsTitle": "真實旅客回饋",
         "homeReviewsSub": "Traveler Stories",
         "homeViewAll": "查看全部評價",
+  "lede": "從台北出發，租一台裝備齊全的 A180 露營車，用自己的步調走遍台灣的山與海。",
       },
       "plans": {
         "badge": "Our Vehicles",
@@ -414,7 +420,8 @@ const resources = {
         "equip7": "營燈 ×2、串燈",
         "equip8": "烤盤",
         "noticeTitle": "貼心提醒",
-        "noticeDesc": "個人盥洗用具（毛巾、牙刷）基於衛生考量，請旅客自行準備。"
+        "noticeDesc": "個人盥洗用具（毛巾、牙刷）基於衛生考量，請旅客自行準備。",
+  "perDay": "/ 日",
       },
       "about": {
         "title": "關於 CampingTour",
@@ -430,7 +437,8 @@ const resources = {
         "company": "公司名稱",
         "taxId": "統一編號",
         "rep": "代表人",
-        "license": "執照號碼"
+        "license": "執照號碼",
+  "locationValue": "北投奇岩捷運站 2 號出口（抵達後將安排接駁車至車輛所在地）"
       },
       "booking": {
         "title": "預約詢價 Booking",
@@ -478,7 +486,7 @@ const resources = {
         "reelsLinkText": "在 Instagram 查看這則短片",
         "guideTitle": "Campervan Guidelines",
         "guideSub": "出發前必看的用車注意事項 / Please read before your trip",
-        "acc1Title": "📍 取車與還車規定 Pick-up & Drop-off",
+        "acc1Title": "取車與還車規定 Pick-up & Drop-off",
         "acc1q1": "時間 Time：",
         "acc1a1": "09:00-10:00 AM / 17:30-19:00 PM (取車前請預留 30-60 分鐘做操作教學)",
         "acc1q2": "地點 Location：",
@@ -487,22 +495,22 @@ const resources = {
         "acc1a3": "若無法準時取車，請於 12 小時前通知。遲到超過 30 分鐘，每 30 分鐘收取 NT$200 違約金 (首小時 NT$300 起，最高 NT$1,500)。",
         "acc1q4": "延後還車 Overtime Return：",
         "acc1a4": "延後還車每超過 1 小時需支付 NT$300，超過 6 小時將收取 1 日租金。如欲續租，請在還車時間前 12 小時前告知。",
-        "acc2Title": "⚡ 電力與冷氣使用 Power & A/C Usage Tips",
-        "acc2Warning": "🔋 外接電池請全程保持開啟，車輛在行駛中才能進行充電。",
+        "acc2Title": "電力與冷氣使用 Power & A/C Usage Tips",
+        "acc2Warning": "外接電池請全程保持開啟，車輛在行駛中才能進行充電。",
         "acc2q1": "冷氣與電量 A/C and Battery Usage：",
         "acc2a1": "電池滿電時，冷氣設定 27–28°C 並搭配風扇使用，可支撐約 8 小時。",
         "acc2q2": "行車充電 Driving Charge：",
         "acc2a2": "行車充電速率約每小時 4% 電量，等於差不多可再支撐冷氣半小時。僅靠行車充電無法長期維持整晚冷氣。",
         "acc2q3": "營區補電 Campsite Charging：",
         "acc2a3": "若每天晚上都想吹整晚冷氣，請務必在出發前將電池充滿，並規劃每 2–3 天進一次有插座的營區補電。若因個人用電習慣導致電池用盡，請自行負責。",
-        "acc3Title": "🚐 車體限制與里程 Mileage & Vehicle Specs",
+        "acc3Title": "車體限制與里程 Mileage & Vehicle Specs",
         "acc3q1": "車輛總高度限制 Vehicle Height：",
         "acc3a1": "210 公分 (含車邊帳)。請務必注意地下道與停車場的高度限制，避免碰撞。",
         "acc3q2": "車內空間高度提醒 Interior Height Advisory：",
         "acc3a2": "由於我們的露營車內部空間有限，若您的身高超過 190 公分，可能會感到駕駛座或車內活動空間較為侷促。",
         "acc3q3": "每日行駛里程限制 Daily Mileage Limit：",
         "acc3a3": "每日 (24H) 限行里程數為 300 公里。超過 300 公里後，每公里將會向您收取 8 元的保養費用。",
-        "acc4Title": "🛏️ 設備整潔與自然體驗 Experience & Equipment",
+        "acc4Title": "設備整潔與自然體驗 Experience & Equipment",
         "acc4q1": "貼近自然的露營體驗 Authentic Nature Experience：",
         "acc4a1": "我們露營車所提供的寢具與相關設備皆為固定之標準配置。如您有個人舒適度需求，建議自行攜帶。本服務不適合對設備細節有高度客製或完美主義期待的旅客。",
         "acc4q2": "內裝與設備使用 Interior & Equipment Notice：",
@@ -624,8 +632,8 @@ const resources = {
         "sec3_1_ref": "退還 50%",
         "sec3_0": "出發當日取消",
         "sec3_0_ref": "退還 20%",
-        "sec3_note1": "⚠️ 取消須以書面提出，並以原訂出發日為計算基準。",
-        "sec3_note2": "⚠️ 每筆退款將扣除 NT$ 30 手續費。PayPal 收款人須自行承擔 5% 的平台手續費（由 PayPal 系統直接扣除），實際收到的金額可能會略少於退款總額。",
+        "sec3_note1": "取消須以書面提出，並以原訂出發日為計算基準。",
+        "sec3_note2": "每筆退款將扣除 NT$ 30 手續費。PayPal 收款人須自行承擔 5% 的平台手續費（由 PayPal 系統直接扣除），實際收到的金額可能會略少於退款總額。",
         "sec4Title": "四、 營運公司與聯絡資訊",
         "company": "公司名稱",
         "taxId": "統一編號",
@@ -658,7 +666,9 @@ const resources = {
         "noMore": "沒有更多評價囉！快來創造你的專屬回憶吧！"
       },
     }
-  }
+  },
+  de: { translation: de },
+  he: { translation: he }
 };
 
 i18n
@@ -673,3 +683,12 @@ i18n
   });
 
 export default i18n;
+
+// Keep <html lang> and text direction in sync (Hebrew is right-to-left)
+const applyDirection = (lng) => {
+  const code = (lng || 'en').split('-')[0];
+  document.documentElement.lang = code;
+  document.documentElement.dir = code === 'he' ? 'rtl' : 'ltr';
+};
+applyDirection(i18n.language);
+i18n.on('languageChanged', applyDirection);
