@@ -50,8 +50,10 @@ export default function PlansPage() {
   ];
 
   // Translated Equipment List
-  const equipGroups = t('plans.equipGroups', { returnObjects: true });
-  const equipmentGroups = Array.isArray(equipGroups) ? equipGroups : [];
+  const equipmentList = [
+    t('plans.equip1'), t('plans.equip2'), t('plans.equip3'), t('plans.equip4'),
+    t('plans.equip5'), t('plans.equip6'), t('plans.equip7'), t('plans.equip8')
+  ];
 
   return (
     <div className="pt-24 md:pt-28 pb-20 bg-stone-50 min-h-screen">
@@ -154,21 +156,14 @@ export default function PlansPage() {
             <p className="mt-3 text-stone-600 leading-relaxed">{t('plans.equipSub')}</p>
           </div>
           <div className="lg:col-span-8">
-            <div className="grid sm:grid-cols-2 gap-x-10 gap-y-10">
-              {equipmentGroups.map((group, gi) => (
-                <div key={gi} className={gi === 0 ? 'sm:col-span-2' : ''}>
-                  <h3 className="eyebrow mb-3">{group.title}</h3>
-                  <ul className={`border-t border-stone-200 ${gi === 0 ? 'grid sm:grid-cols-2 gap-x-10' : ''}`}>
-                    {(group.items || []).map((item, i) => (
-                      <li key={i} className="flex items-start gap-3 py-3 border-b border-stone-200 text-stone-800">
-                        <Check size={18} className="mt-0.5 text-orange-600 shrink-0"/>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+            <ul className="grid sm:grid-cols-2 gap-x-10 border-t border-stone-200">
+              {equipmentList.map((item, i) => (
+                <li key={i} className="flex items-start gap-3 py-3.5 border-b border-stone-200 text-stone-800">
+                  <Check size={18} className="mt-0.5 text-orange-600 shrink-0"/>
+                  <span>{item}</span>
+                </li>
               ))}
-            </div>
+            </ul>
             <p className="mt-6 flex items-start gap-2.5 text-sm text-stone-600 leading-relaxed">
               <Info size={16} className="mt-0.5 shrink-0 text-stone-400"/> 
               <span><strong className="text-stone-800">{t('plans.noticeTitle')}</strong> — {t('plans.noticeDesc')}</span>

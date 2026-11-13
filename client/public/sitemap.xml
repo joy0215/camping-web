@@ -9,6 +9,10 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://camping-tour.com/van-3d</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://camping-tour.com/booking</loc>
     <priority>0.8</priority>
   </url>

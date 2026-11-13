@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { 
   Menu, X, Instagram, Facebook, MapPin, Phone, Mail, Globe, ChevronDown, Check 
 } from 'lucide-react';
@@ -19,6 +19,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import TermsPage from './pages/TermsPage';
 import FeedbackPage from './pages/FeedbackPage';
 import ReviewsPage from './pages/ReviewsPage';
+const VanTourPage = lazy(() => import('./pages/VanTourPage'));
 
 const ADMIN_EMAILS = [
   'jchenghe06@gmail.com',
@@ -151,6 +152,7 @@ const Navbar = ({ isScrolled }) => {
   const baseLinks = [
     { id: '/', label: t('nav.home') },
     { id: '/plans', label: t('nav.plans') },
+    { id: '/van-3d', label: t('nav.tour3d') },
     { id: '/booking', label: t('nav.booking') },
     { id: '/guide', label: t('nav.guide') },
     { id: '/about', label: t('nav.about') },
@@ -181,7 +183,7 @@ const Navbar = ({ isScrolled }) => {
         </button>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex items-center gap-6 text-sm min-w-0">
+        <div className="hidden xl:flex items-center gap-6 text-sm min-w-0">
           {navLinks.map((link) => (
             <button 
               key={link.id} 
@@ -198,7 +200,7 @@ const Navbar = ({ isScrolled }) => {
           ))}
         </div>
 
-        <div className="hidden lg:flex items-center gap-3 text-sm shrink-0">
+        <div className="hidden xl:flex items-center gap-3 text-sm shrink-0">
           <LanguageMenu />
 
           {user ? (
@@ -238,7 +240,7 @@ const Navbar = ({ isScrolled }) => {
         </div>
 
         {/* Mobile: language + menu toggle */}
-        <div className="lg:hidden flex items-center gap-1">
+        <div className="xl:hidden flex items-center gap-1">
           <LanguageMenu />
           <button
             type="button"
@@ -254,7 +256,7 @@ const Navbar = ({ isScrolled }) => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden absolute top-full inset-x-0 bg-stone-50 border-t border-stone-200 px-5 pb-10 h-[calc(100vh-4rem)] overflow-y-auto">
+        <div className="xl:hidden absolute top-full inset-x-0 bg-stone-50 border-t border-stone-200 px-5 pb-10 h-[calc(100vh-4rem)] overflow-y-auto">
           <div className="flex flex-col divide-y divide-stone-200">
             {navLinks.map((link) => (
               <button 
@@ -403,6 +405,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/plans" element={<PlansPage />} />
+          <Route path="/van-3d" element={<Suspense fallback={<div className="min-h-screen bg-stone-50" />}><VanTourPage /></Suspense>} />
           <Route path="/booking" element={<BookingPage />} />
           <Route path="/guide" element={<GuidePage />} />
           <Route path="/about" element={<AboutPage />} />

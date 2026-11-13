@@ -7,9 +7,74 @@ import he from './locales/he';
 const resources = {
   en: {
     translation: {
+      "van3d": {
+        "badge": "3D Tour",
+        "title": "Look around the van",
+        "lede": "Turn the A180, open the doors, roll out the awning and switch on the lights. Tap the orange dots to see what is inside.",
+        "hint": "Drag to rotate, pinch or scroll to zoom",
+        "loading": "Loading the 3D model…",
+        "noWebgl": "Your browser cannot show 3D graphics. The photos below show the real van.",
+        "disclaimer": "The 3D model is a simplified illustration. Colours and details of the real van may differ slightly.",
+        "partsTitle": "Doors & equipment",
+        "viewsTitle": "Camera",
+        "slideDoor": "Sliding door",
+        "liftgate": "Tailgate",
+        "frontDoors": "Front doors",
+        "awning": "Awning",
+        "light": "Interior lights",
+        "night": "Night mode",
+        "view": {
+          "exterior": "Exterior",
+          "side": "Side",
+          "rear": "Rear",
+          "inside": "Look inside"
+        },
+        "hs": {
+          "bed": {
+            "title": "Double bed & storage",
+            "desc": "A double mattress over a wooden platform with two drawers underneath. Two sleeping bags and two pillows are included."
+          },
+          "rear": {
+            "title": "Tailgate",
+            "desc": "The tailgate lifts up for easy access to the bed and drawers. The rear light and the shore-power inlet are also back here."
+          },
+          "slide": {
+            "title": "Sliding door",
+            "desc": "A wide sliding door on the awning side, so the van opens straight onto your campsite."
+          },
+          "awning": {
+            "title": "Side awning",
+            "desc": "Roll out the awning for shade or light rain. It covers the table and chairs that come with the van."
+          },
+          "light": {
+            "title": "Roof light & LED strip",
+            "desc": "A round roof light and an LED strip, both dimmable, powered by the 300Ah house battery."
+          },
+          "camp": {
+            "title": "Table & chairs",
+            "desc": "A camping table and two camping chairs are included in every rental."
+          }
+        },
+        "photosTitle": "The real van",
+        "photosSub": "Photos taken on a recent trip.",
+        "equipLink": "Full equipment list",
+        "ctaText": "Seen enough? Check which dates are still free.",
+        "ctaBooking": "Check availability",
+        "photoAlt": {
+          "bed-made": "Made-up double bed seen from the tailgate",
+          "camp-awning": "Van with awning, table and chairs at a campsite",
+          "bed-rear": "Bed with pillows and sleeping bag rolls",
+          "camp-side": "Open sliding door next to the camping table",
+          "rear-storage": "Drawers and storage under the bed",
+          "sleeping-bags": "Sleeping bags laid out on the bed",
+          "rear-open": "Open tailgate showing the bed platform",
+          "camp-night": "Campsite at night with the awning out"
+        }
+      },
       "nav": {
         "home": "Home",
         "plans": "Plans & Vehicles",
+        "tour3d": "3D Tour",
         "booking": "Booking",
         "guide": "Guide",
         "about": "About Us",
@@ -78,6 +143,14 @@ const resources = {
         "btnCheck": "Check Availability",
         "equipTitle": "Included Equipment",
         "equipSub": "All set for your adventure",
+        "equip1": "Bedding (Sleeping Bags x2, Pillows x2)",
+        "equip2": "Stove & Pot",
+        "equip3": "Power (110V Outlet & Extension Cord)",
+        "equip4": "Shower (Folding Bucket & Portable Shower)",
+        "equip5": "Table & Chairs",
+        "equip6": "Kitchenware",
+        "equip7": "Lights (Camp Lights x2, String Lights)",
+        "equip8": "Grill Pan",
         "equipGroups": [
           {
             "title": "Built into the van",
@@ -386,9 +459,74 @@ const resources = {
   // 🇹🇼 繁體中文版字典
   zh: {
     translation: {
+      "van3d": {
+        "badge": "3D 看車",
+        "title": "在網站上先看一圈",
+        "lede": "旋轉車身、打開車門、拉出遮陽棚、打開車內燈。點橘色圓點，看看每個地方有什麼。",
+        "hint": "拖曳旋轉，雙指或滾輪縮放",
+        "loading": "3D 模型載入中…",
+        "noWebgl": "你的瀏覽器無法顯示 3D 畫面，可以看下方的實車照片。",
+        "disclaimer": "3D 模型為示意，顏色與細節以實車為準。",
+        "partsTitle": "車門與配備",
+        "viewsTitle": "視角",
+        "slideDoor": "側滑門",
+        "liftgate": "尾門",
+        "frontDoors": "前車門",
+        "awning": "遮陽棚",
+        "light": "車內燈",
+        "night": "夜間模式",
+        "view": {
+          "exterior": "外觀",
+          "side": "側面",
+          "rear": "車尾",
+          "inside": "看車內"
+        },
+        "hs": {
+          "bed": {
+            "title": "雙人床與收納",
+            "desc": "木作床架上鋪雙人床墊，床下有兩個收納抽屜，附睡袋 ×2、枕頭 ×2。"
+          },
+          "rear": {
+            "title": "尾門",
+            "desc": "尾門往上掀，床鋪和抽屜從後面就拿得到。車尾圓燈和外接電源孔也在這裡。"
+          },
+          "slide": {
+            "title": "側滑門",
+            "desc": "側滑門在遮陽棚那一側，開門就是你的營地。"
+          },
+          "awning": {
+            "title": "側邊遮陽棚",
+            "desc": "拉出來可以遮陽、擋小雨，下面剛好放隨車附的露營桌椅。"
+          },
+          "light": {
+            "title": "車頂燈與燈帶",
+            "desc": "車頂圓燈和燈帶都可以調亮度，用的是 300Ah 駐車電池的電。"
+          },
+          "camp": {
+            "title": "露營桌椅",
+            "desc": "每次租車都附露營桌一張、露營椅兩張。"
+          }
+        },
+        "photosTitle": "實車照片",
+        "photosSub": "最近一趟旅程拍的照片。",
+        "equipLink": "完整配備清單",
+        "ctaText": "看得差不多了？查查哪些日期還有車。",
+        "ctaBooking": "查詢空檔",
+        "photoAlt": {
+          "bed-made": "從尾門看鋪好的雙人床",
+          "camp-awning": "營地裡拉出遮陽棚、擺好桌椅的露營車",
+          "bed-rear": "床上的枕頭與睡袋",
+          "camp-side": "打開的側滑門與露營桌",
+          "rear-storage": "床下的收納抽屜",
+          "sleeping-bags": "鋪在床上的睡袋",
+          "rear-open": "打開尾門看到的床架",
+          "camp-night": "夜晚拉出遮陽棚的營地"
+        }
+      },
       "nav": {
         "home": "首頁",
         "plans": "車型與方案",
+        "tour3d": "3D 看車",
         "booking": "立即預約",
         "guide": "旅遊攻略",
         "about": "關於我們",
@@ -457,6 +595,14 @@ const resources = {
         "btnCheck": "查看可預約日期",
         "equipTitle": "隨車配備",
         "equipSub": "免裝備露營，我們都幫您準備好了",
+        "equip1": "睡袋 ×2、枕頭 ×2",
+        "equip2": "小瓦斯爐 + 鍋具",
+        "equip3": "110V 插座及延長線",
+        "equip4": "摺疊水桶 + 淋浴器",
+        "equip5": "露營桌椅組",
+        "equip6": "露營餐具組",
+        "equip7": "營燈 ×2、串燈",
+        "equip8": "烤盤",
         "equipGroups": [
           {
             "title": "車上設備",

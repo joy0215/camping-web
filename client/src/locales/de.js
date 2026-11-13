@@ -1,8 +1,73 @@
 // Deutsch
 export default {
+  van3d: {
+    badge: "3D-Rundgang",
+    title: "Schauen Sie sich den Van an",
+    lede: "Drehen Sie den A180, öffnen Sie die Türen, fahren Sie die Markise aus und schalten Sie das Licht ein. Tippen Sie auf die orangefarbenen Punkte für Details.",
+    hint: "Ziehen zum Drehen, Zoomen mit zwei Fingern oder Mausrad",
+    loading: "3D-Modell wird geladen …",
+    noWebgl: "Ihr Browser kann keine 3D-Grafik anzeigen. Unten sehen Sie Fotos des echten Vans.",
+    disclaimer: "Das 3D-Modell ist eine vereinfachte Darstellung. Farben und Details des echten Fahrzeugs können leicht abweichen.",
+    partsTitle: "Türen & Ausstattung",
+    viewsTitle: "Ansicht",
+    slideDoor: "Schiebetür",
+    liftgate: "Heckklappe",
+    frontDoors: "Vordertüren",
+    awning: "Markise",
+    light: "Innenlicht",
+    night: "Nachtmodus",
+    view: {
+      exterior: "Außen",
+      side: "Seite",
+      rear: "Heck",
+      inside: "Innenraum"
+    },
+    hs: {
+      bed: {
+        title: "Doppelbett & Stauraum",
+        desc: "Doppelmatratze auf einem Holzpodest mit zwei Schubladen darunter. Zwei Schlafsäcke und zwei Kissen sind dabei."
+      },
+      rear: {
+        title: "Heckklappe",
+        desc: "Die Heckklappe öffnet nach oben, so erreichen Sie Bett und Schubladen bequem. Heckleuchte und Landstromanschluss sind ebenfalls hier."
+      },
+      slide: {
+        title: "Schiebetür",
+        desc: "Eine breite Schiebetür auf der Markisenseite – Tür auf, und Sie stehen auf Ihrem Stellplatz."
+      },
+      awning: {
+        title: "Seitenmarkise",
+        desc: "Spendet Schatten und schützt vor leichtem Regen. Darunter passen Tisch und Stühle, die mitgeliefert werden."
+      },
+      light: {
+        title: "Deckenleuchte & LED-Leiste",
+        desc: "Runde Deckenleuchte und LED-Leiste, beide dimmbar, gespeist von der 300-Ah-Bordbatterie."
+      },
+      camp: {
+        title: "Tisch & Stühle",
+        desc: "Ein Campingtisch und zwei Campingstühle sind bei jeder Miete dabei."
+      }
+    },
+    photosTitle: "Der echte Van",
+    photosSub: "Fotos von einer unserer letzten Touren.",
+    equipLink: "Komplette Ausstattung",
+    ctaText: "Genug gesehen? Prüfen Sie, welche Termine noch frei sind.",
+    ctaBooking: "Verfügbarkeit prüfen",
+    photoAlt: {
+      "bed-made": "Gemachtes Doppelbett, von der Heckklappe aus gesehen",
+      "camp-awning": "Van mit Markise, Tisch und Stühlen auf dem Campingplatz",
+      "bed-rear": "Bett mit Kissen und Schlafsackrollen",
+      "camp-side": "Offene Schiebetür neben dem Campingtisch",
+      "rear-storage": "Schubladen und Stauraum unter dem Bett",
+      "sleeping-bags": "Ausgebreitete Schlafsäcke auf dem Bett",
+      "rear-open": "Offene Heckklappe mit Bettpodest",
+      "camp-night": "Stellplatz bei Nacht mit ausgefahrener Markise"
+    }
+  },
   nav: {
     home: "Start",
     plans: "Fahrzeuge & Preise",
+    tour3d: "3D-Rundgang",
     booking: "Buchen",
     guide: "Reiseinfos",
     about: "Über uns",
@@ -72,6 +137,14 @@ export default {
     btnCheck: "Verfügbarkeit prüfen",
     equipTitle: "Inklusive Ausstattung",
     equipSub: "Alles dabei für Ihre Reise",
+    equip1: "Bettzeug (2 Schlafsäcke, 2 Kissen)",
+    equip2: "Kocher & Topf",
+    equip3: "Strom (110-V-Steckdose & Verlängerungskabel)",
+    equip4: "Dusche (Falteimer & mobile Dusche)",
+    equip5: "Tisch & Stühle",
+    equip6: "Küchenutensilien",
+    equip7: "Licht (2 Campinglampen, Lichterkette)",
+    equip8: "Grillpfanne",
     equipGroups: [
       {
         title: "Fest eingebaut",
