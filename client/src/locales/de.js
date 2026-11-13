@@ -72,14 +72,60 @@ export default {
     btnCheck: "Verfügbarkeit prüfen",
     equipTitle: "Inklusive Ausstattung",
     equipSub: "Alles dabei für Ihre Reise",
-    equip1: "Bettzeug (2 Schlafsäcke, 2 Kissen)",
-    equip2: "Kocher & Topf",
-    equip3: "Strom (110-V-Steckdose & Verlängerungskabel)",
-    equip4: "Dusche (Falteimer & mobile Dusche)",
-    equip5: "Tisch & Stühle",
-    equip6: "Küchenutensilien",
-    equip7: "Licht (2 Campinglampen, Lichterkette)",
-    equip8: "Grillpfanne",
+    equipGroups: [
+      {
+        title: "Fest eingebaut",
+        items: [
+          "Standklimaanlage",
+          "300-Ah-Bordbatterie",
+          "Ladebooster (lädt die Bordbatterie während der Fahrt)",
+          "Landstromanschluss am Heck (Strom auf dem Campingplatz)",
+          "110-V-Steckdose",
+          "USB-C-Ladeanschluss",
+          "Dimmbare Deckenleuchte und LED-Lichtleiste",
+          "Heckleuchte",
+          "Doppelmatratze mit Schubladen unter dem Bett",
+          "Seitenmarkise"
+        ]
+      },
+      {
+        title: "Küche",
+        items: [
+          "Gaskartuschenkocher",
+          "Decathlon-Kochset (faltbare Pfanne, faltbarer Topf, 2 Kunststoffbecher, 2 Kunststoffteller, Topfuntersetzer)",
+          "Wasserkessel",
+          "Grillpfanne",
+          "2 Edelstahlbecher",
+          "2 Gabeln und 2 Löffel aus Edelstahl",
+          "Messer und Schneidebrett"
+        ]
+      },
+      {
+        title: "Schlafen & draußen",
+        items: [
+          "2 Schlafsäcke",
+          "2 Kissen",
+          "Campingtisch",
+          "2 Campingstühle"
+        ]
+      },
+      {
+        title: "Dusche",
+        items: [
+          "Faltbarer Eimer",
+          "Duschpumpe mit Brausekopf"
+        ]
+      },
+      {
+        title: "Sicherheit",
+        items: [
+          "Feuerlöscher",
+          "Warndreieck",
+          "Luftpumpe und Reifendichtmittel",
+          "Ladekabel für die Bordbatterie"
+        ]
+      }
+    ],
     noticeTitle: "Hinweis",
     noticeDesc: "Bitte bringen Sie aus hygienischen Gründen Ihre eigenen Toilettenartikel mit (Handtücher, Zahnbürsten)."
   },

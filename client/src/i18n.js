@@ -78,14 +78,60 @@ const resources = {
         "btnCheck": "Check Availability",
         "equipTitle": "Included Equipment",
         "equipSub": "All set for your adventure",
-        "equip1": "Bedding (Sleeping Bags x2, Pillows x2)",
-        "equip2": "Stove & Pot",
-        "equip3": "Power (110V Outlet & Extension Cord)",
-        "equip4": "Shower (Folding Bucket & Portable Shower)",
-        "equip5": "Table & Chairs",
-        "equip6": "Kitchenware",
-        "equip7": "Lights (Camp Lights x2, String Lights)",
-        "equip8": "Grill Pan",
+        "equipGroups": [
+          {
+            "title": "Built into the van",
+            "items": [
+              "Parking air conditioner",
+              "300Ah house battery",
+              "Driving charger (charges the house battery while you drive)",
+              "Rear shore-power inlet (plug in at campsites)",
+              "110V outlet",
+              "USB Type-C charging port",
+              "Dimmable roof light and LED strip",
+              "Rear tailgate light",
+              "Double mattress with under-bed drawers",
+              "Side awning"
+            ]
+          },
+          {
+            "title": "Kitchen",
+            "items": [
+              "Portable gas stove",
+              "Decathlon cookware set (folding frying pan, folding pot, 2 plastic cups, 2 plastic plates, trivet)",
+              "Kettle",
+              "Grill pan",
+              "2 steel mugs",
+              "2 stainless steel forks and 2 spoons",
+              "Knife and cutting board"
+            ]
+          },
+          {
+            "title": "Sleeping & outdoor",
+            "items": [
+              "2 sleeping bags",
+              "2 pillows",
+              "Camping table",
+              "2 camping chairs"
+            ]
+          },
+          {
+            "title": "Shower",
+            "items": [
+              "Folding bucket",
+              "Shower pump with shower head"
+            ]
+          },
+          {
+            "title": "Safety",
+            "items": [
+              "Fire extinguisher",
+              "Warning triangle",
+              "Air pump and tyre sealant",
+              "House battery charging cable"
+            ]
+          }
+        ],
         "noticeTitle": "Notice",
         "noticeDesc": "Please bring your own personal toiletries (towels, toothbrushes) for hygiene reasons.",
   "perDay": "/ day",
@@ -411,14 +457,60 @@ const resources = {
         "btnCheck": "查看可預約日期",
         "equipTitle": "隨車配備",
         "equipSub": "免裝備露營，我們都幫您準備好了",
-        "equip1": "睡袋 ×2、枕頭 ×2",
-        "equip2": "小瓦斯爐 + 鍋具",
-        "equip3": "110V 插座及延長線",
-        "equip4": "摺疊水桶 + 淋浴器",
-        "equip5": "露營桌椅組",
-        "equip6": "露營餐具組",
-        "equip7": "營燈 ×2、串燈",
-        "equip8": "烤盤",
+        "equipGroups": [
+          {
+            "title": "車上設備",
+            "items": [
+              "駐車冷氣",
+              "300Ah 駐車電池",
+              "行車充電系統（開車時為駐車電池充電）",
+              "車尾外接電源孔（營地插電充電）",
+              "110V 插座",
+              "USB Type-C 充電孔",
+              "車頂圓燈＋可調光燈帶",
+              "車尾圓燈",
+              "雙人床墊＋床下收納抽屜",
+              "側邊遮陽棚"
+            ]
+          },
+          {
+            "title": "廚房用具",
+            "items": [
+              "卡式瓦斯爐",
+              "迪卡儂鍋具組（折疊平底鍋、折疊湯鍋、塑膠杯 ×2、塑膠盤 ×2、隔熱墊）",
+              "茶壺",
+              "烤盤",
+              "鋼杯 ×2",
+              "不鏽鋼叉子、湯匙各 ×2",
+              "刀具、砧板"
+            ]
+          },
+          {
+            "title": "寢具與戶外",
+            "items": [
+              "睡袋 ×2",
+              "枕頭 ×2",
+              "露營桌",
+              "露營椅 ×2"
+            ]
+          },
+          {
+            "title": "衛浴",
+            "items": [
+              "折疊水桶",
+              "淋浴幫浦＋蓮蓬頭"
+            ]
+          },
+          {
+            "title": "安全與應急",
+            "items": [
+              "滅火器",
+              "三角警示牌",
+              "打氣機＋補胎劑",
+              "駐車電池充電線"
+            ]
+          }
+        ],
         "noticeTitle": "貼心提醒",
         "noticeDesc": "個人盥洗用具（毛巾、牙刷）基於衛生考量，請旅客自行準備。",
   "perDay": "/ 日",
